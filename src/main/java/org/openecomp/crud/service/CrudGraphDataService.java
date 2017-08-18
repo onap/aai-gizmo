@@ -23,7 +23,7 @@
  */
 package org.openecomp.crud.service;
 
-import com.att.ecomp.event.api.EventPublisher;
+import org.onap.aai.event.api.EventPublisher;
 
 import org.openecomp.crud.dao.GraphDao;
 import org.openecomp.crud.dao.champ.ChampDao;
