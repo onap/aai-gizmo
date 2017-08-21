@@ -43,6 +43,7 @@ import org.openecomp.crud.exception.CrudException;
 import org.openecomp.crud.logging.CrudServiceMsgs;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -74,6 +75,12 @@ public class ChampDao implements GraphDao {
 
   public static final String DEFAULT_GRAPH_NAME = "default_graph";
 
+  private enum GraphType {
+    IN_MEMORY,
+    TITAN,
+    DSE
+  }
+  
   /**
    * Set of configuration properties for the DAI.
    */
@@ -135,7 +142,7 @@ public class ChampDao implements GraphDao {
             javax.ws.rs.core.Response.Status.NOT_FOUND);
       }
 
-    } catch (ChampUnmarshallingException e) {
+    } catch (ChampUnmarshallingException | ChampTransactionException e) {
 
       // Something went wrong - throw an exception.
       throw new CrudException(e.getMessage(),
@@ -189,6 +196,9 @@ public class ChampDao implements GraphDao {
       // We couldn't find the specified vertex, so throw an exception.
       throw new CrudException("No vertex with id " + id + " found in graph",
           javax.ws.rs.core.Response.Status.NOT_FOUND);
+    } catch (ChampTransactionException e) {
+      throw new CrudException("Transaction error occured",
+          javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -215,7 +225,8 @@ public class ChampDao implements GraphDao {
 
     } catch (ChampMarshallingException
         | ChampSchemaViolationException
-        | ChampObjectNotExistsException e) {
+        | ChampObjectNotExistsException 
+        | ChampTransactionException e) {
 
       // Something went wrong - throw an exception.
       throw new CrudException(e.getMessage(),
@@ -246,6 +257,9 @@ public class ChampDao implements GraphDao {
     } catch (NumberFormatException | ChampMarshallingException | ChampSchemaViolationException e) {
       throw new CrudException(e.getMessage(),
           javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
+    } catch (ChampTransactionException e) {
+      throw new CrudException("Transaction error occured",
+          javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
     }
 
   }
@@ -263,7 +277,14 @@ public class ChampDao implements GraphDao {
     filter.put(org.openecomp.schema.OxmModelValidator.Metadata.NODE_TYPE.propertyName(), type);
 
 
-    Stream<ChampObject> retrievedVertices = champApi.queryObjects(filter);
+    Stream<ChampObject> retrievedVertices;
+    try {
+      retrievedVertices = champApi.queryObjects(filter);
+      
+    } catch (ChampTransactionException e) {
+      throw new CrudException("Transaction error occured",
+          javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
+    }
 
     List<Vertex> vertices = retrievedVertices
         .map(v -> vertexFromChampObject(v,type))
@@ -315,7 +336,7 @@ public class ChampDao implements GraphDao {
             javax.ws.rs.core.Response.Status.NOT_FOUND);
       }
 
-    } catch (ChampUnmarshallingException e) {
+    } catch (ChampUnmarshallingException | ChampTransactionException e) {
 
       // Something went wrong, so throw an exception.
       throw new CrudException(e.getMessage(),
@@ -360,7 +381,7 @@ public class ChampDao implements GraphDao {
         | ChampObjectNotExistsException
         | ChampSchemaViolationException
         | ChampRelationshipNotExistsException
-        | ChampUnmarshallingException e) {
+        | ChampUnmarshallingException | NumberFormatException | ChampTransactionException e) {
 
       throw new CrudException("Error creating edge: " + e.getMessage(),
           javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
@@ -373,7 +394,15 @@ public class ChampDao implements GraphDao {
 
     filter.put(ChampRelationship.ReservedPropertyKeys.CHAMP_RELATIONSHIP_TYPE.toString(), type);
 
-    Stream<ChampRelationship> retrievedRelationships = champApi.queryRelationships(filter);
+    Stream<ChampRelationship> retrievedRelationships;
+    try {
+      retrievedRelationships = champApi.queryRelationships(filter);
+      
+    } catch (ChampTransactionException e) {
+      throw new CrudException("Transaction error occured",
+          javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
+    }
+    
     // Process the result stream from the Champ library into an Edge list, keeping only
     // edges of the specified type.
     List<Edge> edges = retrievedRelationships
@@ -406,12 +435,15 @@ public class ChampDao implements GraphDao {
 
     } catch (ChampRelationshipNotExistsException ex) {
       throw new CrudException("Not Found", javax.ws.rs.core.Response.Status.NOT_FOUND);
-    } catch (NumberFormatException | ChampUnmarshallingException | ChampMarshallingException
-        | ChampSchemaViolationException ex) {
+    } catch (NumberFormatException | 
+             ChampUnmarshallingException | 
+             ChampMarshallingException | 
+             ChampSchemaViolationException |
+             ChampTransactionException ex) {
 
       throw new CrudException(ex.getMessage(),
           javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
-    }
+    } 
   }
 
   @Override
@@ -445,8 +477,9 @@ public class ChampDao implements GraphDao {
 
 
     } catch (NumberFormatException
-        | ChampUnmarshallingException
-        | ChampObjectNotExistsException e) {
+           | ChampUnmarshallingException
+           | ChampObjectNotExistsException 
+           | ChampTransactionException e) {
 
       throw new CrudException(e.getMessage(),
           javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
@@ -474,7 +507,8 @@ public class ChampDao implements GraphDao {
 
     } catch (ChampRelationshipNotExistsException
         | NumberFormatException
-        | ChampUnmarshallingException e) {
+        | ChampUnmarshallingException 
+        | ChampTransactionException e) {
 
       throw new CrudException(e.getMessage(),
           javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
@@ -728,16 +762,16 @@ public class ChampDao implements GraphDao {
    * @return - A {@link ChampAPI.Type}
    * @throws CrudException
    */
-  private ChampGraph.Type getBackendTypeFromConfig() throws CrudException {
+  private GraphType getBackendTypeFromConfig() throws CrudException {
 
     // Get the back end type from the DAO's configuration properties.
     String backend = daoConfig.getProperty(CONFIG_STORAGE_BACKEND, "in-memory");
 
     // Now, find the appropriate ChampAPI type and return it.
     if (backend.equals("in-memory")) {
-      return ChampGraph.Type.IN_MEMORY;
+      return GraphType.IN_MEMORY;
     } else if (backend.equals("titan")) {
-      return ChampGraph.Type.TITAN;
+      return GraphType.TITAN;
     }
 
     // If we are here, then whatever was in the config properties didn't match to a supported
@@ -745,6 +779,4 @@ public class ChampDao implements GraphDao {
     throw new CrudException("Invalid graph backend type '" + backend + "' specified.",
         javax.ws.rs.core.Response.Status.BAD_REQUEST);
   }
-
-
 }

@@ -172,8 +172,8 @@
         <!-- Champ graph database library. -->
         <dependency>
             <groupId>org.openecomp.aai</groupId>
-            <artifactId>champ</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
+            <artifactId>champ</artifactId> 
+            <version>1.1.1-SNAPSHOT</version>  <!--  GDF: don't commit - should be 1.0.0 -->
             <scope>compile</scope>
             <exclusions>
                 <exclusion>
