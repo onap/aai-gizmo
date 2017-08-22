@@ -25,100 +25,70 @@ package org.openecomp.schema;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
+import org.codehaus.jackson.map.ObjectMapper;
 import org.openecomp.crud.exception.CrudException;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
 import javax.ws.rs.core.Response.Status;
+
 
 public class RelationshipSchema {
   private static final Gson gson = new GsonBuilder().create();
 
-  public static final String SCHEMA_SOURCE_NODE_TYPE = "source-node-type";
-  public static final String SCHEMA_TARGET_NODE_TYPE = "target-node-type";
-  public static final String SCHEMA_RELATIONSHIP_TYPE = "relationship-type";
-  public static final String SCHEMA_RELATIONSHIP_TYPES_ARRAY = "relationship-types";
-  public static final String SCHEMA_RELATIONSHIP_PROPERTIES = "properties";
-  public static final String SCHEMA_RELATIONS_ARRAY = "relations";
+  public static final String SCHEMA_SOURCE_NODE_TYPE = "from";
+  public static final String SCHEMA_TARGET_NODE_TYPE = "to";
+  public static final String SCHEMA_RELATIONSHIP_TYPE = "label";
+  public static final String SCHEMA_RULES_ARRAY = "rules";
 
+
+  private Map<String, Map<String, Class<?>>> relations = new HashMap<>();
   /**
-   * key = source-node-type:target-node-type:relationship-type value = map of properties with name
-   * and type . Like propertyName:PropertyType
+   * Hashmap of valid relationship types along with properties.
    */
-  private HashMap<String, HashMap<String, Class<?>>> relations
-      = new HashMap<String, HashMap<String, Class<?>>>();
-  /**
-   * Hashmap of valid relationship types alongwith properrties.
-   */
-  private HashMap<String, HashMap<String, Class<?>>> relationTypes
-      = new HashMap<String, HashMap<String, Class<?>>>();
+  private Map<String, Map<String, Class<?>>> relationTypes  = new HashMap<>();
 
 
-  public RelationshipSchema(String json) throws CrudException {
+  public RelationshipSchema(List<String> jsonStrings) throws CrudException, IOException {
+    String edgeRules = jsonStrings.get(0);
+    String props = jsonStrings.get(1);
 
-    JsonParser parser = new JsonParser();
-    try {
-      JsonObject root = parser.parse(json).getAsJsonObject();
-      JsonArray relationshipTypesArray = root.getAsJsonArray(SCHEMA_RELATIONSHIP_TYPES_ARRAY);
-      JsonArray relationsArray = root.getAsJsonArray(SCHEMA_RELATIONS_ARRAY);
-
-      //First load all the relationship-types
-      for (JsonElement item : relationshipTypesArray) {
-        JsonObject obj = item.getAsJsonObject();
-        String type = obj.get(SCHEMA_RELATIONSHIP_TYPE).getAsString();
-
-
-        HashMap<String, Class<?>> props = new HashMap<String, Class<?>>();
-        Set<Map.Entry<String, JsonElement>> entries = obj.get(SCHEMA_RELATIONSHIP_PROPERTIES)
-            .getAsJsonObject().entrySet();
-
-        for (Map.Entry<String, JsonElement> entry : entries) {
-          props.put(entry.getKey(), resolveClass(entry.getValue().getAsString()));
-
-        }
-        relationTypes.put(type, props);
-
+    HashMap<String, ArrayList<LinkedHashMap<String, String>>> rules = new ObjectMapper().readValue(edgeRules, HashMap.class);
+    HashMap<String, String> properties = new ObjectMapper().readValue(props, HashMap.class);
+    Map<String, Class<?>> edgeProps = properties.entrySet().stream().collect(Collectors.toMap(p -> p.getKey(), p -> {
+      try {
+        return resolveClass(p.getValue());
+      } catch (CrudException | ClassNotFoundException e) {
+        e.printStackTrace();
       }
+      return null;
+    }));
 
-      for (JsonElement item : relationsArray) {
-        JsonObject obj = item.getAsJsonObject();
-        // Parse the Source/Taget nodeTypes
-
-        String relationType = obj.get(SCHEMA_RELATIONSHIP_TYPE).getAsString();
-        String key = obj.get(SCHEMA_SOURCE_NODE_TYPE).getAsString() + ":"
-            + obj.get(SCHEMA_TARGET_NODE_TYPE).getAsString() + ":" + relationType;
-
-
-        if (!relationTypes.containsKey(relationType)) {
-          throw new CrudException(SCHEMA_RELATIONSHIP_TYPE + ": " + relationType + " not found",
-              Status.BAD_REQUEST);
-        }
-
-        relations.put(key, relationTypes.get(relationType));
-      }
-    } catch (Exception e) {
-      throw new CrudException(e.getMessage(), Status.BAD_REQUEST);
-    }
-
+    rules.get(SCHEMA_RULES_ARRAY).forEach(l -> {
+      relationTypes.put(l.get(SCHEMA_RELATIONSHIP_TYPE), edgeProps);
+      relations.put(buildRelation(l.get(SCHEMA_SOURCE_NODE_TYPE), l.get(SCHEMA_TARGET_NODE_TYPE), l.get(SCHEMA_RELATIONSHIP_TYPE)), edgeProps);
+    });
   }
 
 
-  public HashMap<String, Class<?>> lookupRelation(String key) {
+
+  public Map<String, Class<?>> lookupRelation(String key) {
     return this.relations.get(key);
   }
 
-  public HashMap<String, Class<?>> lookupRelationType(String type) {
+  public Map<String, Class<?>> lookupRelationType(String type) {
     return this.relationTypes.get(type);
   }
 
   public boolean isValidType(String type) {
     return relationTypes.containsKey(type);
+  }
+
+
+  private String buildRelation(String source, String target, String relation){
+    return source + ":" + target + ":" + relation;
   }
 
   private Class<?> resolveClass(String type) throws CrudException, ClassNotFoundException {
@@ -129,10 +99,10 @@ public class RelationshipSchema {
 
   private void validateClassTypes(Class<?> clazz) throws CrudException {
     if (!clazz.isAssignableFrom(Integer.class) && !clazz.isAssignableFrom(Double.class)
-        && !clazz.isAssignableFrom(Boolean.class) && !clazz.isAssignableFrom(String.class)) {
+            && !clazz.isAssignableFrom(Boolean.class) && !clazz.isAssignableFrom(String.class)) {
       throw new CrudException("", Status.BAD_REQUEST);
     }
   }
-
-
 }
+
+

@@ -56,7 +56,7 @@ public class RelationshipSchemaValidator {
       throw new CrudException("", Status.NOT_FOUND);
     }
 
-    HashMap<String, Class<?>> props = schema.lookupRelationType(type);
+    Map<String, Class<?>> props = schema.lookupRelationType(type);
     Map<String, Object> result = new HashMap<String, Object>();
 
     for (String key : filter.keySet()) {
@@ -128,7 +128,7 @@ public class RelationshipSchemaValidator {
       String key = sourceNodeType + ":" + targetNodeType + ":" + type;
 
       // find the validate the key from the schema
-      HashMap<String, Class<?>> schemaObject = schema.lookupRelation(key);
+      Map<String, Class<?>> schemaObject = schema.lookupRelation(key);
 
       if (schemaObject == null) {
         throw new CrudException("Invalid source/target/relationship type: " + key,
@@ -185,7 +185,7 @@ public class RelationshipSchemaValidator {
           + ":" + edge.getType();
 
       // find the validate the key from the schema
-      HashMap<String, Class<?>> schemaObject = schema.lookupRelation(key);
+      Map<String, Class<?>> schemaObject = schema.lookupRelation(key);
 
       if (schemaObject == null) {
         Logger.warn("key :" + key
@@ -267,7 +267,7 @@ public class RelationshipSchemaValidator {
           + ":" + edge.getType();
 
       // find the validate the key from the schema
-      HashMap<String, Class<?>> schemaObject = schema.lookupRelation(key);
+      Map<String, Class<?>> schemaObject = schema.lookupRelation(key);
 
       if (schemaObject == null) {
         Logger.warn("key :" + key
@@ -295,7 +295,7 @@ public class RelationshipSchemaValidator {
 
 
   private static void validateEdgeProps(Edge.Builder builder, JsonElement props,
-                                        HashMap<String, Class<?>> schemaObject)
+                                        Map<String, Class<?>> schemaObject)
       throws CrudException {
     Set<Map.Entry<String, JsonElement>> entries = props.getAsJsonObject().entrySet();
 
@@ -323,7 +323,7 @@ public class RelationshipSchemaValidator {
 
     String key = edge.getSource().getType() + ":" + edge.getTarget().getType()
         + ":" + edge.getType();
-    HashMap<String, Class<?>> schemaObject = schema.lookupRelation(key);
+    Map<String, Class<?>> schemaObject = schema.lookupRelation(key);
 
     if (schemaObject == null || schemaObject.isEmpty()) {
       return edge;
