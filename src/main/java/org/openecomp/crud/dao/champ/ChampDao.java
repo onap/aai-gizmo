@@ -23,17 +23,16 @@
  */
 package org.openecomp.crud.dao.champ;
 
-import org.openecomp.aai.champ.ChampAPI;
-import org.openecomp.aai.champ.ChampGraph;
-import org.openecomp.aai.champ.exceptions.ChampMarshallingException;
-import org.openecomp.aai.champ.exceptions.ChampObjectNotExistsException;
-import org.openecomp.aai.champ.exceptions.ChampRelationshipNotExistsException;
-import org.openecomp.aai.champ.exceptions.ChampSchemaViolationException;
-import org.openecomp.aai.champ.exceptions.ChampUnmarshallingException;
-import org.openecomp.aai.champ.graph.impl.TitanChampGraphImpl;
-import org.openecomp.aai.champ.model.ChampObject;
-import org.openecomp.aai.champ.model.ChampRelationship;
-import org.openecomp.aai.champ.model.fluent.object.ObjectBuildOrPropertiesStep;
+import org.openecomp.aai.champcore.ChampGraph;
+import org.openecomp.aai.champcore.exceptions.ChampMarshallingException;
+import org.openecomp.aai.champcore.exceptions.ChampObjectNotExistsException;
+import org.openecomp.aai.champcore.exceptions.ChampRelationshipNotExistsException;
+import org.openecomp.aai.champcore.exceptions.ChampSchemaViolationException;
+import org.openecomp.aai.champcore.exceptions.ChampTransactionException;
+import org.openecomp.aai.champcore.exceptions.ChampUnmarshallingException;
+import org.openecomp.aai.champcore.model.ChampObject;
+import org.openecomp.aai.champcore.model.ChampRelationship;
+import org.openecomp.aai.champcore.model.fluent.object.ObjectBuildOrPropertiesStep;
 import org.openecomp.cl.api.Logger;
 import org.openecomp.cl.eelf.LoggerFactory;
 import org.openecomp.crud.dao.GraphDao;
@@ -47,8 +46,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Properties;
-import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -82,11 +79,6 @@ public class ChampDao implements GraphDao {
   }
   
   /**
-   * Set of configuration properties for the DAI.
-   */
-  private Properties daoConfig;
-
-  /**
    * Instance of the API used for interacting with the Champ library.
    */
   private ChampGraph champApi = null;
@@ -97,19 +89,11 @@ public class ChampDao implements GraphDao {
   /**
    * Creates a new instance of the ChampDao.
    *
-   * @param config - Set of configuration properties to be applied to this instance
-   *               of the DAO.
+   * @param champGraph - Concrete implementation of the graph dao layer
    */
-  public ChampDao(Properties config) {
-
-    // Store the configuration properties.
-    daoConfig = config;
-
-    // Apply the configuration to the DAO.
-    configure();
-
+  public ChampDao(ChampGraph champGraph) {
+	this.champApi = champGraph;
   }
-
 
   @Override
   public Vertex getVertex(String id, String type) throws CrudException {
@@ -635,112 +619,6 @@ public class ChampDao implements GraphDao {
     return edgeBuilder.build();
   }
 
-
-  /**
-   * Performs all one-time configuration operations which are required when creating
-   * a new instance of the DAO.
-   */
-  private void configure() {
-
-    // Instantiate the Champ library API.
-    try {
-
-      // Determine which back end we are using.
-      switch (getBackendTypeFromConfig()) {
-
-        case IN_MEMORY:
-
-          logger.info(CrudServiceMsgs.INSTANTIATE_GRAPH_DAO,
-              "In Memory",
-              daoConfig.getProperty(CONFIG_GRAPH_NAME, DEFAULT_GRAPH_NAME),
-              "Not applicable");
-
-          champApi = ChampGraph.Factory.newInstance(ChampGraph.Type.IN_MEMORY,
-              daoConfig.getProperty(CONFIG_GRAPH_NAME, DEFAULT_GRAPH_NAME));
-
-          break;
-
-        case TITAN:
-          try {
-            String db = daoConfig.getProperty(CONFIG_STORAGE_BACKEND_DB);
-            Short graphIdSuffix = (short) new Random().nextInt(Short.MAX_VALUE);
-            logger.info(CrudServiceMsgs.TITAN_GRAPH_INFO, GRAPH_UNQ_INSTANCE_ID_SUFFIX
-                + ": = " + graphIdSuffix);
-            if (db.equalsIgnoreCase(STORAGE_CASSANDRA_DB)) {
-              logger.info(CrudServiceMsgs.INSTANTIATE_GRAPH_DAO, "Titan with cassandra backend",
-                  daoConfig.getProperty(CONFIG_GRAPH_NAME, DEFAULT_GRAPH_NAME),
-                  daoConfig.getProperty(CONFIG_STORAGE_HOSTNAMES));
-
-              TitanChampGraphImpl.Builder champApiBuilder =
-                  new TitanChampGraphImpl.Builder(daoConfig.getProperty(CONFIG_GRAPH_NAME,
-                      DEFAULT_GRAPH_NAME))
-                      .property("storage.backend", "cassandrathrift")
-                      .property(GRAPH_UNQ_INSTANCE_ID_SUFFIX, graphIdSuffix)
-                      .property("storage.hostname", daoConfig.get(CONFIG_STORAGE_HOSTNAMES));
-
-              if (daoConfig.containsKey(CONFIG_EVENT_STREAM_PUBLISHER)) {
-                champApiBuilder.property("champ.event.stream.publisher",
-                    daoConfig.get(CONFIG_EVENT_STREAM_PUBLISHER));
-              }
-
-              if (daoConfig.containsKey(CONFIG_EVENT_STREAM_NUM_PUBLISHERS)) {
-                champApiBuilder.property("champ.event.stream.publisher-pool-size",
-                    daoConfig.get(CONFIG_EVENT_STREAM_NUM_PUBLISHERS));
-              }
-
-              champApi = champApiBuilder.build();
-
-            } else if (db.equalsIgnoreCase(STORAGE_HBASE_DB)) {
-
-              logger.info(CrudServiceMsgs.INSTANTIATE_GRAPH_DAO, "Titan with Hbase backend",
-                  daoConfig.getProperty(CONFIG_GRAPH_NAME, DEFAULT_GRAPH_NAME),
-                  daoConfig.getProperty(CONFIG_STORAGE_HOSTNAMES));
-              TitanChampGraphImpl.Builder champApiBuilder =
-                  new TitanChampGraphImpl.Builder(daoConfig
-                      .getProperty(CONFIG_GRAPH_NAME, DEFAULT_GRAPH_NAME))
-                      .property("storage.backend", "hbase")
-                      .property("storage.hbase.ext.zookeeper.znode.parent",
-                          daoConfig.get(CONFIG_HBASE_ZNODE_PARENT))
-                      .property("storage.port", daoConfig.get(CONFIG_STORAGE_PORT))
-                      .property(GRAPH_UNQ_INSTANCE_ID_SUFFIX, graphIdSuffix)
-                      .property("storage.hostname", daoConfig.get(CONFIG_STORAGE_HOSTNAMES));
-
-              if (daoConfig.containsKey(CONFIG_EVENT_STREAM_PUBLISHER)) {
-                champApiBuilder.property("champ.event.stream.publisher",
-                    daoConfig.get(CONFIG_EVENT_STREAM_PUBLISHER));
-              }
-
-              if (daoConfig.containsKey(CONFIG_EVENT_STREAM_NUM_PUBLISHERS)) {
-                champApiBuilder.property("champ.event.stream.publisher-pool-size",
-                    daoConfig.get(CONFIG_EVENT_STREAM_NUM_PUBLISHERS));
-              }
-              champApi = champApiBuilder.build();
-            } else {
-              logger.error(CrudServiceMsgs.INVALID_GRAPH_BACKEND,
-                  daoConfig.getProperty(CONFIG_STORAGE_BACKEND_DB));
-            }
-
-          } catch (com.thinkaurelius.titan.core.TitanException e) {
-
-            logger.error(CrudServiceMsgs.INSTANTIATE_GRAPH_BACKEND_ERR, "Titan", e.getMessage());
-          }
-
-
-          break;
-
-        default:
-          logger.error(CrudServiceMsgs.INVALID_GRAPH_BACKEND,
-              daoConfig.getProperty(CONFIG_STORAGE_BACKEND));
-          break;
-      }
-
-    } catch (CrudException e) {
-      logger.error(CrudServiceMsgs.INSTANTIATE_GRAPH_BACKEND_ERR,
-          daoConfig.getProperty(CONFIG_STORAGE_BACKEND), e.getMessage());
-    }
-  }
-
-
   /**
    * Performs any necessary shut down operations when the DAO is no longer needed.
    */
@@ -752,31 +630,5 @@ public class ChampDao implements GraphDao {
 
       champApi.shutdown();
     }
-  }
-
-
-  /**
-   * This helper function converts the 'graph back end type' config parameter into the
-   * corresponding {@link ChampAPI.Type}.
-   *
-   * @return - A {@link ChampAPI.Type}
-   * @throws CrudException
-   */
-  private GraphType getBackendTypeFromConfig() throws CrudException {
-
-    // Get the back end type from the DAO's configuration properties.
-    String backend = daoConfig.getProperty(CONFIG_STORAGE_BACKEND, "in-memory");
-
-    // Now, find the appropriate ChampAPI type and return it.
-    if (backend.equals("in-memory")) {
-      return GraphType.IN_MEMORY;
-    } else if (backend.equals("titan")) {
-      return GraphType.TITAN;
-    }
-
-    // If we are here, then whatever was in the config properties didn't match to a supported
-    // back end type, so just throw an exception and let the caller figure it out.
-    throw new CrudException("Invalid graph backend type '" + backend + "' specified.",
-        javax.ws.rs.core.Response.Status.BAD_REQUEST);
   }
 }

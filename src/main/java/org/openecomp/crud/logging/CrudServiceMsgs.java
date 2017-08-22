@@ -61,38 +61,11 @@ public enum CrudServiceMsgs implements LogMessageEnum {
   OXM_LOAD_ERROR,
 
   /**
-   * Instantiate data access layer for graph data store type: {0} graph: {1} using hosts: {2}
-   *
-   * <p>Arguments:
-   * {0} = Graph data store technology type
-   * {1} = Graph name
-   * {2} = Hosts list
-   */
-  INSTANTIATE_GRAPH_DAO,
-
-  /**
    * Stopping ChampDAO...
    *
    * <p>Arguments:
    */
   STOPPING_CHAMP_DAO,
-
-  /**
-   * Unsupported graph database {0} specified.
-   *
-   * <p>Arguments:
-   * {0} = Graph database back end.
-   */
-  INVALID_GRAPH_BACKEND,
-
-  /**
-   * Failure instantiating {0} graph database backend.  Cause: {1}
-   *
-   * <p>Arguments:
-   * {0} - Graph database type.
-   * {1} - Failure cause.
-   */
-  INSTANTIATE_GRAPH_BACKEND_ERR,
 
   /**
    * Failure instantiating CRUD Rest Service.  Cause: {0}
@@ -102,14 +75,6 @@ public enum CrudServiceMsgs implements LogMessageEnum {
    */
   INSTANTIATE_AUTH_ERR,
 
-  /**
-   * Any info log related to titan graph
-   *
-   * <p>Arguments:
-   * {0} - Info.
-   */
-  TITAN_GRAPH_INFO,
-  
   /**
    * Arguments:
    * {0} Opertaion

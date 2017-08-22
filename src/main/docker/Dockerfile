@@ -2,6 +2,7 @@ FROM ubuntu:14.04
 
 ARG MICRO_HOME=/opt/app/crud-api
 ARG BIN_HOME=$MICRO_HOME/bin
+ARG GRAPHLIB_HOME=$MICRO_HOME/graph-deps
 
 RUN apt-get update
 
@@ -16,6 +17,8 @@ RUN export JAVA_HOME
 # Build up the deployment folder structure
 RUN mkdir -p $MICRO_HOME
 ADD swm/package/nix/dist_files/appl/crud-api/* $MICRO_HOME/
+RUN mkdir -p $GRAPHLIB_HOME
+ADD graph-deps $GRAPHLIB_HOME
 RUN mkdir -p $BIN_HOME
 COPY *.sh $BIN_HOME
 RUN chmod 755 $BIN_HOME/*

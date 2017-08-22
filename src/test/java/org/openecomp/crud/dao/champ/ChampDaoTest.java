@@ -35,10 +35,10 @@ public class ChampDaoTest {
 
     // Create an instance of the Champ DAO, backed by the Champ library's in-memory back end
     // for testing purposes.
-    Properties champDaoProperties = new Properties();
+	  Map<String, Object> champDaoProperties = new HashMap<String, Object>();
     champDaoProperties.put(ChampDao.CONFIG_STORAGE_BACKEND, "in-memory");
     champDaoProperties.put(ChampDao.CONFIG_GRAPH_NAME, GRAPH_NAME);
-    champDao = new ChampDao(champDaoProperties);
+    champDao = new ChampDao(new InMemoryChampGraphImpl.Builder().properties(champDaoProperties).build());
   }
 
 

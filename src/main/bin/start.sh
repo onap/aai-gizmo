@@ -39,6 +39,24 @@ fi
 CLASSPATH="$AJSC_HOME/lib/*"
 CLASSPATH="$CLASSPATH:$AJSC_HOME/extJars/"
 CLASSPATH="$CLASSPATH:$AJSC_HOME/etc/"
+
+# Check to see if the provided implementation exists in the image and add it to the classpath
+for file in $( find ${BASEDIR}graph-deps/* -maxdepth 0 -type d ); do
+        CURRIMPL=$(echo $file | cut -d"/" -f6)
+        if [ "x$GRAPHIMPL" = "x$CURRIMPL" ]; then
+                CLASSPATH_GRAPHIMPL=$file
+                echo "Setting up graph implementation of $GRAPHIMPL"
+        else
+                SUPPORTED_GRAPHIMPL="$SUPPORTED_GRAPHIMPL $CURRIMPL"
+        fi
+done
+if [ -n "$CLASSPATH_GRAPHIMPL" ]; then
+        cp $CLASSPATH_GRAPHIMPL/* $AJSC_HOME/extJars/
+else
+        echo "Configured graph implementation '$GRAPHIMPL' is not supported. Acceptable implementations are one of: $SUPPORTED_GRAPHIMPL"
+        exit 1
+fi
+
 PROPS="-DAJSC_HOME=$AJSC_HOME"
 PROPS="$PROPS -DAJSC_CONF_HOME=$BASEDIR/bundleconfig/"
 PROPS="$PROPS -Dlogback.configurationFile=$BASEDIR/bundleconfig/etc/logback.xml"

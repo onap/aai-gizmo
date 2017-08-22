@@ -23,16 +23,13 @@
  */
 package org.openecomp.crud.service;
 
-import org.onap.aai.event.api.EventPublisher;
-
+import org.openecomp.aai.champcore.ChampGraph;
 import org.openecomp.crud.dao.GraphDao;
 import org.openecomp.crud.dao.champ.ChampDao;
 import org.openecomp.crud.entity.Edge;
 import org.openecomp.crud.entity.Vertex;
 import org.openecomp.crud.exception.CrudException;
 import org.openecomp.crud.parser.CrudResponseBuilder;
-import org.openecomp.crud.util.CrudProperties;
-import org.openecomp.crud.util.CrudServiceConstants;
 import org.openecomp.schema.OxmModelLoader;
 import org.openecomp.schema.OxmModelValidator;
 import org.openecomp.schema.RelationshipSchemaLoader;
@@ -40,42 +37,14 @@ import org.openecomp.schema.RelationshipSchemaValidator;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 public class CrudGraphDataService {
 
   private GraphDao dao;
 
-  public CrudGraphDataService(EventPublisher champEventPublisher) throws CrudException {
+  public CrudGraphDataService(ChampGraph graphImpl) throws CrudException {
 
-    // Configure the GraphDao and wire it
-    Properties champProperties = new Properties();
-    champProperties.put(ChampDao.CONFIG_STORAGE_BACKEND, "titan");
-    champProperties.put(ChampDao.CONFIG_STORAGE_BACKEND_DB,
-        CrudProperties.get(CrudServiceConstants.CRD_STORAGE_BACKEND_DB, "hbase"));
-    champProperties.put(ChampDao.CONFIG_STORAGE_HOSTNAMES,
-        CrudProperties.get(CrudServiceConstants.CRD_GRAPH_HOST));
-    champProperties.put(ChampDao.CONFIG_STORAGE_PORT,
-        CrudProperties.get(CrudServiceConstants.CRD_GRAPH_PORT, "2181"));
-    champProperties.put(ChampDao.CONFIG_HBASE_ZNODE_PARENT,
-        CrudProperties.get(CrudServiceConstants.CRD_HBASE_ZNODE_PARENT, "/hbase-unsecure"));
-
-    if (CrudProperties.get("crud.graph.name") != null) {
-      champProperties.put(ChampDao.CONFIG_GRAPH_NAME, CrudProperties.get("crud.graph.name"));
-    }
-
-    if (champEventPublisher != null) {
-      champProperties.put(ChampDao.CONFIG_EVENT_STREAM_PUBLISHER, champEventPublisher);
-    }
-
-    if (CrudProperties.get(ChampDao.CONFIG_EVENT_STREAM_NUM_PUBLISHERS) != null) {
-      champProperties.put(ChampDao.CONFIG_EVENT_STREAM_NUM_PUBLISHERS,
-          Integer.parseInt(CrudProperties.get(ChampDao.CONFIG_EVENT_STREAM_NUM_PUBLISHERS)));
-    }
-
-    ChampDao champDao = new ChampDao(champProperties);
-
-    this.dao = champDao;
+	this.dao = new ChampDao(graphImpl);
 
     //load the schemas
     OxmModelLoader.loadModels();
