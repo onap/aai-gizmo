@@ -145,7 +145,14 @@ public class RelationshipSchemaLoader {
       //      Also update the  "versionContextMap" with the version and it's schema.
       rulesFiles.stream().sorted(Comparator.comparing(RelationshipSchemaLoader::filename))
               .collect(Collectors.groupingBy(f -> myMatcher(versionPattern, filename(f))))
-              .forEach((version, resourceAndFile) -> versionContextMap.put(version, jsonFilesLoader(version, resourceAndFile)));
+              .forEach((version, resourceAndFile) -> {
+                if (resourceAndFile.size() == 2 ) {
+                  versionContextMap.put(version, jsonFilesLoader(version, resourceAndFile));
+                } else {
+                  String filenames = resourceAndFile.stream().map(f-> filename(f)).collect(Collectors.toList()).toString();
+                  String errorMsg = "Expecting a rules and a edge_properties files for " + version + ". Found: " + filenames;
+                  logger.warn(CrudServiceMsgs.INVALID_OXM_FILE, errorMsg);
+                }});
 
       logger.info(CrudServiceMsgs.LOADED_OXM_FILE, "Relationship Schema and Properties files: " + rulesFiles.stream().map(f -> filename(f)).collect(Collectors.toList()));
     } catch (IOException e) {
@@ -181,9 +188,6 @@ public class RelationshipSchemaLoader {
                 files.stream().map(f -> filename(f)).collect(Collectors.toList()).toString(), e.getMessage());
       }
       return rsSchema;
-    } else {
-      logger.debug(CrudServiceMsgs.INVALID_OXM_FILE, "Expecting a rules file and a properties file but found: " +
-              files.stream().map(f-> filename(f)).collect(Collectors.toList()).toString());
     }
     return rsSchema;
   }
