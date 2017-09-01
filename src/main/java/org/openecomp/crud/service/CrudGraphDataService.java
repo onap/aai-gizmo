@@ -159,6 +159,10 @@ public class CrudGraphDataService {
 
   }
 
+  public Vertex getVertex(String id) throws CrudException {
+    return dao.getVertex(id);
+  }
+  
   public String getVertex(String version, String id, String type) throws CrudException {
     type = OxmModelValidator.resolveCollectionType(version, type);
     Vertex vertex = dao.getVertex(id, type);

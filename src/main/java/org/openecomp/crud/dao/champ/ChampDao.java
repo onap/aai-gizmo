@@ -96,6 +96,40 @@ public class ChampDao implements GraphDao {
   }
 
   @Override
+  public Vertex getVertex(String id) throws CrudException {
+    
+    try {
+      
+      if (logger.isDebugEnabled()) {
+        logger.debug("getVertex with id: " + id);
+      }
+      
+      long idAsLong = Long.parseLong(id);
+      
+      Optional<ChampObject> retrievedVertex = champApi.retrieveObject(idAsLong);
+      
+      String nodeType = org.openecomp.schema.OxmModelValidator.Metadata.NODE_TYPE.propertyName();
+      if(retrievedVertex.isPresent() && 
+         retrievedVertex.get().getProperties().get(nodeType)!=null) {
+        return vertexFromChampObject(retrievedVertex.get(), 
+                                     retrievedVertex.get().getProperties().get(nodeType).toString());
+      } else {
+
+        // We didn't find a vertex with the supplied id, so just throw an
+        // exception.
+        throw new CrudException("No vertex with id " + id + " found in graph",
+                                javax.ws.rs.core.Response.Status.NOT_FOUND);
+      }
+      
+    } catch (ChampUnmarshallingException | ChampTransactionException e) {
+
+      // Something went wrong - throw an exception.
+      throw new CrudException(e.getMessage(),
+                              javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
+    }
+  }
+  
+  @Override
   public Vertex getVertex(String id, String type) throws CrudException {
 
     try {

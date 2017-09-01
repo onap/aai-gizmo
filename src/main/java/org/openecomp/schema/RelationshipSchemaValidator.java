@@ -338,4 +338,15 @@ public class RelationshipSchemaValidator {
     return modelEdgeBuilder.build();
   }
 
+    
+  public static String vertexTypeFromUri(String uri) throws CrudException {
+      
+    Matcher matcher = urlPattern.matcher(uri);
+
+    if (!matcher.matches()) {
+      throw new CrudException("Invalid Source/Target Urls", Status.BAD_REQUEST);
+    }
+
+    return matcher.group(2);
+  }
 }

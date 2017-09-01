@@ -32,6 +32,8 @@ import java.util.Map;
 
 public interface GraphDao {
 
+  public Vertex getVertex(String id) throws CrudException;
+
   public Vertex getVertex(String id, String type) throws CrudException;
 
   /**

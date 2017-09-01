@@ -131,20 +131,15 @@
             </exclusions>
         </dependency>
         
-        <!-- TEST Dependencies -->
+		<groupId>com.jayway.jsonpath</groupId>
+            <artifactId>json-path</artifactId>
+            <version>2.2.0</version>
+        </dependency>
 		
 		<dependency>
-            <groupId>org.apache.tinkerpop</groupId>
-            <artifactId>tinkergraph-gremlin</artifactId>
-            <version>3.2.3</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
         	<groupId>org.apache.tinkerpop</groupId>
             <artifactId>gremlin-core</artifactId> 
-            <version>3.2.3</version>
-            <scope>test</scope>
+            <version>3.1.0-incubating</version>
             <exclusions>
               <exclusion>
                     <groupId>org.slf4j</groupId>
@@ -156,6 +151,17 @@
                 </exclusion>
             </exclusions>
         </dependency>
+		
+        <!-- TEST Dependencies -->
+		
+		<dependency>
+            <groupId>org.apache.tinkerpop</groupId>
+            <artifactId>tinkergraph-gremlin</artifactId>
+            <version>3.2.3</version>
+            <scope>test</scope>
+        </dependency>
+
+
 
         <dependency>
             <groupId>org.json</groupId>

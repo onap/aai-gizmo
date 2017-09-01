@@ -41,6 +41,13 @@ public class CrudServiceUtil {
       } else if (clazz.isAssignableFrom(Double.class)) {
         return Double.parseDouble(value);
       } else if (clazz.isAssignableFrom(Boolean.class)) {
+		  
+		// If the value is an IN/OUT direction, this gets seen as a boolean, so
+        // check for that first.
+        if (value.equals("OUT") || value.equals("IN")) {
+          return value;
+        }
+		
         if (!value.equals("true") && !value.equals("false")) {
           throw new CrudException("Invalid propertry value: " + value, Status.BAD_REQUEST);
         }
