@@ -32,6 +32,7 @@ import org.eclipse.persistence.internal.helper.DatabaseField;
 import org.eclipse.persistence.jaxb.dynamic.DynamicJAXBContext;
 import org.eclipse.persistence.mappings.DatabaseMapping;
 import org.eclipse.persistence.oxm.XMLField;
+import org.onap.aaiutils.oxm.OxmModelLoader;
 import org.openecomp.crud.entity.Vertex;
 import org.openecomp.crud.exception.CrudException;
 import org.openecomp.crud.util.CrudServiceUtil;
@@ -74,7 +75,12 @@ public class OxmModelValidator {
                                                             Map<String, String> filter)
       throws CrudException {
 
-    DynamicJAXBContext jaxbContext = OxmModelLoader.getContextForVersion(version);
+    DynamicJAXBContext jaxbContext = null;
+    try {
+      jaxbContext = OxmModelLoader.getContextForVersion(version);
+    } catch (Exception e) {
+      throw new CrudException(e);
+    }
 
     Map<String, Object> result = new HashMap<String, Object>();
     if (jaxbContext == null) {
@@ -107,7 +113,12 @@ public class OxmModelValidator {
 
   public static String resolveCollectionType(String version, String type) throws CrudException {
 
-    DynamicJAXBContext jaxbContext = OxmModelLoader.getContextForVersion(version);
+    DynamicJAXBContext jaxbContext = null;
+    try {
+      jaxbContext = OxmModelLoader.getContextForVersion(version);
+    } catch (Exception e) {
+      throw new CrudException(e);
+    }
 
     if (jaxbContext == null) {
       throw new CrudException("", Status.NOT_FOUND);

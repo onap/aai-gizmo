@@ -23,6 +23,7 @@
  */
 package org.openecomp.crud.service;
 
+import org.onap.aaiutils.oxm.OxmModelLoader;
 import org.openecomp.aai.champcore.ChampGraph;
 import org.openecomp.crud.dao.GraphDao;
 import org.openecomp.crud.dao.champ.ChampDao;
@@ -30,7 +31,6 @@ import org.openecomp.crud.entity.Edge;
 import org.openecomp.crud.entity.Vertex;
 import org.openecomp.crud.exception.CrudException;
 import org.openecomp.crud.parser.CrudResponseBuilder;
-import org.openecomp.schema.OxmModelLoader;
 import org.openecomp.schema.OxmModelValidator;
 import org.openecomp.schema.RelationshipSchemaLoader;
 import org.openecomp.schema.RelationshipSchemaValidator;
@@ -47,7 +47,11 @@ public class CrudGraphDataService {
 	this.dao = new ChampDao(graphImpl);
 
     //load the schemas
-    OxmModelLoader.loadModels();
+    try {
+      OxmModelLoader.loadModels();
+    } catch (Exception e) {
+      throw new CrudException(e);
+    }
     RelationshipSchemaLoader.loadModels();
   }
 
