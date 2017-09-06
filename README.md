@@ -473,6 +473,86 @@ Optionally, an edge can be created by posting to an endpoint which doesn't inclu
 		Content: Error message describing the failure.
 		Situation: Any scenario not covered by the above error codes.
  
+### Create Edge With Auto-Population Of Edge Properties
+An alternate endpoint exists for creating edges which follows all of the conventions of the above endpoints, with the  addition that properties defined in the db edge rules produced by the A&AI will be automatically populated for the edge.
+
+	URL: https://<host>:9520/services/resources/relationships/runsOnPserver/
+	Method: POST
+	Body:
+		{     
+			"source":"services/inventory/v8/vserver/0",
+			"target":"services/inventory/v8/pserver/7",
+			"properties":{   
+
+			}
+		}
+	Success	Response:
+		Code: 201
+		Content:
+			{   
+				"id":"215x5m-6hc-d6vp-oe08g",
+				"type":"runsOnPserver",
+				"url":"services/inventory/relationships/v8/has/215x5m-6hc-d6vp-oe08g",
+				"source":"services/inventory/v8/vserver/8400",
+				"target":"services/inventory/v8/pserver/40964272",
+				"properties":{   
+			        "contains-other-v": "NONE",
+			        "delete-other-v": "NONE",
+			        "SVC-INFRA": "OUT",
+			        "prevent-delete": "IN"
+				}
+			}
+	Error Response:
+		Code: 400 (BAD REQUEST)
+		Content: Error message describing the bad request failure.
+		Situation: Invalid Payload or schema error.
+
+		Code: 403 (FORBIDDEN)
+		Content: Error message describing the Authorization failure.
+		Situation: Authorization failure.
+
+		Code: 415 (UNSUPPORTED MEDIA TYPE)
+		Situation: Unsupported content type .
+		
+		Code: 500 (Internal Server Error)
+		Content: Error message describing the failure.
+		Situation: Any scenario not covered by the above error codes.
+ 
+The same option to POST to an endpoint without specifying a type in the URL exists for this endpoint as well:
+
+	URL: https://<host>:9520/services/resources/relationships/
+	Method: POST
+	Body:
+		{    
+			"type":"runsOnPserver",
+			"source":"services/inventory/v8/vserver/0",
+			"target":"services/inventory/v8/pserver/7",
+			"properties":{   
+				"multiplicity":"many",
+				"is-parent":true,
+				"uses-resource":"true",
+				"has-del-target":"true"
+			}
+		}
+	Success	Response:
+		Code: 201
+		Content: Same as above	
+	Error Response:
+		Code: 400 (BAD REQUEST)
+		Content: Error message describing the bad request failure.
+		Situation: Invalid Payload or schema error.
+
+		Code: 403 (FORBIDDEN)
+		Content: Error message describing the Authorization failure.
+		Situation: Authorization failure.
+
+		Code: 415 (UNSUPPORTED MEDIA TYPE)
+		Situation: Unsupported content type .
+		
+		Code: 500 (Internal Server Error)
+		Content: Error message describing the failure.
+		Situation: Any scenario not covered by the above error codes.
+		
 ### Get Edge
 
 	URL: https://<host>:9520/services/inventory/relationships/v8/runsOnPserver/<id>
