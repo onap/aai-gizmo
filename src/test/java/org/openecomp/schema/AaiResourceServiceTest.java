@@ -3,28 +3,20 @@ package org.openecomp.schema;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.AbstractMap;
-import java.util.AbstractSet;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.openecomp.aai.exceptions.AAIException;
 import org.openecomp.aai.serialization.db.EdgeProperty;
-import org.openecomp.aai.serialization.db.EdgePropertyMap;
 import org.openecomp.aai.serialization.db.EdgeRule;
 import org.openecomp.aai.serialization.db.EdgeRules;
 import org.openecomp.aai.serialization.db.EdgeType;
-import org.openecomp.aai.util.AAIConstants;
 import org.openecomp.crud.exception.CrudException;
 import org.openecomp.crud.service.AaiResourceService;
 import org.openecomp.crud.service.EdgePayload;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
 
 public class AaiResourceServiceTest {
 

@@ -142,32 +142,30 @@
             <version>2.2.0</version>
         </dependency>
 		
+		<!-- AAI-CORE specific dependencies -->
 		<dependency>
         	<groupId>org.apache.tinkerpop</groupId>
-            <artifactId>gremlin-core</artifactId> 
-            <version>3.0.1-incubating</version>
-            <exclusions>
-              <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>jcl-over-slf4j</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-		
-        <!-- TEST Dependencies -->
-		
-		<dependency>
+        	<artifactId>gremlin-core</artifactId> 
+	        <version>3.2.3</version>
+	        <scope>provided</scope>
+	        <exclusions>
+	            <exclusion>
+	                <groupId>org.slf4j</groupId>
+	                <artifactId>slf4j-log4j12</artifactId>
+	            </exclusion>
+	            <exclusion>
+	                <groupId>org.slf4j</groupId>
+	                <artifactId>jcl-over-slf4j</artifactId>
+	            </exclusion>
+	        </exclusions>
+     </dependency>
+
+       <dependency>
             <groupId>org.apache.tinkerpop</groupId>
             <artifactId>tinkergraph-gremlin</artifactId>
-            <version>3.0.1-incubating</version>
-            <scope>test</scope>
+            <version>3.2.3</version>
+            <scope>provided</scope>
         </dependency>
-
-
 
         <dependency>
             <groupId>org.json</groupId>
