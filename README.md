@@ -255,7 +255,7 @@ Optionally, a vertex can be created by posting to an endpoint which doesn't incl
 			}	
 	Error Response:
 		Code: 404 (NOT FOUND)
-		Situation: Reource Not found
+		Situation: Resource Not found
 
 		Code: 403 (FORBIDDEN)
 		Content: Error message describing the Authorization failure.
@@ -295,7 +295,7 @@ Optionally, a vertex can be created by posting to an endpoint which doesn't incl
 			]	
 	Error Response:
 		Code: 404 (NOT FOUND)
-		Situation: Reource Not found
+		Situation: Resource Not found
 
 		Code: 403 (FORBIDDEN)
 		Content: Error message describing the Authorization failure.
@@ -413,8 +413,8 @@ When creating an edge, the CRUD service will validate:
 				"id":"215x5m-6hc-d6vp-oe08g",
 				"type":"runsOnPserver",
 				"url":"services/inventory/relationships/v8/has/215x5m-6hc-d6vp-oe08g",
-				"source":"services/inventory/v8/vserver/8400",
-				"target":"services/inventory/v8/pserver/40964272",
+				"source":"services/inventory/v8/vserver/0",
+				"target":"services/inventory/v8/pserver/7",
 				"properties":{   
 					"is-parent":"true",
 					"multiplicity":"many",
@@ -493,8 +493,8 @@ An alternate endpoint exists for creating edges which follows all of the convent
 				"id":"215x5m-6hc-d6vp-oe08g",
 				"type":"runsOnPserver",
 				"url":"services/inventory/relationships/v8/has/215x5m-6hc-d6vp-oe08g",
-				"source":"services/inventory/v8/vserver/8400",
-				"target":"services/inventory/v8/pserver/40964272",
+				"source":"services/inventory/v8/vserver/0",
+				"target":"services/inventory/v8/pserver/7",
 				"properties":{   
 			        "contains-other-v": "NONE",
 			        "delete-other-v": "NONE",
@@ -575,7 +575,7 @@ The same option to POST to an endpoint without specifying a type in the URL exis
 			}	
 	Error Response:
 		Code: 404 (NOT FOUND)
-		Situation: Reource Not found
+		Situation: Resource Not found
 
 		Code: 403 (FORBIDDEN)
 		Content: Error message describing the Authorization failure.
@@ -614,7 +614,7 @@ The same option to POST to an endpoint without specifying a type in the URL exis
 			]
 	Error Response:
 		Code: 404 (NOT FOUND)
-		Situation: Reource Not found
+		Situation: Resource Not found
 
 		Code: 403 (FORBIDDEN)
 		Content: Error message describing the Authorization failure.
