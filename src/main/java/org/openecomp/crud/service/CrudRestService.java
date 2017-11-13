@@ -222,6 +222,21 @@ public class CrudRestService {
   }
 
   @PUT
+  @Path("/relationships/{version}/{type}/")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  public Response updateEdgeWithoutId(String content, @Context HttpHeaders headers, @Context HttpServletRequest req) {
+
+    LoggingUtil.initMdcContext(req, headers);
+
+    logger.debug("Incoming request..." + content);
+    Response response = Response.status (Status.BAD_REQUEST).entity ("Cannot Update Edge Without Specifying Id in URL").build();
+
+    LoggingUtil.logRestRequest(logger, auditLogger, req, response);
+    return response;
+  }
+
+  @PUT
   @Path("/relationships/{version}/{type}/{id}")
   @Consumes({MediaType.APPLICATION_JSON})
   @Produces({MediaType.APPLICATION_JSON})
@@ -617,6 +632,20 @@ public class CrudRestService {
           .type(MediaType.APPLICATION_JSON).build();
     }
 
+    LoggingUtil.logRestRequest(logger, auditLogger, req, response);
+    return response;
+  }
+
+  @DELETE
+  @Path("/relationships/{version}/{type}/")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  public Response deleteEdgeWithouId(String content, @Context HttpHeaders headers, @Context HttpServletRequest req) {
+
+    LoggingUtil.initMdcContext(req, headers);
+
+    logger.debug("Incoming request..." + content);
+    Response response = Response.status ( Status.BAD_REQUEST ).entity ( "Cannot Delete Edge Without Specifying Id in URL" ).build ();
     LoggingUtil.logRestRequest(logger, auditLogger, req, response);
     return response;
   }
