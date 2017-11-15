@@ -46,11 +46,11 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.core.Response.Status;
 
-import org.openecomp.aai.exceptions.AAIException;
-import org.openecomp.aai.serialization.db.EdgeProperty;
-import org.openecomp.aai.serialization.db.EdgeRule;
-import org.openecomp.aai.serialization.db.EdgeRules;
-import org.openecomp.aai.serialization.db.EdgeType;
+import org.onap.aai.exceptions.AAIException;
+import org.onap.aai.serialization.db.EdgeProperty;
+import org.onap.aai.serialization.db.EdgeRule;
+import org.onap.aai.serialization.db.EdgeRules;
+import org.onap.aai.serialization.db.EdgeType;
 import org.openecomp.auth.Auth;
 import org.openecomp.cl.api.Logger;
 import org.openecomp.cl.eelf.LoggerFactory;

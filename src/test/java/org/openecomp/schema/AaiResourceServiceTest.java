@@ -7,11 +7,11 @@ import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.openecomp.aai.exceptions.AAIException;
-import org.openecomp.aai.serialization.db.EdgeProperty;
-import org.openecomp.aai.serialization.db.EdgeRule;
-import org.openecomp.aai.serialization.db.EdgeRules;
-import org.openecomp.aai.serialization.db.EdgeType;
+import org.onap.aai.exceptions.AAIException;
+import org.onap.aai.serialization.db.EdgeProperty;
+import org.onap.aai.serialization.db.EdgeRule;
+import org.onap.aai.serialization.db.EdgeRules;
+import org.onap.aai.serialization.db.EdgeType;
 import org.openecomp.crud.exception.CrudException;
 import org.openecomp.crud.service.AaiResourceService;
 import org.openecomp.crud.service.EdgePayload;
