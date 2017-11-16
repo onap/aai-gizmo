@@ -23,20 +23,27 @@
  */
 package org.openecomp.crud.parser;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.ws.rs.core.Response.Status;
 
 import org.openecomp.crud.entity.Edge;
 import org.openecomp.crud.entity.Vertex;
 import org.openecomp.crud.exception.CrudException;
+import org.openecomp.crud.service.BulkPayload;
 import org.openecomp.crud.service.EdgePayload;
 import org.openecomp.crud.service.VertexPayload;
 import org.openecomp.schema.RelationshipSchemaLoader;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 public class CrudResponseBuilder {
 
@@ -45,6 +52,42 @@ public class CrudResponseBuilder {
   public static final String SOURCE = "source";
   public static final String TARGET = "target";
   public static final String URL_BASE = "services/inventory/";
+  
+  public static String buildUpsertBulkResponse(HashMap<String,Vertex> vertices, HashMap<String,Edge> edges , String version,BulkPayload incomingPayload)
+	      throws CrudException {
+	  
+		for (JsonElement e : incomingPayload.getObjects()) {
+			List<Map.Entry<String, JsonElement>> entries = new ArrayList<Map.Entry<String, JsonElement>>(e.getAsJsonObject().entrySet());
+
+			Map.Entry<String, JsonElement> item = entries.get(1);
+			
+			Vertex responseVertex = vertices.get(item.getKey());
+			if(responseVertex != null){
+			JsonObject v = gson.fromJson(buildUpsertVertexResponse(responseVertex,version), JsonObject.class);
+			item.setValue(v);
+			}else{
+				item.setValue(gson.fromJson("{}", JsonObject.class));
+			}
+			
+		}
+		for (JsonElement e : incomingPayload.getRelationships()) {
+			List<Map.Entry<String, JsonElement>> entries = new ArrayList<Map.Entry<String, JsonElement>>(e.getAsJsonObject().entrySet());
+
+			Map.Entry<String, JsonElement> item = entries.get(1);
+			
+			Edge responseEdge = edges.get(item.getKey());
+			if(responseEdge != null){
+			JsonObject v = gson.fromJson(buildUpsertEdgeResponse(responseEdge,version), JsonObject.class);
+			item.setValue(v);
+			}else{
+				item.setValue(gson.fromJson("{}", JsonObject.class));
+			}
+			
+		}
+	    return incomingPayload.toJson();
+	  }
+  
+  
 
   public static String buildUpsertVertexResponse(Vertex vertex, String version)
       throws CrudException {

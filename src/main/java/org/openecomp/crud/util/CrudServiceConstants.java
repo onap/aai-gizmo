@@ -43,6 +43,7 @@ public class CrudServiceConstants {
 
   public static final String CRD_CONFIG_FILE = CRD_SPECIFIC_CONFIG + "crud-api.properties";
   public static final String CRD_AUTH_FILE = CRD_HOME_AUTH + "crud_policy.json";
+  public static final String CRD_CHAMPION_AUTH_FILE = CRD_HOME_AUTH + "champion-cert.p12";
 
   public static final String CRD_AUTH_POLICY_NAME = "crud";
 

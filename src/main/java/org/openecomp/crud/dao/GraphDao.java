@@ -23,12 +23,13 @@
  */
 package org.openecomp.crud.dao;
 
-import org.openecomp.crud.entity.Edge;
-import org.openecomp.crud.entity.Vertex;
-import org.openecomp.crud.exception.CrudException;
-
 import java.util.List;
 import java.util.Map;
+
+import org.openecomp.crud.entity.Edge;
+
+import org.openecomp.crud.entity.Vertex;
+import org.openecomp.crud.exception.CrudException;
 
 public interface GraphDao {
 
@@ -137,4 +138,21 @@ public interface GraphDao {
    * @throws CrudException
    */
   public void deleteEdge(String id, String type) throws CrudException;
+  
+ 
+  public String openTransaction();
+  public void commitTransaction(String id) throws CrudException;
+  public void rollbackTransaction(String id) throws CrudException;
+  public boolean transactionExists(String id) throws CrudException;
+  
+  public Vertex addVertex(String type, Map<String, Object> properties, String txId) throws CrudException;
+  public Edge addEdge(String type, Vertex source, Vertex target, Map<String, Object> properties, String txId)
+	      throws CrudException;
+  public Vertex updateVertex(String id, String type, Map<String, Object> properties, String txId)
+	      throws CrudException;
+  
+  public Edge updateEdge(Edge edge, String txId) throws CrudException;
+  public void deleteVertex(String id, String type, String txId) throws CrudException;
+  public void deleteEdge(String id, String type, String txId) throws CrudException;
+  public Edge getEdge(String id, String type, String txId) throws CrudException;
 }

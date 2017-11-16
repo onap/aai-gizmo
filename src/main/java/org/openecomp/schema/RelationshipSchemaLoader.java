@@ -23,8 +23,29 @@
  */
 package org.openecomp.schema;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import javax.ws.rs.core.Response.Status;
+
 import org.apache.commons.io.IOUtils;
-import org.openecomp.aai.dbmodel.DbEdgeRules;
 import org.openecomp.cl.eelf.LoggerFactory;
 import org.openecomp.crud.exception.CrudException;
 import org.openecomp.crud.logging.CrudServiceMsgs;
@@ -33,23 +54,6 @@ import org.openecomp.crud.util.FileWatcher;
 import org.springframework.core.io.UrlResource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
-
-import java.io.*;
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.SortedSet;
-import java.util.stream.Collectors;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.TreeSet;
-import javax.ws.rs.core.Response.Status;
 
 public class RelationshipSchemaLoader {
 
@@ -153,7 +157,6 @@ public class RelationshipSchemaLoader {
                   String errorMsg = "Expecting a rules and a edge_properties files for " + version + ". Found: " + filenames;
                   logger.warn(CrudServiceMsgs.INVALID_OXM_FILE, errorMsg);
                 }});
-
       logger.info(CrudServiceMsgs.LOADED_OXM_FILE, "Relationship Schema and Properties files: " + rulesFiles.stream().map(f -> filename(f)).collect(Collectors.toList()));
     } catch (IOException e) {
       logger.error(CrudServiceMsgs.INVALID_OXM_DIR, rulesDir);

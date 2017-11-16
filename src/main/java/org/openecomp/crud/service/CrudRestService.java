@@ -23,20 +23,13 @@
  */
 package org.openecomp.crud.service;
 
-import org.apache.cxf.jaxrs.ext.PATCH;
-import org.openecomp.auth.Auth;
-import org.openecomp.cl.api.Logger;
-import org.openecomp.cl.eelf.LoggerFactory;
-import org.openecomp.crud.exception.CrudException;
-import org.openecomp.crud.logging.CrudServiceMsgs;
-import org.openecomp.crud.logging.LoggingUtil;
-import org.openecomp.crud.util.CrudServiceConstants;
-import org.slf4j.MDC;
-
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import javax.security.auth.x500.X500Principal;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -54,6 +47,18 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
+
+import org.apache.cxf.jaxrs.ext.PATCH;
+import org.openecomp.auth.Auth;
+import org.openecomp.cl.api.Logger;
+import org.openecomp.cl.eelf.LoggerFactory;
+import org.openecomp.crud.exception.CrudException;
+import org.openecomp.crud.logging.CrudServiceMsgs;
+import org.openecomp.crud.logging.LoggingUtil;
+import org.openecomp.crud.util.CrudServiceConstants;
+import org.slf4j.MDC;
+
+import com.google.gson.JsonElement;
 
 public class CrudRestService {
 
@@ -216,21 +221,6 @@ public class CrudRestService {
           .type(MediaType.APPLICATION_JSON).build();
 
     }
-
-    LoggingUtil.logRestRequest(logger, auditLogger, req, response);
-    return response;
-  }
-
-  @PUT
-  @Path("/relationships/{version}/{type}/")
-  @Consumes({MediaType.APPLICATION_JSON})
-  @Produces({MediaType.APPLICATION_JSON})
-  public Response updateEdgeWithoutId(String content, @Context HttpHeaders headers, @Context HttpServletRequest req) {
-
-    LoggingUtil.initMdcContext(req, headers);
-
-    logger.debug("Incoming request..." + content);
-    Response response = Response.status (Status.BAD_REQUEST).entity ("Cannot Update Edge Without Specifying Id in URL").build();
 
     LoggingUtil.logRestRequest(logger, auditLogger, req, response);
     return response;
@@ -463,6 +453,142 @@ public class CrudRestService {
     LoggingUtil.logRestRequest(logger, auditLogger, req, response);
     return response;
   }
+  
+	private void validateBulkPayload(BulkPayload payload) throws CrudException {
+		List<String> vertices = new ArrayList<String>();
+		List<String> edges = new ArrayList<String>();
+
+		for (JsonElement v : payload.getObjects()) {
+			List<Map.Entry<String, JsonElement>> entries = new ArrayList<Map.Entry<String, JsonElement>>(v.getAsJsonObject().entrySet());
+
+			if (entries.size() != 2) {
+				throw new CrudException("", Status.BAD_REQUEST);
+			}
+			Map.Entry<String, JsonElement> opr = entries.get(0);
+			Map.Entry<String, JsonElement> item = entries.get(1);
+
+			if (vertices.contains(item.getKey())) {
+				throw new CrudException("duplicate vertex in payload: " + item.getKey(), Status.BAD_REQUEST);
+			}
+			VertexPayload vertexPayload = VertexPayload.fromJson(item.getValue().getAsJsonObject().toString());
+			if (vertexPayload.getType() == null) {
+				throw new CrudException("Vertex Type cannot be null for: " + item.getKey(), Status.BAD_REQUEST);
+			}
+
+			if (!opr.getKey().equalsIgnoreCase("operation")) {
+				throw new CrudException("operation missing in item: " + item.getKey(), Status.BAD_REQUEST);
+			}
+
+			if (!opr.getValue().getAsString().equalsIgnoreCase("add") && !opr.getValue().getAsString().equalsIgnoreCase("modify")
+					&& !opr.getValue().getAsString().equalsIgnoreCase("delete")) {
+				throw new CrudException("Invalid operation at item: " + item.getKey(), Status.BAD_REQUEST);
+			}
+			// check if ID is populate for modify/delete operation
+			if ((opr.getValue().getAsString().equalsIgnoreCase("modify") || opr.getValue().getAsString().equalsIgnoreCase("delete"))
+					&& (vertexPayload.getId() == null)) {
+
+				throw new CrudException("Mising ID at item: " + item.getKey(), Status.BAD_REQUEST);
+
+			}
+
+			vertices.add(item.getKey());
+		}
+
+		for (JsonElement v : payload.getRelationships()) {
+			List<Map.Entry<String, JsonElement>> entries = new ArrayList<Map.Entry<String, JsonElement>>(v.getAsJsonObject().entrySet());
+
+			if (entries.size() != 2) {
+				throw new CrudException("", Status.BAD_REQUEST);
+			}
+			Map.Entry<String, JsonElement> opr = entries.get(0);
+			Map.Entry<String, JsonElement> item = entries.get(1);
+
+			if (edges.contains(item.getKey())) {
+				throw new CrudException("duplicate Edge in payload: " + item.getKey(), Status.BAD_REQUEST);
+			}
+
+			EdgePayload edgePayload = EdgePayload.fromJson(item.getValue().getAsJsonObject().toString());
+
+			if (edgePayload.getType() == null) {
+				throw new CrudException("Edge Type cannot be null for: " + item.getKey(), Status.BAD_REQUEST);
+			}
+
+			if (!opr.getKey().equalsIgnoreCase("operation")) {
+				throw new CrudException("operation missing in item: " + item.getKey(), Status.BAD_REQUEST);
+			}
+
+			if (!opr.getValue().getAsString().equalsIgnoreCase("add") && !opr.getValue().getAsString().equalsIgnoreCase("modify")
+					&& !opr.getValue().getAsString().equalsIgnoreCase("delete")) {
+				throw new CrudException("Invalid operation at item: " + item.getKey(), Status.BAD_REQUEST);
+			}
+			// check if ID is populate for modify/delete operation
+			if ((edgePayload.getId() == null) && (opr.getValue().getAsString().equalsIgnoreCase("modify")
+					    || opr.getValue().getAsString().equalsIgnoreCase("delete"))) {
+
+				throw new CrudException("Mising ID at item: " + item.getKey(), Status.BAD_REQUEST);
+
+			}
+			if (opr.getValue().getAsString().equalsIgnoreCase("add")) {
+				if(edgePayload.getSource()==null || edgePayload.getTarget()==null){
+					throw new CrudException("Source/Target cannot be null for edge: " + item.getKey(),
+							Status.BAD_REQUEST);
+				}
+				if (edgePayload.getSource().startsWith("$") && !vertices.contains(edgePayload.getSource().substring(1))) {
+					throw new CrudException("Source Vertex " + edgePayload.getSource().substring(1) + " not found for Edge: " + item.getKey(),
+							Status.BAD_REQUEST);
+				}
+
+				if (edgePayload.getTarget().startsWith("$") && !vertices.contains(edgePayload.getTarget().substring(1))) {
+					throw new CrudException("Target Vertex " + edgePayload.getSource().substring(1) + " not found for Edge: " + item.getKey(),
+							Status.BAD_REQUEST);
+				}
+			}
+			edges.add(item.getKey());
+
+		}
+
+	}
+  
+  @POST
+  @Path("/{version}/bulk/")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  public Response addBulk(String content, @PathParam("version") String version,
+                            @PathParam("type") String type, @PathParam("uri") @Encoded String uri,
+                            @Context HttpHeaders headers, @Context UriInfo uriInfo,
+                            @Context HttpServletRequest req) {
+
+    LoggingUtil.initMdcContext(req, headers);
+
+    logger.debug("Incoming request..." + content);
+    Response response = null;
+
+    if (validateRequest(req, uri, content, Action.POST,
+        CrudServiceConstants.CRD_AUTH_POLICY_NAME)) {
+
+      try {
+        BulkPayload payload = BulkPayload.fromJson(content);
+				if ((payload.getObjects() == null && payload.getRelationships() == null) || (payload.getObjects() != null && payload.getObjects().isEmpty()
+						&& payload.getRelationships() != null && payload.getRelationships().isEmpty())) {
+          throw new CrudException("Invalid request Payload", Status.BAD_REQUEST);
+        }
+				
+		validateBulkPayload(payload);
+        String result = crudGraphDataService.addBulk(version,  payload);
+        response = Response.status(Status.OK).entity(result).type(mediaType).build();
+      } catch (CrudException ce) {
+        response = Response.status(ce.getHttpStatus()).entity(ce.getMessage()).build();
+      } catch (Exception e) {
+        response = Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+      }
+    } else {
+      response = Response.status(Status.FORBIDDEN).entity(content)
+          .type(MediaType.APPLICATION_JSON).build();
+    }
+
+    LoggingUtil.logRestRequest(logger, auditLogger, req, response);
+    return response;
+  }
 
   @POST
   @Path("/{version}/")
@@ -632,20 +758,6 @@ public class CrudRestService {
           .type(MediaType.APPLICATION_JSON).build();
     }
 
-    LoggingUtil.logRestRequest(logger, auditLogger, req, response);
-    return response;
-  }
-
-  @DELETE
-  @Path("/relationships/{version}/{type}/")
-  @Consumes({MediaType.APPLICATION_JSON})
-  @Produces({MediaType.APPLICATION_JSON})
-  public Response deleteEdgeWithouId(String content, @Context HttpHeaders headers, @Context HttpServletRequest req) {
-
-    LoggingUtil.initMdcContext(req, headers);
-
-    logger.debug("Incoming request..." + content);
-    Response response = Response.status ( Status.BAD_REQUEST ).entity ( "Cannot Delete Edge Without Specifying Id in URL" ).build ();
     LoggingUtil.logRestRequest(logger, auditLogger, req, response);
     return response;
   }

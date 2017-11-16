@@ -81,7 +81,7 @@ public class LoggingUtil {
         (req != null) ? req.getMethod() : "Unknown",
         (req != null) ? req.getRequestURL().toString() : "Unknown",
         (req != null) ? req.getRemoteHost() : "Unknown",
-        Integer.toString(response.getStatus()) + " error: " + (response.getEntity() == null ? ""
+        Integer.toString(response.getStatus()) + " payload: " + (response.getEntity() == null ? ""
             : response.getEntity().toString()));
     MDC.clear();
   }

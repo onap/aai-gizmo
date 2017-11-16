@@ -163,6 +163,7 @@ public class OxmModelValidator {
           CaseFormat.LOWER_HYPHEN.to(CaseFormat.UPPER_CAMEL, type));
 
       final DynamicType modelObjectType = jaxbContext.getDynamicType(modelObjectClass);
+      final DynamicType reservedType = jaxbContext.getDynamicType("ReservedPropNames");
 
       Set<Map.Entry<String, JsonElement>> payloadEntriesSet = properties.getAsJsonObject()
           .entrySet();
@@ -173,7 +174,9 @@ public class OxmModelValidator {
 
         // check for valid field
         if (modelObjectType.getDescriptor().getMappingForAttributeName(keyJavaName) == null) {
-          throw new CrudException("Invalid field: " + entry.getKey(), Status.BAD_REQUEST);
+        	if(reservedType.getDescriptor().getMappingForAttributeName(keyJavaName) == null){
+        		throw new CrudException("Invalid field: " + entry.getKey(), Status.BAD_REQUEST);
+        	}
         }
 
       }
@@ -219,6 +222,20 @@ public class OxmModelValidator {
           }
         }
       }
+      
+      // Handle reserved properties
+      for (DatabaseMapping mapping : reservedType.getDescriptor().getMappings()) {
+        if (mapping.isAbstractDirectMapping()) {
+          DatabaseField field = mapping.getField();
+          String keyName = field.getName().substring(0, field.getName().indexOf("/"));
+
+          if (entriesMap.containsKey(keyName)) {
+            Object value = CrudServiceUtil.validateFieldType(entriesMap.get(keyName)
+                .getAsString(), field.getType());
+            modelVertexBuilder.property(keyName, value);
+          }
+        }
+      }
 
       return modelVertexBuilder.build();
     } catch (Exception e) {
@@ -237,6 +254,7 @@ public class OxmModelValidator {
           CaseFormat.LOWER_HYPHEN.to(CaseFormat.UPPER_CAMEL, type));
 
       final DynamicType modelObjectType = jaxbContext.getDynamicType(modelObjectClass);
+      final DynamicType reservedType = jaxbContext.getDynamicType("ReservedPropNames");
 
       Set<Map.Entry<String, JsonElement>> payloadEntriesSet = properties.getAsJsonObject()
           .entrySet();
@@ -247,18 +265,25 @@ public class OxmModelValidator {
 
         String keyJavaName = CaseFormat.LOWER_HYPHEN.to(CaseFormat.LOWER_CAMEL, entry.getKey());
 
-        // check for valid field
-        if (modelObjectType.getDescriptor().getMappingForAttributeName(keyJavaName) == null) {
+        DatabaseField field = null;
+        String defaultValue = null;
+        
+        if (modelObjectType.getDescriptor().getMappingForAttributeName(keyJavaName) != null) {
+          field = modelObjectType.getDescriptor().getMappingForAttributeName(keyJavaName).getField();
+          defaultValue = modelObjectType.getDescriptor()
+              .getMappingForAttributeName(keyJavaName)
+              .getProperties().get("defaultValue") == null ? ""
+              : modelObjectType.getDescriptor().getMappingForAttributeName(keyJavaName)
+              .getProperties().get("defaultValue").toString();
+        }
+        else if (reservedType.getDescriptor().getMappingForAttributeName(keyJavaName) != null) {
+          field = reservedType.getDescriptor().getMappingForAttributeName(keyJavaName).getField();
+          defaultValue = "";
+        }
+        
+        if (field == null) {
           throw new CrudException("Invalid field: " + entry.getKey(), Status.BAD_REQUEST);
         }
-
-        DatabaseField field = modelObjectType.getDescriptor()
-            .getMappingForAttributeName(keyJavaName).getField();
-        String defaultValue = modelObjectType.getDescriptor()
-            .getMappingForAttributeName(keyJavaName)
-            .getProperties().get("defaultValue") == null ? ""
-            : modelObjectType.getDescriptor().getMappingForAttributeName(keyJavaName)
-            .getProperties().get("defaultValue").toString();
 
         // check if mandatory field is not set to null
         if (((XMLField) field).isRequired() && entry.getValue() instanceof JsonNull
@@ -288,7 +313,7 @@ public class OxmModelValidator {
     }
 
   }
-
+  
   private static DatabaseField getDatabaseField(String fieldName, DynamicType modelObjectType) {
     for (DatabaseField field : modelObjectType.getDescriptor().getAllFields()) {
       int ix = field.getName().indexOf("/");

@@ -43,6 +43,7 @@ public enum CrudServiceMsgs implements LogMessageEnum {
   INVALID_OXM_FILE,
   INVALID_OXM_DIR,
   OXM_FILE_CHANGED,
+  TRANSACTION,
 
   /**
    * Successfully loaded schema: {0}

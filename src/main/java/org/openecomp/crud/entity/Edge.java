@@ -23,16 +23,22 @@
  */
 package org.openecomp.crud.entity;
 
+import net.dongliu.gson.GsonJava8TypeAdapterFactory;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.SerializedName;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 public class Edge {
-  private static final Gson gson = new GsonBuilder().create();
+  private static final Gson gson = new GsonBuilder()
+      .registerTypeAdapterFactory(new GsonJava8TypeAdapterFactory())
+      .create();
 
+  @SerializedName(value="id", alternate={"key"})
   private final Optional<String> id;
   private final String type;
   private final Map<String, Object> properties;
@@ -104,6 +110,14 @@ public class Edge {
 
   public String toJson() {
     return gson.toJson(this);
+  }
+
+  public String toJson(Gson customGson) {
+    return customGson.toJson(this);
+  }
+
+  public static Edge fromJson(String jsonString) {
+    return gson.fromJson(jsonString, Edge.class);
   }
 
   public Optional<String> getId() {
