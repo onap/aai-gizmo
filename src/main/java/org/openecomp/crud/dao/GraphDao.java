@@ -38,40 +38,48 @@ public interface GraphDao {
   public Vertex getVertex(String id, String type) throws CrudException;
 
   /**
-   * Retrieve all of the edges which are incident to the vertex with the specified identifier.
+   * Retrieve all of the edges which are incident to the vertex with the
+   * specified identifier.
    *
-   * @param id - The unique identifier of the vertex to retrieve the edges for.
+   * @param id
+   *          - The unique identifier of the vertex to retrieve the edges for.
    * @return - A collection of edges.
    * @throws CrudException
    */
   public List<Edge> getVertexEdges(String id) throws CrudException;
 
   /**
-   * Retrieve a collection of {@link Vertex} objects which match the supplied type label
-   * and filter properties.
+   * Retrieve a collection of {@link Vertex} objects which match the supplied
+   * type label and filter properties.
    *
-   * @param type   - The vertex type that we want to retrieve.
-   * @param filter - The parameters to filter our results by.
+   * @param type
+   *          - The vertex type that we want to retrieve.
+   * @param filter
+   *          - The parameters to filter our results by.
    * @return - A collection of vertices.
    * @throws CrudException
    */
   public List<Vertex> getVertices(String type, Map<String, Object> filter) throws CrudException;
 
   /**
-   * Retrieve an {@link Edge} from the graph database by specifying its unique identifier.
+   * Retrieve an {@link Edge} from the graph database by specifying its unique
+   * identifier.
    *
-   * @param id - The unique identifier for the Edge to be retrieved.
+   * @param id
+   *          - The unique identifier for the Edge to be retrieved.
    * @return - The Edge corresponding to the specified identifier.
    * @throws CrudException
    */
   public Edge getEdge(String id, String type) throws CrudException;
 
   /**
-   * Retrieve a collection of {@link Edge} objects with a given type and which match a set of
-   * supplied filter parameters.
+   * Retrieve a collection of {@link Edge} objects with a given type and which
+   * match a set of supplied filter parameters.
    *
-   * @param type   - The type of edges that we are interested in.
-   * @param filter - The parameters that we want to filter our edges by.
+   * @param type
+   *          - The type of edges that we are interested in.
+   * @param filter
+   *          - The parameters that we want to filter our edges by.
    * @return - A collection of edges which match the supplied filter parameters.
    * @throws CrudException
    */
@@ -80,8 +88,10 @@ public interface GraphDao {
   /**
    * Insert a new {@link Vertex} into the graph data store.
    *
-   * @param type       - The type label to assign to the vertex.
-   * @param properties - The properties to associated with this vertex.
+   * @param type
+   *          - The type label to assign to the vertex.
+   * @param properties
+   *          - The properties to associated with this vertex.
    * @return - The {@link Vertex} object that was created.
    * @throws CrudException
    */
@@ -90,20 +100,23 @@ public interface GraphDao {
   /**
    * Updates an existing {@link Vertex}.
    *
-   * @param id         - The unique identifier of the vertex to be updated.
-   * @param properties - The properties to associate with the vertex.
+   * @param id
+   *          - The unique identifier of the vertex to be updated.
+   * @param properties
+   *          - The properties to associate with the vertex.
    * @return - The udpated vertex.
    * @throws CrudException
    */
-  public Vertex updateVertex(String id, String type, Map<String, Object> properties)
-      throws CrudException;
+  public Vertex updateVertex(String id, String type, Map<String, Object> properties) throws CrudException;
 
   /**
    * Removes the specified vertex from the graph data base.
    *
-   * <p>NOTE: The vertex MUST contain NO incident edges before it can be deleted.
+   * <p>
+   * NOTE: The vertex MUST contain NO incident edges before it can be deleted.
    *
-   * @param id - The unique identifier of the vertex to be deleted.
+   * @param id
+   *          - The unique identifier of the vertex to be deleted.
    * @throws CrudException
    */
   public void deleteVertex(String id, String type) throws CrudException;
@@ -111,21 +124,26 @@ public interface GraphDao {
   /**
    * Adds an edge to the graph database.
    *
-   * @param type       - The 'type' label to apply to the edge.
-   * @param source     - The source vertex for this edge.
-   * @param target     - The target vertex for this edge.
-   * @param properties - The properties map to associate with this edge.
+   * @param type
+   *          - The 'type' label to apply to the edge.
+   * @param source
+   *          - The source vertex for this edge.
+   * @param target
+   *          - The target vertex for this edge.
+   * @param properties
+   *          - The properties map to associate with this edge.
    * @return - The {@link Edge} object that was created.
    * @throws CrudException
    */
-  public Edge addEdge(String type, Vertex source, Vertex target, Map<String, Object> properties)
-      throws CrudException;
+  public Edge addEdge(String type, Vertex source, Vertex target, Map<String, Object> properties) throws CrudException;
 
   /**
    * Updates an existing {@link Edge}.
    *
-   * @param id         - The unique identifier of the edge to be updated.
-   * @param properties - The properties to associate with the edge.
+   * @param id
+   *          - The unique identifier of the edge to be updated.
+   * @param properties
+   *          - The properties to associate with the edge.
    * @return - The update edge.
    * @throws CrudException
    */
@@ -134,25 +152,32 @@ public interface GraphDao {
   /**
    * Remove the specified edge from the graph data base.
    *
-   * @param id - The unique identifier of the edge to be deleted.
+   * @param id
+   *          - The unique identifier of the edge to be deleted.
    * @throws CrudException
    */
   public void deleteEdge(String id, String type) throws CrudException;
-  
- 
+
   public String openTransaction();
+
   public void commitTransaction(String id) throws CrudException;
+
   public void rollbackTransaction(String id) throws CrudException;
+
   public boolean transactionExists(String id) throws CrudException;
-  
+
   public Vertex addVertex(String type, Map<String, Object> properties, String txId) throws CrudException;
+
   public Edge addEdge(String type, Vertex source, Vertex target, Map<String, Object> properties, String txId)
-	      throws CrudException;
-  public Vertex updateVertex(String id, String type, Map<String, Object> properties, String txId)
-	      throws CrudException;
-  
+      throws CrudException;
+
+  public Vertex updateVertex(String id, String type, Map<String, Object> properties, String txId) throws CrudException;
+
   public Edge updateEdge(Edge edge, String txId) throws CrudException;
+
   public void deleteVertex(String id, String type, String txId) throws CrudException;
+
   public void deleteEdge(String id, String type, String txId) throws CrudException;
+
   public Edge getEdge(String id, String type, String txId) throws CrudException;
 }

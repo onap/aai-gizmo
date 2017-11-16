@@ -34,15 +34,14 @@ import java.util.Map;
 import java.util.Optional;
 
 public class Vertex {
-  private static final Gson gson = new GsonBuilder()
-      .registerTypeAdapterFactory(new GsonJava8TypeAdapterFactory()).create();
+  private static final Gson gson = new GsonBuilder().registerTypeAdapterFactory(new GsonJava8TypeAdapterFactory())
+      .create();
 
-  @SerializedName(value="id", alternate={"key"})
+  @SerializedName(value = "id", alternate = { "key" })
   private final Optional<String> id;
 
   private final String type;
   private final Map<String, Object> properties;
-
 
   private Vertex(Builder builder) {
     this.id = builder.id;

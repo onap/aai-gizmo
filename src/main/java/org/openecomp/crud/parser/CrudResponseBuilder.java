@@ -52,45 +52,44 @@ public class CrudResponseBuilder {
   public static final String SOURCE = "source";
   public static final String TARGET = "target";
   public static final String URL_BASE = "services/inventory/";
-  
-  public static String buildUpsertBulkResponse(HashMap<String,Vertex> vertices, HashMap<String,Edge> edges , String version,BulkPayload incomingPayload)
-	      throws CrudException {
-	  
-		for (JsonElement e : incomingPayload.getObjects()) {
-			List<Map.Entry<String, JsonElement>> entries = new ArrayList<Map.Entry<String, JsonElement>>(e.getAsJsonObject().entrySet());
 
-			Map.Entry<String, JsonElement> item = entries.get(1);
-			
-			Vertex responseVertex = vertices.get(item.getKey());
-			if(responseVertex != null){
-			JsonObject v = gson.fromJson(buildUpsertVertexResponse(responseVertex,version), JsonObject.class);
-			item.setValue(v);
-			}else{
-				item.setValue(gson.fromJson("{}", JsonObject.class));
-			}
-			
-		}
-		for (JsonElement e : incomingPayload.getRelationships()) {
-			List<Map.Entry<String, JsonElement>> entries = new ArrayList<Map.Entry<String, JsonElement>>(e.getAsJsonObject().entrySet());
+  public static String buildUpsertBulkResponse(HashMap<String, Vertex> vertices, HashMap<String, Edge> edges,
+      String version, BulkPayload incomingPayload) throws CrudException {
 
-			Map.Entry<String, JsonElement> item = entries.get(1);
-			
-			Edge responseEdge = edges.get(item.getKey());
-			if(responseEdge != null){
-			JsonObject v = gson.fromJson(buildUpsertEdgeResponse(responseEdge,version), JsonObject.class);
-			item.setValue(v);
-			}else{
-				item.setValue(gson.fromJson("{}", JsonObject.class));
-			}
-			
-		}
-	    return incomingPayload.toJson();
-	  }
-  
-  
+    for (JsonElement e : incomingPayload.getObjects()) {
+      List<Map.Entry<String, JsonElement>> entries = new ArrayList<Map.Entry<String, JsonElement>>(
+          e.getAsJsonObject().entrySet());
 
-  public static String buildUpsertVertexResponse(Vertex vertex, String version)
-      throws CrudException {
+      Map.Entry<String, JsonElement> item = entries.get(1);
+
+      Vertex responseVertex = vertices.get(item.getKey());
+      if (responseVertex != null) {
+        JsonObject v = gson.fromJson(buildUpsertVertexResponse(responseVertex, version), JsonObject.class);
+        item.setValue(v);
+      } else {
+        item.setValue(gson.fromJson("{}", JsonObject.class));
+      }
+
+    }
+    for (JsonElement e : incomingPayload.getRelationships()) {
+      List<Map.Entry<String, JsonElement>> entries = new ArrayList<Map.Entry<String, JsonElement>>(
+          e.getAsJsonObject().entrySet());
+
+      Map.Entry<String, JsonElement> item = entries.get(1);
+
+      Edge responseEdge = edges.get(item.getKey());
+      if (responseEdge != null) {
+        JsonObject v = gson.fromJson(buildUpsertEdgeResponse(responseEdge, version), JsonObject.class);
+        item.setValue(v);
+      } else {
+        item.setValue(gson.fromJson("{}", JsonObject.class));
+      }
+
+    }
+    return incomingPayload.toJson();
+  }
+
+  public static String buildUpsertVertexResponse(Vertex vertex, String version) throws CrudException {
     VertexPayload payload = new VertexPayload();
     payload.setId(vertex.getId().get());
     payload.setType(vertex.getType());
@@ -107,8 +106,7 @@ public class CrudResponseBuilder {
     return buildGetEdgeResponse(edge, version);
   }
 
-  public static String buildGetVertexResponse(Vertex vertex, List<Edge> edges, String version)
-      throws CrudException {
+  public static String buildGetVertexResponse(Vertex vertex, List<Edge> edges, String version) throws CrudException {
     VertexPayload vertexPayload = new VertexPayload();
     vertexPayload.setId(vertex.getId().get());
     vertexPayload.setType(vertex.getType());
@@ -125,26 +123,21 @@ public class CrudResponseBuilder {
         EdgePayload inEdge = new EdgePayload();
         inEdge.setId(e.getId().get());
         inEdge.setType(e.getType());
-        inEdge.setUrl(URL_BASE + "relationships/"
-            + RelationshipSchemaLoader.getLatestSchemaVersion()
-            + "/" + e.getType() + "/" + e.getId().get());
-        inEdge.setSource(
-            URL_BASE + version + "/" + e.getSource().getType() + "/" + e.getSource().getId().get());
+        inEdge.setUrl(URL_BASE + "relationships/" + RelationshipSchemaLoader.getLatestSchemaVersion() + "/"
+            + e.getType() + "/" + e.getId().get());
+        inEdge.setSource(URL_BASE + version + "/" + e.getSource().getType() + "/" + e.getSource().getId().get());
 
         inEdges.add(inEdge);
       } else if (e.getSource().getId().get().equals(vertex.getId().get())) {
         EdgePayload outEdge = new EdgePayload();
         outEdge.setId(e.getId().get());
         outEdge.setType(e.getType());
-        outEdge.setUrl(URL_BASE + "relationships/"
-            + RelationshipSchemaLoader.getLatestSchemaVersion()
-            + "/" + e.getType() + "/" + e.getId().get());
-        outEdge.setTarget(
-            URL_BASE + version + "/" + e.getTarget().getType() + "/" + e.getTarget().getId().get());
+        outEdge.setUrl(URL_BASE + "relationships/" + RelationshipSchemaLoader.getLatestSchemaVersion() + "/"
+            + e.getType() + "/" + e.getId().get());
+        outEdge.setTarget(URL_BASE + version + "/" + e.getTarget().getType() + "/" + e.getTarget().getId().get());
         outEdges.add(outEdge);
       }
     }
-
 
     vertexPayload.setIn(inEdges);
     vertexPayload.setOut(outEdges);
@@ -152,16 +145,14 @@ public class CrudResponseBuilder {
     return vertexPayload.toJson();
   }
 
-  public static String buildGetVerticesResponse(List<Vertex> items, String version)
-      throws CrudException {
+  public static String buildGetVerticesResponse(List<Vertex> items, String version) throws CrudException {
 
     JsonArray arry = new JsonArray();
     for (Vertex v : items) {
       JsonObject item = new JsonObject();
       item.addProperty("id", v.getId().get());
       item.addProperty("type", v.getType());
-      item.addProperty("url", "services/inventory/" + version + "/"
-          + v.getType() + "/" + v.getId().get());
+      item.addProperty("url", "services/inventory/" + version + "/" + v.getType() + "/" + v.getId().get());
 
       arry.add(item);
     }
@@ -174,14 +165,9 @@ public class CrudResponseBuilder {
     EdgePayload payload = new EdgePayload();
     payload.setId(edge.getId().get());
     payload.setType(edge.getType());
-    payload.setUrl(URL_BASE + "relationships/" + version + "/" + edge.getType()
-        + "/" + edge.getId().get());
-    payload.setSource(
-        URL_BASE + version + "/" + edge.getSource().getType()
-            + "/" + edge.getSource().getId().get());
-    payload.setTarget(
-        URL_BASE + version + "/" + edge.getTarget().getType()
-            + "/" + edge.getTarget().getId().get());
+    payload.setUrl(URL_BASE + "relationships/" + version + "/" + edge.getType() + "/" + edge.getId().get());
+    payload.setSource(URL_BASE + version + "/" + edge.getSource().getType() + "/" + edge.getSource().getId().get());
+    payload.setTarget(URL_BASE + version + "/" + edge.getTarget().getType() + "/" + edge.getTarget().getId().get());
 
     JsonObject props = new JsonObject();
     for (String key : edge.getProperties().keySet()) {
@@ -191,20 +177,18 @@ public class CrudResponseBuilder {
     return payload.toJson();
   }
 
-  public static String buildGetEdgesResponse(List<Edge> items, String version)
-      throws CrudException {
+  public static String buildGetEdgesResponse(List<Edge> items, String version) throws CrudException {
 
     JsonArray arry = new JsonArray();
     for (Edge e : items) {
       JsonObject item = new JsonObject();
       item.addProperty("id", e.getId().get());
       item.addProperty("type", e.getType());
-      item.addProperty("url", URL_BASE + "relationships/" + version + "/" + e.getType()
-          + "/" + e.getId().get());
-      item.addProperty(SOURCE, "services/inventory/" + version + "/" + e.getSource().getType()
-          + "/" + e.getSource().getId().get());
-      item.addProperty(TARGET, "services/inventory/" + version + "/" + e.getTarget().getType()
-          + "/" + e.getTarget().getId().get());
+      item.addProperty("url", URL_BASE + "relationships/" + version + "/" + e.getType() + "/" + e.getId().get());
+      item.addProperty(SOURCE,
+          "services/inventory/" + version + "/" + e.getSource().getType() + "/" + e.getSource().getId().get());
+      item.addProperty(TARGET,
+          "services/inventory/" + version + "/" + e.getTarget().getType() + "/" + e.getTarget().getId().get());
       arry.add(item);
     }
 

@@ -30,63 +30,56 @@ import org.openecomp.cl.eelf.LogMessageEnum;
 public enum CrudServiceMsgs implements LogMessageEnum {
 
   /**
-   * Received request {0} {1} from {2}.  Sending response: {3}
+   * Received request {0} {1} from {2}. Sending response: {3}
    *
-   * <p>Arguments:
-   * {0} = operation
-   * {1} = target URL
-   * {2} = source
-   * {3} = response code
+   * <p>
+   * Arguments: {0} = operation {1} = target URL {2} = source {3} = response
+   * code
    */
   PROCESS_REST_REQUEST,
 
-  INVALID_OXM_FILE,
-  INVALID_OXM_DIR,
-  OXM_FILE_CHANGED,
-  TRANSACTION,
+  INVALID_OXM_FILE, INVALID_OXM_DIR, OXM_FILE_CHANGED, TRANSACTION,
 
   /**
    * Successfully loaded schema: {0}
    *
-   * <p>Arguments:
-   * {0} = oxm filename
+   * <p>
+   * Arguments: {0} = oxm filename
    */
   LOADED_OXM_FILE,
 
   /**
    * Unable to load OXM schema: {0}
    *
-   * <p>Arguments:
-   * {0} = error
+   * <p>
+   * Arguments: {0} = error
    */
   OXM_LOAD_ERROR,
 
   /**
    * Stopping ChampDAO...
    *
-   * <p>Arguments:
+   * <p>
+   * Arguments:
    */
   STOPPING_CHAMP_DAO,
 
   /**
-   * Failure instantiating CRUD Rest Service.  Cause: {0}
+   * Failure instantiating CRUD Rest Service. Cause: {0}
    *
-   * <p>Arguments:
-   * {0} - Failure cause.
+   * <p>
+   * Arguments: {0} - Failure cause.
    */
   INSTANTIATE_AUTH_ERR,
 
   /**
-   * Arguments:
-   * {0} Opertaion
-   * {1} URI
-   * {2} = Exception
+   * Arguments: {0} Opertaion {1} URI {2} = Exception
    */
   EXCEPTION_DURING_METHOD_CALL;
 
-
   /**
-   * Static initializer to ensure the resource bundles for this class are loaded...
+   * Static initializer to ensure the resource bundles for this class are
+   * loaded...
    */
   static {
     EELFResourceManager.loadMessageBundle("logging/CrudServiceMsgs");

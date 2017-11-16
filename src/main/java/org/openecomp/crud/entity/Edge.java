@@ -34,17 +34,15 @@ import java.util.Map;
 import java.util.Optional;
 
 public class Edge {
-  private static final Gson gson = new GsonBuilder()
-      .registerTypeAdapterFactory(new GsonJava8TypeAdapterFactory())
+  private static final Gson gson = new GsonBuilder().registerTypeAdapterFactory(new GsonJava8TypeAdapterFactory())
       .create();
 
-  @SerializedName(value="id", alternate={"key"})
+  @SerializedName(value = "id", alternate = { "key" })
   private final Optional<String> id;
   private final String type;
   private final Map<String, Object> properties;
   private final Vertex source;
   private final Vertex target;
-
 
   private Edge(Builder builder) {
     this.id = builder.id;
@@ -101,11 +99,10 @@ public class Edge {
     }
   }
 
-
   @Override
   public String toString() {
-    return "Edge [id=" + id + ", type=" + type + ", properties=" + properties
-        + ", source=" + source + ", target=" + target + "]";
+    return "Edge [id=" + id + ", type=" + type + ", properties=" + properties + ", source=" + source + ", target="
+        + target + "]";
   }
 
   public String toJson() {
@@ -139,6 +136,5 @@ public class Edge {
   public Vertex getTarget() {
     return target;
   }
-
 
 }

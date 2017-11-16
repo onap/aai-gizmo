@@ -34,7 +34,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
-
 public class LoggingUtil {
   /**
    * Initializes mdc context.
@@ -61,28 +60,23 @@ public class LoggingUtil {
   /**
    * Logs the rest request.
    */
-  public static void logRestRequest(Logger logger, Logger auditLogger,
-                                    HttpServletRequest req, Response response) {
+  public static void logRestRequest(Logger logger, Logger auditLogger, HttpServletRequest req, Response response) {
     String respStatusString = "";
     if (Response.Status.fromStatusCode(response.getStatus()) != null) {
       respStatusString = Response.Status.fromStatusCode(response.getStatus()).toString();
     }
 
     // Generate error log
-    logger.info(CrudServiceMsgs.PROCESS_REST_REQUEST, req.getMethod(),
-        req.getRequestURL().toString(), req.getRemoteHost(),
-        Integer.toString(response.getStatus()));
+    logger.info(CrudServiceMsgs.PROCESS_REST_REQUEST, req.getMethod(), req.getRequestURL().toString(),
+        req.getRemoteHost(), Integer.toString(response.getStatus()));
 
     // Generate audit log.
     auditLogger.info(CrudServiceMsgs.PROCESS_REST_REQUEST,
-        new LogFields()
-            .setField(LogLine.DefinedFields.RESPONSE_CODE, response.getStatus())
+        new LogFields().setField(LogLine.DefinedFields.RESPONSE_CODE, response.getStatus())
             .setField(LogLine.DefinedFields.RESPONSE_DESCRIPTION, respStatusString),
-        (req != null) ? req.getMethod() : "Unknown",
-        (req != null) ? req.getRequestURL().toString() : "Unknown",
-        (req != null) ? req.getRemoteHost() : "Unknown",
-        Integer.toString(response.getStatus()) + " payload: " + (response.getEntity() == null ? ""
-            : response.getEntity().toString()));
+        (req != null) ? req.getMethod() : "Unknown", (req != null) ? req.getRequestURL().toString() : "Unknown",
+        (req != null) ? req.getRemoteHost() : "Unknown", Integer.toString(response.getStatus()) + " payload: "
+            + (response.getEntity() == null ? "" : response.getEntity().toString()));
     MDC.clear();
   }
 }

@@ -87,12 +87,11 @@ public class CrudRestService {
 
   @GET
   @Path("/{version}/{type}/{id}")
-  @Consumes({MediaType.APPLICATION_JSON})
-  @Produces({MediaType.APPLICATION_JSON})
-  public Response getVertex(String content, @PathParam("version") String version,
-                            @PathParam("type") String type, @PathParam("id") String id,
-                            @PathParam("uri") @Encoded String uri, @Context HttpHeaders headers,
-                            @Context UriInfo uriInfo, @Context HttpServletRequest req) {
+  @Consumes({ MediaType.APPLICATION_JSON })
+  @Produces({ MediaType.APPLICATION_JSON })
+  public Response getVertex(String content, @PathParam("version") String version, @PathParam("type") String type,
+      @PathParam("id") String id, @PathParam("uri") @Encoded String uri, @Context HttpHeaders headers,
+      @Context UriInfo uriInfo, @Context HttpServletRequest req) {
     LoggingUtil.initMdcContext(req, headers);
 
     logger.debug("Incoming request..." + content);
@@ -109,8 +108,7 @@ public class CrudRestService {
         response = Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
       }
     } else {
-      response = Response.status(Status.FORBIDDEN).entity(content)
-          .type(MediaType.APPLICATION_JSON).build();
+      response = Response.status(Status.FORBIDDEN).entity(content).type(MediaType.APPLICATION_JSON).build();
     }
 
     LoggingUtil.logRestRequest(logger, auditLogger, req, response);
@@ -119,12 +117,11 @@ public class CrudRestService {
 
   @GET
   @Path("/{version}/{type}/")
-  @Consumes({MediaType.APPLICATION_JSON})
-  @Produces({MediaType.APPLICATION_JSON})
-  public Response getVertices(String content, @PathParam("version") String version,
-                              @PathParam("type") String type, @PathParam("uri") @Encoded String uri,
-                              @Context HttpHeaders headers, @Context UriInfo uriInfo,
-                              @Context HttpServletRequest req) {
+  @Consumes({ MediaType.APPLICATION_JSON })
+  @Produces({ MediaType.APPLICATION_JSON })
+  public Response getVertices(String content, @PathParam("version") String version, @PathParam("type") String type,
+      @PathParam("uri") @Encoded String uri, @Context HttpHeaders headers, @Context UriInfo uriInfo,
+      @Context HttpServletRequest req) {
 
     LoggingUtil.initMdcContext(req, headers);
 
@@ -146,8 +143,7 @@ public class CrudRestService {
         response = Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
       }
     } else {
-      response = Response.status(Status.FORBIDDEN).entity(content)
-          .type(MediaType.APPLICATION_JSON).build();
+      response = Response.status(Status.FORBIDDEN).entity(content).type(MediaType.APPLICATION_JSON).build();
     }
 
     LoggingUtil.logRestRequest(logger, auditLogger, req, response);
@@ -156,12 +152,11 @@ public class CrudRestService {
 
   @GET
   @Path("/relationships/{version}/{type}/{id}")
-  @Consumes({MediaType.APPLICATION_JSON})
-  @Produces({MediaType.APPLICATION_JSON})
-  public Response getEdge(String content, @PathParam("version") String version,
-                          @PathParam("type") String type, @PathParam("id") String id,
-                          @PathParam("uri") @Encoded String uri, @Context HttpHeaders headers,
-                          @Context UriInfo uriInfo, @Context HttpServletRequest req) {
+  @Consumes({ MediaType.APPLICATION_JSON })
+  @Produces({ MediaType.APPLICATION_JSON })
+  public Response getEdge(String content, @PathParam("version") String version, @PathParam("type") String type,
+      @PathParam("id") String id, @PathParam("uri") @Encoded String uri, @Context HttpHeaders headers,
+      @Context UriInfo uriInfo, @Context HttpServletRequest req) {
     LoggingUtil.initMdcContext(req, headers);
 
     logger.debug("Incoming request..." + content);
@@ -179,8 +174,7 @@ public class CrudRestService {
         response = Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
       }
     } else {
-      response = Response.status(Status.FORBIDDEN).entity(content)
-          .type(MediaType.APPLICATION_JSON).build();
+      response = Response.status(Status.FORBIDDEN).entity(content).type(MediaType.APPLICATION_JSON).build();
     }
 
     LoggingUtil.logRestRequest(logger, auditLogger, req, response);
@@ -189,12 +183,11 @@ public class CrudRestService {
 
   @GET
   @Path("/relationships/{version}/{type}/")
-  @Consumes({MediaType.APPLICATION_JSON})
-  @Produces({MediaType.APPLICATION_JSON})
-  public Response getEdges(String content, @PathParam("version") String version,
-                           @PathParam("type") String type, @PathParam("uri") @Encoded String uri,
-                           @Context HttpHeaders headers, @Context UriInfo uriInfo,
-                           @Context HttpServletRequest req) {
+  @Consumes({ MediaType.APPLICATION_JSON })
+  @Produces({ MediaType.APPLICATION_JSON })
+  public Response getEdges(String content, @PathParam("version") String version, @PathParam("type") String type,
+      @PathParam("uri") @Encoded String uri, @Context HttpHeaders headers, @Context UriInfo uriInfo,
+      @Context HttpServletRequest req) {
 
     LoggingUtil.initMdcContext(req, headers);
 
@@ -217,8 +210,7 @@ public class CrudRestService {
         response = Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
       }
     } else {
-      response = Response.status(Status.FORBIDDEN).entity(content)
-          .type(MediaType.APPLICATION_JSON).build();
+      response = Response.status(Status.FORBIDDEN).entity(content).type(MediaType.APPLICATION_JSON).build();
 
     }
 
@@ -228,12 +220,11 @@ public class CrudRestService {
 
   @PUT
   @Path("/relationships/{version}/{type}/{id}")
-  @Consumes({MediaType.APPLICATION_JSON})
-  @Produces({MediaType.APPLICATION_JSON})
-  public Response updateEdge(String content, @PathParam("version") String version,
-                             @PathParam("type") String type, @PathParam("id") String id,
-                             @PathParam("uri") @Encoded String uri, @Context HttpHeaders headers,
-                             @Context UriInfo uriInfo, @Context HttpServletRequest req) {
+  @Consumes({ MediaType.APPLICATION_JSON })
+  @Produces({ MediaType.APPLICATION_JSON })
+  public Response updateEdge(String content, @PathParam("version") String version, @PathParam("type") String type,
+      @PathParam("id") String id, @PathParam("uri") @Encoded String uri, @Context HttpHeaders headers,
+      @Context UriInfo uriInfo, @Context HttpServletRequest req) {
 
     LoggingUtil.initMdcContext(req, headers);
 
@@ -253,8 +244,7 @@ public class CrudRestService {
         String result;
 
         if (headers.getRequestHeaders().getFirst(HTTP_PATCH_METHOD_OVERRIDE) != null
-            && headers.getRequestHeaders().getFirst(HTTP_PATCH_METHOD_OVERRIDE)
-            .equalsIgnoreCase("PATCH")) {
+            && headers.getRequestHeaders().getFirst(HTTP_PATCH_METHOD_OVERRIDE).equalsIgnoreCase("PATCH")) {
           result = crudGraphDataService.patchEdge(version, id, type, payload);
         } else {
 
@@ -268,8 +258,7 @@ public class CrudRestService {
         response = Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
       }
     } else {
-      response = Response.status(Status.FORBIDDEN).entity(content)
-          .type(MediaType.APPLICATION_JSON).build();
+      response = Response.status(Status.FORBIDDEN).entity(content).type(MediaType.APPLICATION_JSON).build();
 
     }
 
@@ -279,19 +268,17 @@ public class CrudRestService {
 
   @PATCH
   @Path("/relationships/{version}/{type}/{id}")
-  @Consumes({"application/merge-patch+json"})
-  @Produces({MediaType.APPLICATION_JSON})
-  public Response patchEdge(String content, @PathParam("version") String version,
-                            @PathParam("type") String type, @PathParam("id") String id,
-                            @PathParam("uri") @Encoded String uri, @Context HttpHeaders headers,
-                            @Context UriInfo uriInfo, @Context HttpServletRequest req) {
+  @Consumes({ "application/merge-patch+json" })
+  @Produces({ MediaType.APPLICATION_JSON })
+  public Response patchEdge(String content, @PathParam("version") String version, @PathParam("type") String type,
+      @PathParam("id") String id, @PathParam("uri") @Encoded String uri, @Context HttpHeaders headers,
+      @Context UriInfo uriInfo, @Context HttpServletRequest req) {
 
     LoggingUtil.initMdcContext(req, headers);
 
     logger.debug("Incoming request..." + content);
     Response response = null;
-    if (validateRequest(req, uri, content, Action.PATCH,
-        CrudServiceConstants.CRD_AUTH_POLICY_NAME)) {
+    if (validateRequest(req, uri, content, Action.PATCH, CrudServiceConstants.CRD_AUTH_POLICY_NAME)) {
 
       try {
         EdgePayload payload = EdgePayload.fromJson(content);
@@ -310,8 +297,7 @@ public class CrudRestService {
         response = Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
       }
     } else {
-      response = Response.status(Status.FORBIDDEN).entity(content)
-          .type(MediaType.APPLICATION_JSON).build();
+      response = Response.status(Status.FORBIDDEN).entity(content).type(MediaType.APPLICATION_JSON).build();
     }
 
     LoggingUtil.logRestRequest(logger, auditLogger, req, response);
@@ -320,12 +306,11 @@ public class CrudRestService {
 
   @PUT
   @Path("/{version}/{type}/{id}")
-  @Consumes({MediaType.APPLICATION_JSON})
-  @Produces({MediaType.APPLICATION_JSON})
-  public Response updateVertex(String content, @PathParam("version") String version,
-                               @PathParam("type") String type, @PathParam("id") String id,
-                               @PathParam("uri") @Encoded String uri, @Context HttpHeaders headers,
-                               @Context UriInfo uriInfo, @Context HttpServletRequest req) {
+  @Consumes({ MediaType.APPLICATION_JSON })
+  @Produces({ MediaType.APPLICATION_JSON })
+  public Response updateVertex(String content, @PathParam("version") String version, @PathParam("type") String type,
+      @PathParam("id") String id, @PathParam("uri") @Encoded String uri, @Context HttpHeaders headers,
+      @Context UriInfo uriInfo, @Context HttpServletRequest req) {
 
     LoggingUtil.initMdcContext(req, headers);
 
@@ -344,8 +329,7 @@ public class CrudRestService {
         }
         String result;
         if (headers.getRequestHeaders().getFirst(HTTP_PATCH_METHOD_OVERRIDE) != null
-            && headers.getRequestHeaders().getFirst(HTTP_PATCH_METHOD_OVERRIDE)
-            .equalsIgnoreCase("PATCH")) {
+            && headers.getRequestHeaders().getFirst(HTTP_PATCH_METHOD_OVERRIDE).equalsIgnoreCase("PATCH")) {
           result = crudGraphDataService.patchVertex(version, id, type, payload);
         } else {
 
@@ -358,8 +342,7 @@ public class CrudRestService {
         response = Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
       }
     } else {
-      response = Response.status(Status.FORBIDDEN).entity(content)
-          .type(MediaType.APPLICATION_JSON).build();
+      response = Response.status(Status.FORBIDDEN).entity(content).type(MediaType.APPLICATION_JSON).build();
     }
 
     LoggingUtil.logRestRequest(logger, auditLogger, req, response);
@@ -368,20 +351,18 @@ public class CrudRestService {
 
   @PATCH
   @Path("/{version}/{type}/{id}")
-  @Consumes({"application/merge-patch+json"})
-  @Produces({MediaType.APPLICATION_JSON})
-  public Response patchVertex(String content, @PathParam("version") String version,
-                              @PathParam("type") String type, @PathParam("id") String id,
-                              @PathParam("uri") @Encoded String uri, @Context HttpHeaders headers,
-                              @Context UriInfo uriInfo, @Context HttpServletRequest req) {
+  @Consumes({ "application/merge-patch+json" })
+  @Produces({ MediaType.APPLICATION_JSON })
+  public Response patchVertex(String content, @PathParam("version") String version, @PathParam("type") String type,
+      @PathParam("id") String id, @PathParam("uri") @Encoded String uri, @Context HttpHeaders headers,
+      @Context UriInfo uriInfo, @Context HttpServletRequest req) {
 
     LoggingUtil.initMdcContext(req, headers);
 
     logger.debug("Incoming request..." + content);
     Response response = null;
 
-    if (validateRequest(req, uri, content, Action.PATCH,
-        CrudServiceConstants.CRD_AUTH_POLICY_NAME)) {
+    if (validateRequest(req, uri, content, Action.PATCH, CrudServiceConstants.CRD_AUTH_POLICY_NAME)) {
       try {
         VertexPayload payload = VertexPayload.fromJson(content);
         if (payload.getProperties() == null || payload.getProperties().isJsonNull()) {
@@ -399,8 +380,7 @@ public class CrudRestService {
         response = Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
       }
     } else {
-      response = Response.status(Status.FORBIDDEN).entity(content)
-          .type(MediaType.APPLICATION_JSON).build();
+      response = Response.status(Status.FORBIDDEN).entity(content).type(MediaType.APPLICATION_JSON).build();
     }
 
     LoggingUtil.logRestRequest(logger, auditLogger, req, response);
@@ -409,20 +389,18 @@ public class CrudRestService {
 
   @POST
   @Path("/{version}/{type}/")
-  @Consumes({MediaType.APPLICATION_JSON})
-  @Produces({MediaType.APPLICATION_JSON})
-  public Response addVertex(String content, @PathParam("version") String version,
-                            @PathParam("type") String type, @PathParam("uri") @Encoded String uri,
-                            @Context HttpHeaders headers, @Context UriInfo uriInfo,
-                            @Context HttpServletRequest req) {
+  @Consumes({ MediaType.APPLICATION_JSON })
+  @Produces({ MediaType.APPLICATION_JSON })
+  public Response addVertex(String content, @PathParam("version") String version, @PathParam("type") String type,
+      @PathParam("uri") @Encoded String uri, @Context HttpHeaders headers, @Context UriInfo uriInfo,
+      @Context HttpServletRequest req) {
 
     LoggingUtil.initMdcContext(req, headers);
 
     logger.debug("Incoming request..." + content);
     Response response = null;
 
-    if (validateRequest(req, uri, content, Action.POST,
-        CrudServiceConstants.CRD_AUTH_POLICY_NAME)) {
+    if (validateRequest(req, uri, content, Action.POST, CrudServiceConstants.CRD_AUTH_POLICY_NAME)) {
 
       try {
         VertexPayload payload = VertexPayload.fromJson(content);
@@ -430,8 +408,7 @@ public class CrudRestService {
           throw new CrudException("Invalid request Payload", Status.BAD_REQUEST);
         }
         if (payload.getId() != null) {
-          throw new CrudException("ID specified , use Http PUT to update Vertex",
-              Status.BAD_REQUEST);
+          throw new CrudException("ID specified , use Http PUT to update Vertex", Status.BAD_REQUEST);
         }
 
         if (payload.getType() != null && !payload.getType().equals(type)) {
@@ -446,135 +423,138 @@ public class CrudRestService {
         response = Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
       }
     } else {
-      response = Response.status(Status.FORBIDDEN).entity(content)
-          .type(MediaType.APPLICATION_JSON).build();
+      response = Response.status(Status.FORBIDDEN).entity(content).type(MediaType.APPLICATION_JSON).build();
     }
 
     LoggingUtil.logRestRequest(logger, auditLogger, req, response);
     return response;
   }
-  
-	private void validateBulkPayload(BulkPayload payload) throws CrudException {
-		List<String> vertices = new ArrayList<String>();
-		List<String> edges = new ArrayList<String>();
 
-		for (JsonElement v : payload.getObjects()) {
-			List<Map.Entry<String, JsonElement>> entries = new ArrayList<Map.Entry<String, JsonElement>>(v.getAsJsonObject().entrySet());
+  private void validateBulkPayload(BulkPayload payload) throws CrudException {
+    List<String> vertices = new ArrayList<String>();
+    List<String> edges = new ArrayList<String>();
 
-			if (entries.size() != 2) {
-				throw new CrudException("", Status.BAD_REQUEST);
-			}
-			Map.Entry<String, JsonElement> opr = entries.get(0);
-			Map.Entry<String, JsonElement> item = entries.get(1);
+    for (JsonElement v : payload.getObjects()) {
+      List<Map.Entry<String, JsonElement>> entries = new ArrayList<Map.Entry<String, JsonElement>>(
+          v.getAsJsonObject().entrySet());
 
-			if (vertices.contains(item.getKey())) {
-				throw new CrudException("duplicate vertex in payload: " + item.getKey(), Status.BAD_REQUEST);
-			}
-			VertexPayload vertexPayload = VertexPayload.fromJson(item.getValue().getAsJsonObject().toString());
-			if (vertexPayload.getType() == null) {
-				throw new CrudException("Vertex Type cannot be null for: " + item.getKey(), Status.BAD_REQUEST);
-			}
+      if (entries.size() != 2) {
+        throw new CrudException("", Status.BAD_REQUEST);
+      }
+      Map.Entry<String, JsonElement> opr = entries.get(0);
+      Map.Entry<String, JsonElement> item = entries.get(1);
 
-			if (!opr.getKey().equalsIgnoreCase("operation")) {
-				throw new CrudException("operation missing in item: " + item.getKey(), Status.BAD_REQUEST);
-			}
+      if (vertices.contains(item.getKey())) {
+        throw new CrudException("duplicate vertex in payload: " + item.getKey(), Status.BAD_REQUEST);
+      }
+      VertexPayload vertexPayload = VertexPayload.fromJson(item.getValue().getAsJsonObject().toString());
+      if (vertexPayload.getType() == null) {
+        throw new CrudException("Vertex Type cannot be null for: " + item.getKey(), Status.BAD_REQUEST);
+      }
 
-			if (!opr.getValue().getAsString().equalsIgnoreCase("add") && !opr.getValue().getAsString().equalsIgnoreCase("modify")
-					&& !opr.getValue().getAsString().equalsIgnoreCase("delete")) {
-				throw new CrudException("Invalid operation at item: " + item.getKey(), Status.BAD_REQUEST);
-			}
-			// check if ID is populate for modify/delete operation
-			if ((opr.getValue().getAsString().equalsIgnoreCase("modify") || opr.getValue().getAsString().equalsIgnoreCase("delete"))
-					&& (vertexPayload.getId() == null)) {
+      if (!opr.getKey().equalsIgnoreCase("operation")) {
+        throw new CrudException("operation missing in item: " + item.getKey(), Status.BAD_REQUEST);
+      }
 
-				throw new CrudException("Mising ID at item: " + item.getKey(), Status.BAD_REQUEST);
+      if (!opr.getValue().getAsString().equalsIgnoreCase("add")
+          && !opr.getValue().getAsString().equalsIgnoreCase("modify")
+          && !opr.getValue().getAsString().equalsIgnoreCase("delete")) {
+        throw new CrudException("Invalid operation at item: " + item.getKey(), Status.BAD_REQUEST);
+      }
+      // check if ID is populate for modify/delete operation
+      if ((opr.getValue().getAsString().equalsIgnoreCase("modify")
+          || opr.getValue().getAsString().equalsIgnoreCase("delete")) && (vertexPayload.getId() == null)) {
 
-			}
+        throw new CrudException("Mising ID at item: " + item.getKey(), Status.BAD_REQUEST);
 
-			vertices.add(item.getKey());
-		}
+      }
 
-		for (JsonElement v : payload.getRelationships()) {
-			List<Map.Entry<String, JsonElement>> entries = new ArrayList<Map.Entry<String, JsonElement>>(v.getAsJsonObject().entrySet());
+      vertices.add(item.getKey());
+    }
 
-			if (entries.size() != 2) {
-				throw new CrudException("", Status.BAD_REQUEST);
-			}
-			Map.Entry<String, JsonElement> opr = entries.get(0);
-			Map.Entry<String, JsonElement> item = entries.get(1);
+    for (JsonElement v : payload.getRelationships()) {
+      List<Map.Entry<String, JsonElement>> entries = new ArrayList<Map.Entry<String, JsonElement>>(
+          v.getAsJsonObject().entrySet());
 
-			if (edges.contains(item.getKey())) {
-				throw new CrudException("duplicate Edge in payload: " + item.getKey(), Status.BAD_REQUEST);
-			}
+      if (entries.size() != 2) {
+        throw new CrudException("", Status.BAD_REQUEST);
+      }
+      Map.Entry<String, JsonElement> opr = entries.get(0);
+      Map.Entry<String, JsonElement> item = entries.get(1);
 
-			EdgePayload edgePayload = EdgePayload.fromJson(item.getValue().getAsJsonObject().toString());
+      if (edges.contains(item.getKey())) {
+        throw new CrudException("duplicate Edge in payload: " + item.getKey(), Status.BAD_REQUEST);
+      }
 
-			if (edgePayload.getType() == null) {
-				throw new CrudException("Edge Type cannot be null for: " + item.getKey(), Status.BAD_REQUEST);
-			}
+      EdgePayload edgePayload = EdgePayload.fromJson(item.getValue().getAsJsonObject().toString());
 
-			if (!opr.getKey().equalsIgnoreCase("operation")) {
-				throw new CrudException("operation missing in item: " + item.getKey(), Status.BAD_REQUEST);
-			}
+      if (edgePayload.getType() == null) {
+        throw new CrudException("Edge Type cannot be null for: " + item.getKey(), Status.BAD_REQUEST);
+      }
 
-			if (!opr.getValue().getAsString().equalsIgnoreCase("add") && !opr.getValue().getAsString().equalsIgnoreCase("modify")
-					&& !opr.getValue().getAsString().equalsIgnoreCase("delete")) {
-				throw new CrudException("Invalid operation at item: " + item.getKey(), Status.BAD_REQUEST);
-			}
-			// check if ID is populate for modify/delete operation
-			if ((edgePayload.getId() == null) && (opr.getValue().getAsString().equalsIgnoreCase("modify")
-					    || opr.getValue().getAsString().equalsIgnoreCase("delete"))) {
+      if (!opr.getKey().equalsIgnoreCase("operation")) {
+        throw new CrudException("operation missing in item: " + item.getKey(), Status.BAD_REQUEST);
+      }
 
-				throw new CrudException("Mising ID at item: " + item.getKey(), Status.BAD_REQUEST);
+      if (!opr.getValue().getAsString().equalsIgnoreCase("add")
+          && !opr.getValue().getAsString().equalsIgnoreCase("modify")
+          && !opr.getValue().getAsString().equalsIgnoreCase("delete")) {
+        throw new CrudException("Invalid operation at item: " + item.getKey(), Status.BAD_REQUEST);
+      }
+      // check if ID is populate for modify/delete operation
+      if ((edgePayload.getId() == null) && (opr.getValue().getAsString().equalsIgnoreCase("modify")
+          || opr.getValue().getAsString().equalsIgnoreCase("delete"))) {
 
-			}
-			if (opr.getValue().getAsString().equalsIgnoreCase("add")) {
-				if(edgePayload.getSource()==null || edgePayload.getTarget()==null){
-					throw new CrudException("Source/Target cannot be null for edge: " + item.getKey(),
-							Status.BAD_REQUEST);
-				}
-				if (edgePayload.getSource().startsWith("$") && !vertices.contains(edgePayload.getSource().substring(1))) {
-					throw new CrudException("Source Vertex " + edgePayload.getSource().substring(1) + " not found for Edge: " + item.getKey(),
-							Status.BAD_REQUEST);
-				}
+        throw new CrudException("Mising ID at item: " + item.getKey(), Status.BAD_REQUEST);
 
-				if (edgePayload.getTarget().startsWith("$") && !vertices.contains(edgePayload.getTarget().substring(1))) {
-					throw new CrudException("Target Vertex " + edgePayload.getSource().substring(1) + " not found for Edge: " + item.getKey(),
-							Status.BAD_REQUEST);
-				}
-			}
-			edges.add(item.getKey());
+      }
+      if (opr.getValue().getAsString().equalsIgnoreCase("add")) {
+        if (edgePayload.getSource() == null || edgePayload.getTarget() == null) {
+          throw new CrudException("Source/Target cannot be null for edge: " + item.getKey(), Status.BAD_REQUEST);
+        }
+        if (edgePayload.getSource().startsWith("$") && !vertices.contains(edgePayload.getSource().substring(1))) {
+          throw new CrudException(
+              "Source Vertex " + edgePayload.getSource().substring(1) + " not found for Edge: " + item.getKey(),
+              Status.BAD_REQUEST);
+        }
 
-		}
+        if (edgePayload.getTarget().startsWith("$") && !vertices.contains(edgePayload.getTarget().substring(1))) {
+          throw new CrudException(
+              "Target Vertex " + edgePayload.getSource().substring(1) + " not found for Edge: " + item.getKey(),
+              Status.BAD_REQUEST);
+        }
+      }
+      edges.add(item.getKey());
 
-	}
-  
+    }
+
+  }
+
   @POST
   @Path("/{version}/bulk/")
-  @Consumes({MediaType.APPLICATION_JSON})
-  @Produces({MediaType.APPLICATION_JSON})
-  public Response addBulk(String content, @PathParam("version") String version,
-                            @PathParam("type") String type, @PathParam("uri") @Encoded String uri,
-                            @Context HttpHeaders headers, @Context UriInfo uriInfo,
-                            @Context HttpServletRequest req) {
+  @Consumes({ MediaType.APPLICATION_JSON })
+  @Produces({ MediaType.APPLICATION_JSON })
+  public Response addBulk(String content, @PathParam("version") String version, @PathParam("type") String type,
+      @PathParam("uri") @Encoded String uri, @Context HttpHeaders headers, @Context UriInfo uriInfo,
+      @Context HttpServletRequest req) {
 
     LoggingUtil.initMdcContext(req, headers);
 
     logger.debug("Incoming request..." + content);
     Response response = null;
 
-    if (validateRequest(req, uri, content, Action.POST,
-        CrudServiceConstants.CRD_AUTH_POLICY_NAME)) {
+    if (validateRequest(req, uri, content, Action.POST, CrudServiceConstants.CRD_AUTH_POLICY_NAME)) {
 
       try {
         BulkPayload payload = BulkPayload.fromJson(content);
-				if ((payload.getObjects() == null && payload.getRelationships() == null) || (payload.getObjects() != null && payload.getObjects().isEmpty()
-						&& payload.getRelationships() != null && payload.getRelationships().isEmpty())) {
+        if ((payload.getObjects() == null && payload.getRelationships() == null)
+            || (payload.getObjects() != null && payload.getObjects().isEmpty() && payload.getRelationships() != null
+                && payload.getRelationships().isEmpty())) {
           throw new CrudException("Invalid request Payload", Status.BAD_REQUEST);
         }
-				
-		validateBulkPayload(payload);
-        String result = crudGraphDataService.addBulk(version,  payload);
+
+        validateBulkPayload(payload);
+        String result = crudGraphDataService.addBulk(version, payload);
         response = Response.status(Status.OK).entity(result).type(mediaType).build();
       } catch (CrudException ce) {
         response = Response.status(ce.getHttpStatus()).entity(ce.getMessage()).build();
@@ -582,8 +562,7 @@ public class CrudRestService {
         response = Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
       }
     } else {
-      response = Response.status(Status.FORBIDDEN).entity(content)
-          .type(MediaType.APPLICATION_JSON).build();
+      response = Response.status(Status.FORBIDDEN).entity(content).type(MediaType.APPLICATION_JSON).build();
     }
 
     LoggingUtil.logRestRequest(logger, auditLogger, req, response);
@@ -592,19 +571,17 @@ public class CrudRestService {
 
   @POST
   @Path("/{version}/")
-  @Consumes({MediaType.APPLICATION_JSON})
-  @Produces({MediaType.APPLICATION_JSON})
-  public Response addVertex(String content, @PathParam("version") String version,
-                            @PathParam("uri") @Encoded String uri, @Context HttpHeaders headers,
-                            @Context UriInfo uriInfo, @Context HttpServletRequest req) {
+  @Consumes({ MediaType.APPLICATION_JSON })
+  @Produces({ MediaType.APPLICATION_JSON })
+  public Response addVertex(String content, @PathParam("version") String version, @PathParam("uri") @Encoded String uri,
+      @Context HttpHeaders headers, @Context UriInfo uriInfo, @Context HttpServletRequest req) {
 
     LoggingUtil.initMdcContext(req, headers);
 
     logger.debug("Incoming request..." + content);
     Response response = null;
 
-    if (validateRequest(req, uri, content, Action.POST,
-        CrudServiceConstants.CRD_AUTH_POLICY_NAME)) {
+    if (validateRequest(req, uri, content, Action.POST, CrudServiceConstants.CRD_AUTH_POLICY_NAME)) {
       try {
 
         VertexPayload payload = VertexPayload.fromJson(content);
@@ -612,8 +589,7 @@ public class CrudRestService {
           throw new CrudException("Invalid request Payload", Status.BAD_REQUEST);
         }
         if (payload.getId() != null) {
-          throw new CrudException("ID specified , use Http PUT to update Vertex",
-              Status.BAD_REQUEST);
+          throw new CrudException("ID specified , use Http PUT to update Vertex", Status.BAD_REQUEST);
         }
 
         if (payload.getType() == null || payload.getType().isEmpty()) {
@@ -627,8 +603,7 @@ public class CrudRestService {
         response = Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
       }
     } else {
-      response = Response.status(Status.FORBIDDEN).entity(content)
-          .type(MediaType.APPLICATION_JSON).build();
+      response = Response.status(Status.FORBIDDEN).entity(content).type(MediaType.APPLICATION_JSON).build();
     }
 
     LoggingUtil.logRestRequest(logger, auditLogger, req, response);
@@ -637,21 +612,18 @@ public class CrudRestService {
 
   @POST
   @Path("/relationships/{version}/{type}/")
-  @Consumes({MediaType.APPLICATION_JSON})
-  @Produces({MediaType.APPLICATION_JSON})
-  public Response addEdge(String content, @PathParam("version") String version,
-                          @PathParam("type") String type, @PathParam("uri") @Encoded String uri,
-                          @Context HttpHeaders headers, @Context UriInfo uriInfo,
-                          @Context HttpServletRequest req) {
+  @Consumes({ MediaType.APPLICATION_JSON })
+  @Produces({ MediaType.APPLICATION_JSON })
+  public Response addEdge(String content, @PathParam("version") String version, @PathParam("type") String type,
+      @PathParam("uri") @Encoded String uri, @Context HttpHeaders headers, @Context UriInfo uriInfo,
+      @Context HttpServletRequest req) {
 
     LoggingUtil.initMdcContext(req, headers);
 
     logger.debug("Incoming request..." + content);
     Response response = null;
 
-    if (validateRequest(req, uri, content, Action.POST,
-        CrudServiceConstants.CRD_AUTH_POLICY_NAME)) {
-
+    if (validateRequest(req, uri, content, Action.POST, CrudServiceConstants.CRD_AUTH_POLICY_NAME)) {
 
       try {
         EdgePayload payload = EdgePayload.fromJson(content);
@@ -673,8 +645,7 @@ public class CrudRestService {
         response = Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
       }
     } else {
-      response = Response.status(Status.FORBIDDEN).entity(content)
-          .type(MediaType.APPLICATION_JSON).build();
+      response = Response.status(Status.FORBIDDEN).entity(content).type(MediaType.APPLICATION_JSON).build();
     }
 
     LoggingUtil.logRestRequest(logger, auditLogger, req, response);
@@ -683,20 +654,17 @@ public class CrudRestService {
 
   @POST
   @Path("/relationships/{version}/")
-  @Consumes({MediaType.APPLICATION_JSON})
-  @Produces({MediaType.APPLICATION_JSON})
-  public Response addEdge(String content, @PathParam("version") String version,
-                          @PathParam("uri") @Encoded String uri, @Context HttpHeaders headers,
-                          @Context UriInfo uriInfo, @Context HttpServletRequest req) {
+  @Consumes({ MediaType.APPLICATION_JSON })
+  @Produces({ MediaType.APPLICATION_JSON })
+  public Response addEdge(String content, @PathParam("version") String version, @PathParam("uri") @Encoded String uri,
+      @Context HttpHeaders headers, @Context UriInfo uriInfo, @Context HttpServletRequest req) {
 
     LoggingUtil.initMdcContext(req, headers);
 
     logger.debug("Incoming request..." + content);
     Response response = null;
 
-    if (validateRequest(req, uri, content, Action.POST,
-        CrudServiceConstants.CRD_AUTH_POLICY_NAME)) {
-
+    if (validateRequest(req, uri, content, Action.POST, CrudServiceConstants.CRD_AUTH_POLICY_NAME)) {
 
       try {
         EdgePayload payload = EdgePayload.fromJson(content);
@@ -719,8 +687,7 @@ public class CrudRestService {
         response = Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
       }
     } else {
-      response = Response.status(Status.FORBIDDEN).entity(content)
-          .type(MediaType.APPLICATION_JSON).build();
+      response = Response.status(Status.FORBIDDEN).entity(content).type(MediaType.APPLICATION_JSON).build();
     }
 
     LoggingUtil.logRestRequest(logger, auditLogger, req, response);
@@ -729,21 +696,18 @@ public class CrudRestService {
 
   @DELETE
   @Path("/{version}/{type}/{id}")
-  @Consumes({MediaType.APPLICATION_JSON})
-  @Produces({MediaType.APPLICATION_JSON})
-  public Response deleteVertex(String content, @PathParam("version") String version,
-                               @PathParam("type") String type, @PathParam("id") String id,
-                               @PathParam("uri") @Encoded String uri, @Context HttpHeaders headers,
-                               @Context UriInfo uriInfo, @Context HttpServletRequest req) {
+  @Consumes({ MediaType.APPLICATION_JSON })
+  @Produces({ MediaType.APPLICATION_JSON })
+  public Response deleteVertex(String content, @PathParam("version") String version, @PathParam("type") String type,
+      @PathParam("id") String id, @PathParam("uri") @Encoded String uri, @Context HttpHeaders headers,
+      @Context UriInfo uriInfo, @Context HttpServletRequest req) {
 
     LoggingUtil.initMdcContext(req, headers);
 
     logger.debug("Incoming request..." + content);
     Response response = null;
 
-    if (validateRequest(req, uri, content, Action.DELETE,
-        CrudServiceConstants.CRD_AUTH_POLICY_NAME)) {
-
+    if (validateRequest(req, uri, content, Action.DELETE, CrudServiceConstants.CRD_AUTH_POLICY_NAME)) {
 
       try {
         String result = crudGraphDataService.deleteVertex(version, id, type);
@@ -754,8 +718,7 @@ public class CrudRestService {
         response = Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
       }
     } else {
-      response = Response.status(Status.FORBIDDEN).entity(content)
-          .type(MediaType.APPLICATION_JSON).build();
+      response = Response.status(Status.FORBIDDEN).entity(content).type(MediaType.APPLICATION_JSON).build();
     }
 
     LoggingUtil.logRestRequest(logger, auditLogger, req, response);
@@ -764,19 +727,17 @@ public class CrudRestService {
 
   @DELETE
   @Path("/relationships/{version}/{type}/{id}")
-  @Consumes({MediaType.APPLICATION_JSON})
-  @Produces({MediaType.APPLICATION_JSON})
-  public Response deleteEdge(String content, @PathParam("version") String version,
-                             @PathParam("type") String type, @PathParam("id") String id,
-                             @PathParam("uri") @Encoded String uri, @Context HttpHeaders headers,
-                             @Context UriInfo uriInfo, @Context HttpServletRequest req) {
+  @Consumes({ MediaType.APPLICATION_JSON })
+  @Produces({ MediaType.APPLICATION_JSON })
+  public Response deleteEdge(String content, @PathParam("version") String version, @PathParam("type") String type,
+      @PathParam("id") String id, @PathParam("uri") @Encoded String uri, @Context HttpHeaders headers,
+      @Context UriInfo uriInfo, @Context HttpServletRequest req) {
 
     LoggingUtil.initMdcContext(req, headers);
 
     logger.debug("Incoming request..." + content);
     Response response = null;
-    if (validateRequest(req, uri, content, Action.DELETE,
-        CrudServiceConstants.CRD_AUTH_POLICY_NAME)) {
+    if (validateRequest(req, uri, content, Action.DELETE, CrudServiceConstants.CRD_AUTH_POLICY_NAME)) {
 
       try {
         String result = crudGraphDataService.deleteEdge(version, id, type);
@@ -787,28 +748,25 @@ public class CrudRestService {
         response = Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
       }
     } else {
-      response = Response.status(Status.FORBIDDEN).entity(content)
-          .type(MediaType.APPLICATION_JSON).build();
+      response = Response.status(Status.FORBIDDEN).entity(content).type(MediaType.APPLICATION_JSON).build();
     }
 
     LoggingUtil.logRestRequest(logger, auditLogger, req, response);
     return response;
   }
 
-  protected boolean validateRequest(HttpServletRequest req, String uri, String content,
-                                    Action action, String authPolicyFunctionName) {
+  protected boolean validateRequest(HttpServletRequest req, String uri, String content, Action action,
+      String authPolicyFunctionName) {
     try {
       String cipherSuite = (String) req.getAttribute("javax.servlet.request.cipher_suite");
       String authUser = null;
       if (cipherSuite != null) {
-        X509Certificate[] certChain = (X509Certificate[]) req
-            .getAttribute("javax.servlet.request.X509Certificate");
+        X509Certificate[] certChain = (X509Certificate[]) req.getAttribute("javax.servlet.request.X509Certificate");
         X509Certificate clientCert = certChain[0];
         X500Principal subjectDn = clientCert.getSubjectX500Principal();
         authUser = subjectDn.toString();
       }
-      return this.auth.validateRequest(authUser.toLowerCase(), action.toString()
-          + ":" + authPolicyFunctionName);
+      return this.auth.validateRequest(authUser.toLowerCase(), action.toString() + ":" + authPolicyFunctionName);
     } catch (Exception e) {
       logResult(action, uri, e);
       return false;
@@ -817,8 +775,7 @@ public class CrudRestService {
 
   void logResult(Action op, String uri, Exception e) {
 
-    logger.error(CrudServiceMsgs.EXCEPTION_DURING_METHOD_CALL, op.toString(), uri,
-        e.getStackTrace().toString());
+    logger.error(CrudServiceMsgs.EXCEPTION_DURING_METHOD_CALL, op.toString(), uri, e.getStackTrace().toString());
 
     // Clear the MDC context so that no other transaction inadvertently
     // uses our transaction id.

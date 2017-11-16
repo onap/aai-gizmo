@@ -44,11 +44,8 @@ import javax.ws.rs.core.Response.Status;
 
 public class OxmModelValidator {
   public enum Metadata {
-    NODE_TYPE("aai-node-type"),
-    URI("aai-uri"),
-    CREATED_TS("aai-created-ts"),
-    SOT("source-of-truth"),
-    LAST_MOD_SOT("last-mod-source-of-truth");
+    NODE_TYPE("aai-node-type"), URI("aai-uri"), CREATED_TS("aai-created-ts"), SOT("source-of-truth"), LAST_MOD_SOT(
+        "last-mod-source-of-truth");
 
     private final String propName;
 
@@ -70,9 +67,7 @@ public class OxmModelValidator {
     }
   }
 
-
-  public static Map<String, Object> resolveCollectionfilter(String version, String type,
-                                                            Map<String, String> filter)
+  public static Map<String, Object> resolveCollectionfilter(String version, String type, Map<String, String> filter)
       throws CrudException {
 
     DynamicJAXBContext jaxbContext = null;
@@ -86,18 +81,15 @@ public class OxmModelValidator {
     if (jaxbContext == null) {
       throw new CrudException("", Status.NOT_FOUND);
     }
-    final DynamicType modelObjectType = jaxbContext.getDynamicType(CaseFormat.LOWER_CAMEL
-        .to(CaseFormat.UPPER_CAMEL,
-        CaseFormat.LOWER_HYPHEN.to(CaseFormat.UPPER_CAMEL, type)));
+    final DynamicType modelObjectType = jaxbContext.getDynamicType(
+        CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, CaseFormat.LOWER_HYPHEN.to(CaseFormat.UPPER_CAMEL, type)));
 
     for (String key : filter.keySet()) {
       String keyJavaName = CaseFormat.LOWER_HYPHEN.to(CaseFormat.LOWER_CAMEL, key);
       if (modelObjectType.getDescriptor().getMappingForAttributeName(keyJavaName) != null) {
         try {
-          DatabaseMapping mapping = modelObjectType.getDescriptor()
-              .getMappingForAttributeName(keyJavaName);
-          Object value = CrudServiceUtil.validateFieldType(filter.get(key),
-              mapping.getField().getType());
+          DatabaseMapping mapping = modelObjectType.getDescriptor().getMappingForAttributeName(keyJavaName);
+          Object value = CrudServiceUtil.validateFieldType(filter.get(key), mapping.getField().getType());
           result.put(key, value);
         } catch (Exception ex) {
           // Skip any exceptions thrown while validating the filter
@@ -125,9 +117,8 @@ public class OxmModelValidator {
     }
     // Determine if the Object part is a collection type in the model
     // definition
-    final DynamicType modelObjectType = jaxbContext.getDynamicType(CaseFormat.LOWER_CAMEL
-        .to(CaseFormat.UPPER_CAMEL,
-        CaseFormat.LOWER_HYPHEN.to(CaseFormat.UPPER_CAMEL, type)));
+    final DynamicType modelObjectType = jaxbContext.getDynamicType(
+        CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, CaseFormat.LOWER_HYPHEN.to(CaseFormat.UPPER_CAMEL, type)));
 
     if (modelObjectType == null) {
       throw new CrudException("", Status.NOT_FOUND);
@@ -135,8 +126,7 @@ public class OxmModelValidator {
 
     if (modelObjectType.getDescriptor().getMappings().size() == 1
         && modelObjectType.getDescriptor().getMappings().get(0).isCollectionMapping()) {
-      String childJavaObjectName = modelObjectType.getDescriptor().getMappings()
-          .get(0).getAttributeName();
+      String childJavaObjectName = modelObjectType.getDescriptor().getMappings().get(0).getAttributeName();
       childJavaObjectName = CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, childJavaObjectName);
       final DynamicType childObjectType = jaxbContext.getDynamicType(childJavaObjectName);
       if (childObjectType == null) {
@@ -151,9 +141,7 @@ public class OxmModelValidator {
 
   }
 
-
-  public static Vertex validateIncomingUpsertPayload(String id, String version, String type,
-                                                     JsonElement properties)
+  public static Vertex validateIncomingUpsertPayload(String id, String version, String type, JsonElement properties)
       throws CrudException {
 
     try {
@@ -165,18 +153,17 @@ public class OxmModelValidator {
       final DynamicType modelObjectType = jaxbContext.getDynamicType(modelObjectClass);
       final DynamicType reservedType = jaxbContext.getDynamicType("ReservedPropNames");
 
-      Set<Map.Entry<String, JsonElement>> payloadEntriesSet = properties.getAsJsonObject()
-          .entrySet();
+      Set<Map.Entry<String, JsonElement>> payloadEntriesSet = properties.getAsJsonObject().entrySet();
 
-      //loop through input to validate against schema
+      // loop through input to validate against schema
       for (Map.Entry<String, JsonElement> entry : payloadEntriesSet) {
         String keyJavaName = CaseFormat.LOWER_HYPHEN.to(CaseFormat.LOWER_CAMEL, entry.getKey());
 
         // check for valid field
         if (modelObjectType.getDescriptor().getMappingForAttributeName(keyJavaName) == null) {
-        	if(reservedType.getDescriptor().getMappingForAttributeName(keyJavaName) == null){
-        		throw new CrudException("Invalid field: " + entry.getKey(), Status.BAD_REQUEST);
-        	}
+          if (reservedType.getDescriptor().getMappingForAttributeName(keyJavaName) == null) {
+            throw new CrudException("Invalid field: " + entry.getKey(), Status.BAD_REQUEST);
+          }
         }
 
       }
@@ -198,31 +185,26 @@ public class OxmModelValidator {
 
           String keyName = field.getName().substring(0, field.getName().indexOf("/"));
 
-          if (((XMLField) field).isRequired() && !entriesMap.containsKey(keyName)
-              && !defaultValue.isEmpty()) {
-            modelVertexBuilder.property(keyName,
-                CrudServiceUtil.validateFieldType(defaultValue, field.getType()));
+          if (((XMLField) field).isRequired() && !entriesMap.containsKey(keyName) && !defaultValue.isEmpty()) {
+            modelVertexBuilder.property(keyName, CrudServiceUtil.validateFieldType(defaultValue, field.getType()));
           }
           // if schema field is required and not set then reject
-          if (((XMLField) field).isRequired() && !entriesMap.containsKey(keyName)
-              && defaultValue.isEmpty()) {
+          if (((XMLField) field).isRequired() && !entriesMap.containsKey(keyName) && defaultValue.isEmpty()) {
             throw new CrudException("Missing required field: " + keyName, Status.BAD_REQUEST);
           }
           // If invalid field then reject
           if (entriesMap.containsKey(keyName)) {
-            Object value = CrudServiceUtil.validateFieldType(entriesMap.get(keyName)
-                .getAsString(), field.getType());
+            Object value = CrudServiceUtil.validateFieldType(entriesMap.get(keyName).getAsString(), field.getType());
             modelVertexBuilder.property(keyName, value);
           }
 
           // Set defaults
           if (!defaultValue.isEmpty() && !entriesMap.containsKey(keyName)) {
-            modelVertexBuilder.property(keyName,
-                CrudServiceUtil.validateFieldType(defaultValue, field.getType()));
+            modelVertexBuilder.property(keyName, CrudServiceUtil.validateFieldType(defaultValue, field.getType()));
           }
         }
       }
-      
+
       // Handle reserved properties
       for (DatabaseMapping mapping : reservedType.getDescriptor().getMappings()) {
         if (mapping.isAbstractDirectMapping()) {
@@ -230,8 +212,7 @@ public class OxmModelValidator {
           String keyName = field.getName().substring(0, field.getName().indexOf("/"));
 
           if (entriesMap.containsKey(keyName)) {
-            Object value = CrudServiceUtil.validateFieldType(entriesMap.get(keyName)
-                .getAsString(), field.getType());
+            Object value = CrudServiceUtil.validateFieldType(entriesMap.get(keyName).getAsString(), field.getType());
             modelVertexBuilder.property(keyName, value);
           }
         }
@@ -243,9 +224,8 @@ public class OxmModelValidator {
     }
   }
 
-  public static Vertex validateIncomingPatchPayload(String id, String version, String type,
-                                                    JsonElement properties, Vertex existingVertex)
-      throws CrudException {
+  public static Vertex validateIncomingPatchPayload(String id, String version, String type, JsonElement properties,
+      Vertex existingVertex) throws CrudException {
 
     try {
       type = resolveCollectionType(version, type);
@@ -256,8 +236,7 @@ public class OxmModelValidator {
       final DynamicType modelObjectType = jaxbContext.getDynamicType(modelObjectClass);
       final DynamicType reservedType = jaxbContext.getDynamicType("ReservedPropNames");
 
-      Set<Map.Entry<String, JsonElement>> payloadEntriesSet = properties.getAsJsonObject()
-          .entrySet();
+      Set<Map.Entry<String, JsonElement>> payloadEntriesSet = properties.getAsJsonObject().entrySet();
 
       // Loop through the payload properties and merge with existing
       // vertex props
@@ -267,41 +246,34 @@ public class OxmModelValidator {
 
         DatabaseField field = null;
         String defaultValue = null;
-        
+
         if (modelObjectType.getDescriptor().getMappingForAttributeName(keyJavaName) != null) {
           field = modelObjectType.getDescriptor().getMappingForAttributeName(keyJavaName).getField();
-          defaultValue = modelObjectType.getDescriptor()
-              .getMappingForAttributeName(keyJavaName)
-              .getProperties().get("defaultValue") == null ? ""
-              : modelObjectType.getDescriptor().getMappingForAttributeName(keyJavaName)
-              .getProperties().get("defaultValue").toString();
-        }
-        else if (reservedType.getDescriptor().getMappingForAttributeName(keyJavaName) != null) {
+          defaultValue = modelObjectType.getDescriptor().getMappingForAttributeName(keyJavaName).getProperties()
+              .get("defaultValue") == null ? ""
+                  : modelObjectType.getDescriptor().getMappingForAttributeName(keyJavaName).getProperties()
+                      .get("defaultValue").toString();
+        } else if (reservedType.getDescriptor().getMappingForAttributeName(keyJavaName) != null) {
           field = reservedType.getDescriptor().getMappingForAttributeName(keyJavaName).getField();
           defaultValue = "";
         }
-        
+
         if (field == null) {
           throw new CrudException("Invalid field: " + entry.getKey(), Status.BAD_REQUEST);
         }
 
         // check if mandatory field is not set to null
-        if (((XMLField) field).isRequired() && entry.getValue() instanceof JsonNull
-            && !defaultValue.isEmpty()) {
+        if (((XMLField) field).isRequired() && entry.getValue() instanceof JsonNull && !defaultValue.isEmpty()) {
           existingVertex.getProperties().put(entry.getKey(),
               CrudServiceUtil.validateFieldType(defaultValue, field.getType()));
-        } else if (((XMLField) field).isRequired() && entry.getValue() instanceof JsonNull
-            && defaultValue.isEmpty()) {
-          throw new CrudException("Mandatory field: " + entry.getKey()
-              + " can't be set to null",
-              Status.BAD_REQUEST);
+        } else if (((XMLField) field).isRequired() && entry.getValue() instanceof JsonNull && defaultValue.isEmpty()) {
+          throw new CrudException("Mandatory field: " + entry.getKey() + " can't be set to null", Status.BAD_REQUEST);
         } else if (!((XMLField) field).isRequired() && entry.getValue() instanceof JsonNull
             && existingVertex.getProperties().containsKey(entry.getKey())) {
           existingVertex.getProperties().remove(entry.getKey());
         } else if (!(entry.getValue() instanceof JsonNull)) {
           // add/update the value if found in existing vertex
-          Object value = CrudServiceUtil.validateFieldType(entry.getValue().getAsString(),
-              field.getType());
+          Object value = CrudServiceUtil.validateFieldType(entry.getValue().getAsString(), field.getType());
           existingVertex.getProperties().put(entry.getKey(), value);
         }
 
@@ -313,7 +285,7 @@ public class OxmModelValidator {
     }
 
   }
-  
+
   private static DatabaseField getDatabaseField(String fieldName, DynamicType modelObjectType) {
     for (DatabaseField field : modelObjectType.getDescriptor().getAllFields()) {
       int ix = field.getName().indexOf("/");
@@ -331,8 +303,7 @@ public class OxmModelValidator {
 
   public static Vertex validateOutgoingPayload(String version, Vertex vertex) {
 
-    Vertex.Builder modelVertexBuilder = new Vertex.Builder(vertex.getType())
-        .id(vertex.getId().get());
+    Vertex.Builder modelVertexBuilder = new Vertex.Builder(vertex.getType()).id(vertex.getId().get());
 
     try {
       DynamicJAXBContext jaxbContext = OxmModelLoader.getContextForVersion(version);
@@ -356,6 +327,5 @@ public class OxmModelValidator {
     }
 
   }
-
 
 }
