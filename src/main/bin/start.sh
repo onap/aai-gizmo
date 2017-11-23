@@ -13,14 +13,14 @@ if [ -z "$KEY_STORE_PASSWORD" ]; then
 	echo "KEY_STORE_PASSWORD must be set in order to start up process"
 	exit 1
 else
-	echo -e "KEY_STORE_PASSWORD=$KEY_STORE_PASSWORD\n" >> $AJSC_CONF_HOME/etc/sysprops/sys-props.properties
+	echo "KEY_STORE_PASSWORD=$KEY_STORE_PASSWORD\n" >> $AJSC_CONF_HOME/etc/sysprops/sys-props.properties
 fi
 
 if [ -z "$KEY_MANAGER_PASSWORD" ]; then
 	echo "KEY_MANAGER_PASSWORD must be set in order to start up process"
 	exit 1
 else
-	echo -e "KEY_MANAGER_PASSWORD=$KEY_MANAGER_PASSWORD\n" >> $AJSC_CONF_HOME/etc/sysprops/sys-props.properties
+	echo "KEY_MANAGER_PASSWORD=$KEY_MANAGER_PASSWORD\n" >> $AJSC_CONF_HOME/etc/sysprops/sys-props.properties
 fi
 
 # Add any spring bean configuration files to the Gizmo deployment
