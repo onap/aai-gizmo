@@ -21,29 +21,27 @@
  *
  * ECOMP is a trademark and service mark of AT&T Intellectual Property.
  */
-package org.onap.crud.dao.champion;
+package org.onap.crud.dao.champ;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
-import org.onap.crud.entity.Edge;
 import org.onap.crud.entity.Vertex;
 
 import java.lang.reflect.Type;
 
-public class ChampionEdgeSerializer implements JsonSerializer<Edge> {
+public class ChampVertexSerializer implements JsonSerializer<Vertex> {
   @Override
-  public JsonElement serialize(Edge edge, Type type, JsonSerializationContext jsonSerializationContext) {
-    final JsonObject edgeObj = new JsonObject();
-    if (edge.getId().isPresent()) {
-      edgeObj.add("key", jsonSerializationContext.serialize(edge.getId().get()));
+  public JsonElement serialize(Vertex vertex, Type type, JsonSerializationContext jsonSerializationContext) {
+    final JsonObject vertexObj = new JsonObject();
+    if (vertex.getId().isPresent()) {
+      vertexObj.add("key", jsonSerializationContext.serialize(vertex.getId().get()));
     }
-    edgeObj.add("type", jsonSerializationContext.serialize(edge.getType()));
-    edgeObj.add("properties", jsonSerializationContext.serialize(edge.getProperties()));
-    edgeObj.add("source", jsonSerializationContext.serialize(edge.getSource()));
-    edgeObj.add("target", jsonSerializationContext.serialize(edge.getTarget()));
-    return edgeObj;
+    vertexObj.add("type", jsonSerializationContext.serialize(vertex.getType()));
+    vertexObj.add("properties", jsonSerializationContext.serialize(vertex.getProperties()));
+
+    return vertexObj;
   }
 }

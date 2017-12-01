@@ -30,25 +30,10 @@ public class CrudServiceConstants {
       : System.getProperty("file.separator");
 
   public static final String CRD_SPECIFIC_CONFIG = System.getProperty("CONFIG_HOME") + CRD_FILESEP;
-
+  public static final String CRD_CONFIG_FILE = CRD_SPECIFIC_CONFIG + "crud-api.properties";
   public static final String CRD_HOME_MODEL = CRD_SPECIFIC_CONFIG + "model" + CRD_FILESEP;
   public static final String CRD_HOME_AUTH = CRD_SPECIFIC_CONFIG + "auth" + CRD_FILESEP;
-
-  public static final String CRD_GRAPH_HOST = "crud.graph.host";
-  public static final String CRD_GRAPH_PORT = "crud.graph.port";
-  public static final String CRD_GRAPH_NAME = "crud.graph.name";
-  public static final String CRD_STORAGE_BACKEND_DB = "crud.storage.backend.db";
-  public static final String CRD_HBASE_ZNODE_PARENT
-      = "crud.storage.hbase.ext.zookeeper.znode.parent";
-
-  public static final String CRD_CONFIG_FILE = CRD_SPECIFIC_CONFIG + "crud-api.properties";
   public static final String CRD_AUTH_FILE = CRD_HOME_AUTH + "crud_policy.json";
-  public static final String CRD_CHAMPION_AUTH_FILE = CRD_HOME_AUTH + "champion-cert.p12";
-
+  public static final String CRD_CHAMP_AUTH_FILE = CRD_HOME_AUTH + "champ-cert.p12";
   public static final String CRD_AUTH_POLICY_NAME = "crud";
-
-  public static final String CRD_EVENT_STREAM_HOSTS = "event.stream.hosts";
-
-
-
 }

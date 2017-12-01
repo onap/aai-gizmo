@@ -31,9 +31,7 @@ import java.util.Map;
 import javax.ws.rs.core.Response.Status;
 
 import org.onap.aaiutils.oxm.OxmModelLoader;
-import org.onap.aai.champcore.ChampGraph;
 import org.onap.crud.dao.GraphDao;
-import org.onap.crud.dao.champ.ChampDao;
 import org.onap.crud.entity.Edge;
 
 import org.onap.crud.entity.Vertex;
@@ -48,12 +46,6 @@ import com.google.gson.JsonElement;
 public class CrudGraphDataService {
 
   private GraphDao dao;
-
-  public CrudGraphDataService(ChampGraph graphImpl) throws CrudException {
-    this.dao = new ChampDao(graphImpl);
-
-    loadModels();
-  }
 
   public CrudGraphDataService(GraphDao dao) throws CrudException {
     this.dao = dao;
