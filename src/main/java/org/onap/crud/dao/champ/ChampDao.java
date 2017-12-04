@@ -41,9 +41,9 @@ import org.onap.crud.entity.Edge;
 import org.onap.crud.entity.Vertex;
 import org.onap.crud.exception.CrudException;
 import org.onap.crud.util.CrudServiceConstants;
-import org.openecomp.restclient.client.OperationResult;
-import org.openecomp.restclient.client.RestClient;
-import org.openecomp.restclient.enums.RestAuthenticationMode;
+import org.onap.aai.restclient.client.OperationResult;
+import org.onap.aai.restclient.client.RestClient;
+import org.onap.aai.restclient.enums.RestAuthenticationMode;
 import org.slf4j.MDC;
 
 import java.nio.charset.Charset;
