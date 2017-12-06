@@ -49,7 +49,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.cxf.jaxrs.ext.PATCH;
-import org.openecomp.auth.Auth;
+import org.onap.aaiauth.auth.Auth;
 import org.onap.aai.cl.api.Logger;
 import org.onap.aai.cl.eelf.LoggerFactory;
 import org.onap.crud.exception.CrudException;

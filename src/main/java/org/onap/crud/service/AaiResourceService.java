@@ -51,7 +51,7 @@ import org.onap.aai.serialization.db.EdgeProperty;
 import org.onap.aai.serialization.db.EdgeRule;
 import org.onap.aai.serialization.db.EdgeRules;
 import org.onap.aai.serialization.db.EdgeType;
-import org.openecomp.auth.Auth;
+import org.onap.aaiauth.auth.Auth;
 import org.onap.aai.cl.api.Logger;
 import org.onap.aai.cl.eelf.LoggerFactory;
 import org.onap.crud.exception.CrudException;

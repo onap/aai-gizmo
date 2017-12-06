@@ -180,7 +180,7 @@
   <logger name="com.att.ajsc.filemonitor" level="WARN" />
 
   <!-- CRUD Service loggers -->
-  <logger name="org.openecomp.crud" level="INFO" />
+  <logger name="org.onap.crud" level="INFO" />
 
   <!-- Other Loggers that may help troubleshoot -->
   <logger name="net.sf" level="WARN" />

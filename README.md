@@ -13,7 +13,7 @@ After cloning the project, execute the following Maven command from the project'
 
 Now, you can build your Docker image:
 
-    > docker build -t openecomp/crud-service target 
+    > docker build -t onap/crud-service target 
     
 ### Deploying The Microservice 
 
