@@ -73,6 +73,54 @@ public enum CrudServiceMsgs implements LogMessageEnum {
   INSTANTIATE_AUTH_ERR,
 
   /**
+   * Any info log related to ASYNC_DATA_SERVICE_INFO
+   *
+   * <p>Arguments:
+   * {0} - Info.
+   */
+  ASYNC_DATA_SERVICE_INFO,
+  
+  /**
+   * Any error log related to ASYNC_DATA_SERVICE_ERROR
+   *
+   * <p>Arguments:
+   * {0} - Error.
+   */
+  ASYNC_DATA_SERVICE_ERROR,
+  
+  /**
+   * Any info log related to ASYNC_DATA_CACHE_INFO
+   *
+   * <p>Arguments:
+   * {0} - Info.
+   */
+  ASYNC_DATA_CACHE_INFO,
+
+  /**
+   * Any error log related to ASYNC_DATA_CACHE_ERROR
+   *
+   * <p>Arguments:
+   * {0} - Error.
+   */
+  ASYNC_DATA_CACHE_ERROR,
+  
+  /**
+   * Any info log related to ASYNC_RESPONSE_CONSUMER_INFO
+   *
+   * <p>Arguments:
+   * {0} - Info.
+   */
+  ASYNC_RESPONSE_CONSUMER_INFO,
+
+  /**
+   * Any error log related to ASYNC_RESPONSE_CONSUMER_ERROR
+   *
+   * <p>Arguments:
+   * {0} - Error.
+   */
+  ASYNC_RESPONSE_CONSUMER_ERROR,
+
+  /**
    * Arguments: {0} Opertaion {1} URI {2} = Exception
    */
   EXCEPTION_DURING_METHOD_CALL;

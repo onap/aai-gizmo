@@ -30,15 +30,14 @@ import java.util.Map;
 
 import javax.ws.rs.core.Response.Status;
 
-import org.onap.aaiutils.oxm.OxmModelLoader;
 import org.onap.crud.dao.GraphDao;
 import org.onap.crud.entity.Edge;
 
 import org.onap.crud.entity.Vertex;
 import org.onap.crud.exception.CrudException;
 import org.onap.crud.parser.CrudResponseBuilder;
+import org.onap.crud.util.CrudServiceUtil;
 import org.onap.schema.OxmModelValidator;
-import org.onap.schema.RelationshipSchemaLoader;
 import org.onap.schema.RelationshipSchemaValidator;
 
 import com.google.gson.JsonElement;
@@ -50,18 +49,10 @@ public class CrudGraphDataService {
   public CrudGraphDataService(GraphDao dao) throws CrudException {
     this.dao = dao;
 
-    loadModels();
+    CrudServiceUtil.loadModels();
   }
 
-  private void loadModels() throws CrudException {
-    // load the schemas
-    try {
-      OxmModelLoader.loadModels();
-    } catch (Exception e) {
-      throw new CrudException(e);
-    }
-    RelationshipSchemaLoader.loadModels();
-  }
+
 
   public String addVertex(String version, String type, VertexPayload payload) throws CrudException {
     Vertex vertex = OxmModelValidator.validateIncomingUpsertPayload(null, version, type, payload.getProperties());

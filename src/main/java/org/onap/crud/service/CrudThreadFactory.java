@@ -21,21 +21,26 @@
  *
  * ECOMP is a trademark and service mark of AT&T Intellectual Property.
  */
-package org.onap.crud.util;
+package org.onap.crud.service;
 
-public class CrudServiceConstants {
-  public static final String CRD_SERVICE_NAME = "Crud-Service";
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
-  public static final String CRD_FILESEP = (System.getProperty("file.separator") == null) ? "/"
-      : System.getProperty("file.separator");
+/**
+ * Thread factory for  workers.
+ */
+public class CrudThreadFactory implements ThreadFactory {
 
-  public static final String CRD_SPECIFIC_CONFIG = System.getProperty("CONFIG_HOME") + CRD_FILESEP;
-  public static final String CRD_CONFIG_FILE = CRD_SPECIFIC_CONFIG + "crud-api.properties";
-  public static final String CRD_HOME_MODEL = CRD_SPECIFIC_CONFIG + "model" + CRD_FILESEP;
-  public static final String CRD_HOME_AUTH = CRD_SPECIFIC_CONFIG + "auth" + CRD_FILESEP;
-  public static final String CRD_AUTH_FILE = CRD_HOME_AUTH + "crud_policy.json";
-  public static final String CRD_CHAMP_AUTH_FILE = CRD_HOME_AUTH + "champ-cert.p12";
-  public static final String CRD_AUTH_POLICY_NAME = "crud";
-  public static final String CRD_ASYNC_REQUEST_TIMEOUT = "crud.async.request.timeout";
-  public static final String CRD_ASYNC_RESPONSE_PROCESS_POLL_INTERVAL  = "crud.async.response.process.poll.interval";  
+  private AtomicInteger threadNumber = new AtomicInteger(1);
+
+  private String threadPrefix;
+
+
+  public CrudThreadFactory(String threadPrefix) {
+    this.threadPrefix = threadPrefix;
+  }
+
+  public Thread newThread(Runnable runnable) {
+    return new Thread(runnable, threadPrefix + "-" + threadNumber.getAndIncrement());
+  }
 }

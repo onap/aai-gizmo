@@ -23,7 +23,9 @@
  */
 package org.onap.crud.util;
 
+import org.onap.aaiutils.oxm.OxmModelLoader;
 import org.onap.crud.exception.CrudException;
+import org.onap.schema.RelationshipSchemaLoader;
 
 import javax.ws.rs.core.Response.Status;
 
@@ -60,4 +62,13 @@ public class CrudServiceUtil {
     }
   }
 
+  public static void loadModels() throws CrudException {
+    // load the schemas
+    try {
+      OxmModelLoader.loadModels();
+    } catch (Exception e) {
+      throw new CrudException(e);
+    }
+    RelationshipSchemaLoader.loadModels();
+  }
 }

@@ -157,7 +157,7 @@ public class GraphEvent {
       return gson.fromJson(json, GraphEvent.class);
 
     } catch (Exception ex) {
-      throw new CrudException("Unable to parse JSON string: ", Status.BAD_REQUEST);
+      throw new CrudException("Unable to parse JSON string: "+json, Status.BAD_REQUEST);
     }
   }
 
