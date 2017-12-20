@@ -36,23 +36,16 @@ import org.onap.crud.entity.Edge;
 import org.onap.crud.entity.Vertex;
 import org.onap.crud.exception.CrudException;
 import org.onap.crud.parser.CrudResponseBuilder;
-import org.onap.crud.util.CrudServiceUtil;
 import org.onap.schema.OxmModelValidator;
 import org.onap.schema.RelationshipSchemaValidator;
 
 import com.google.gson.JsonElement;
 
-public class CrudGraphDataService {
-
-  private GraphDao dao;
+public class CrudGraphDataService extends AbstractGraphDataService {
 
   public CrudGraphDataService(GraphDao dao) throws CrudException {
-    this.dao = dao;
-
-    CrudServiceUtil.loadModels();
+    super(dao);
   }
-
-
 
   public String addVertex(String version, String type, VertexPayload payload) throws CrudException {
     Vertex vertex = OxmModelValidator.validateIncomingUpsertPayload(null, version, type, payload.getProperties());
@@ -195,20 +188,6 @@ public class CrudGraphDataService {
         .buildUpsertEdgeResponse(RelationshipSchemaValidator.validateOutgoingPayload(version, addedEdge), version);
   }
 
-  public String getEdge(String version, String id, String type) throws CrudException {
-    RelationshipSchemaValidator.validateType(version, type);
-    Edge edge = dao.getEdge(id, type);
-
-    return CrudResponseBuilder.buildGetEdgeResponse(RelationshipSchemaValidator.validateOutgoingPayload(version, edge),
-        version);
-  }
-
-  public String getEdges(String version, String type, Map<String, String> filter) throws CrudException {
-    RelationshipSchemaValidator.validateType(version, type);
-    List<Edge> items = dao.getEdges(type, RelationshipSchemaValidator.resolveCollectionfilter(version, type, filter));
-    return CrudResponseBuilder.buildGetEdgesResponse(items, version);
-  }
-
   public String updateVertex(String version, String id, String type, VertexPayload payload) throws CrudException {
     Vertex vertex = OxmModelValidator.validateIncomingUpsertPayload(id, version, type, payload.getProperties());
     return updateVertex(version, vertex);
@@ -265,20 +244,6 @@ public class CrudGraphDataService {
 
   public Vertex getVertex(String id) throws CrudException {
     return dao.getVertex(id);
-  }
-
-  public String getVertex(String version, String id, String type) throws CrudException {
-    type = OxmModelValidator.resolveCollectionType(version, type);
-    Vertex vertex = dao.getVertex(id, type);
-    List<Edge> edges = dao.getVertexEdges(id);
-    return CrudResponseBuilder.buildGetVertexResponse(OxmModelValidator.validateOutgoingPayload(version, vertex), edges,
-        version);
-  }
-
-  public String getVertices(String version, String type, Map<String, String> filter) throws CrudException {
-    type = OxmModelValidator.resolveCollectionType(version, type);
-    List<Vertex> items = dao.getVertices(type, OxmModelValidator.resolveCollectionfilter(version, type, filter));
-    return CrudResponseBuilder.buildGetVerticesResponse(items, version);
   }
 
 }

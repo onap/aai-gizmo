@@ -79,7 +79,7 @@ public class AaiResourceService {
   public static final String HTTP_PATCH_METHOD_OVERRIDE = "X-HTTP-Method-Override";
   
   private Auth auth;
-  CrudGraphDataService crudGraphDataService;
+  AbstractGraphDataService graphDataService;
   Gson gson = new Gson();
   
   private Logger logger      = LoggerFactory.getInstance().getLogger(AaiResourceService.class.getName());
@@ -94,9 +94,9 @@ public class AaiResourceService {
    * 
    * @throws Exception
    */
-  public AaiResourceService(CrudGraphDataService crudGraphDataService) throws Exception {
-    this.crudGraphDataService = crudGraphDataService;
-    this.auth                 = new Auth(CrudServiceConstants.CRD_AUTH_FILE);
+  public AaiResourceService(AbstractGraphDataService graphDataService) throws Exception {
+    this.graphDataService = graphDataService;
+    this.auth = new Auth(CrudServiceConstants.CRD_AUTH_FILE);
   }
   
   /**
@@ -168,7 +168,7 @@ public class AaiResourceService {
         }
         
         // Now, create our edge in the graph store.
-        String result = crudGraphDataService.addEdge(RelationshipSchemaLoader.getLatestSchemaVersion(), type, payload);
+        String result = graphDataService.addEdge(RelationshipSchemaLoader.getLatestSchemaVersion(), type, payload);
         response = Response.status(Status.CREATED).entity(result).type(mediaType).build();
         
       } catch (CrudException e) {
@@ -232,7 +232,7 @@ public class AaiResourceService {
         payload = applyEdgeRulesToPayload(payload);
         
         // Now, create our edge in the graph store.
-        String result = crudGraphDataService.addEdge(RelationshipSchemaLoader.getLatestSchemaVersion(), payload.getType(), payload);
+        String result = graphDataService.addEdge(RelationshipSchemaLoader.getLatestSchemaVersion(), payload.getType(), payload);
         response = Response.status(Status.CREATED).entity(result).type(mediaType).build();
       
       } catch (CrudException ce) {
@@ -307,10 +307,10 @@ public class AaiResourceService {
         String result;
         if (headers.getRequestHeaders().getFirst(HTTP_PATCH_METHOD_OVERRIDE) != null &&
             headers.getRequestHeaders().getFirst(HTTP_PATCH_METHOD_OVERRIDE).equalsIgnoreCase("PATCH")) {
-          result = crudGraphDataService.patchEdge(RelationshipSchemaLoader.getLatestSchemaVersion(), id, type, payload);
+          result = graphDataService.patchEdge(RelationshipSchemaLoader.getLatestSchemaVersion(), id, type, payload);
         } else {
 
-          result = crudGraphDataService.updateEdge(RelationshipSchemaLoader.getLatestSchemaVersion(), id, type, payload);
+          result = graphDataService.updateEdge(RelationshipSchemaLoader.getLatestSchemaVersion(), id, type, payload);
         }
 
         response = Response.status(Status.OK).entity(result).type(mediaType).build();

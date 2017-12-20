@@ -44,13 +44,10 @@ import org.onap.crud.logging.CrudServiceMsgs;
 import org.onap.crud.parser.CrudResponseBuilder;
 import org.onap.crud.util.CrudProperties;
 import org.onap.crud.util.CrudServiceConstants;
-import org.onap.crud.util.CrudServiceUtil;
 import org.onap.schema.OxmModelValidator;
 import org.onap.schema.RelationshipSchemaValidator;
 
 import java.text.SimpleDateFormat;
-import java.util.List;
-import java.util.Map;
 import java.util.Timer;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
@@ -63,11 +60,9 @@ import java.util.concurrent.TimeoutException;
 import javax.annotation.PreDestroy;
 import javax.ws.rs.core.Response.Status;
 
-public class CrudAsyncGraphDataService {
+public class CrudAsyncGraphDataService extends AbstractGraphDataService {
 
   private static Integer requestTimeOut;
-
-  private GraphDao dao;
 
   private EventPublisher asyncRequestPublisher;
 
@@ -94,6 +89,8 @@ public class CrudAsyncGraphDataService {
 		  EventPublisher asyncRequestPublisher,
 		  EventConsumer asyncResponseConsumer) throws CrudException {
 
+     super(dao);
+     
     requestTimeOut = DEFAULT_REQUEST_TIMEOUT;
     try {
       requestTimeOut
@@ -113,8 +110,6 @@ public class CrudAsyncGraphDataService {
                    + " error: " + ex.getMessage());
     }
 
-    this.dao = dao;
-
     // Start the Response Consumer timer
     CrudAsyncResponseConsumer crudAsyncResponseConsumer
       = new CrudAsyncResponseConsumer(asyncResponseConsumer);
@@ -122,9 +117,7 @@ public class CrudAsyncGraphDataService {
     timer.schedule(crudAsyncResponseConsumer, responsePollInterval, responsePollInterval);
 
     this.asyncRequestPublisher = asyncRequestPublisher;
-
-    // load the schemas
-    CrudServiceUtil.loadModels();
+    
     logger.info(CrudServiceMsgs.ASYNC_DATA_SERVICE_INFO,
                 "CrudAsyncGraphDataService initialized SUCCESSFULLY!");
   }
@@ -155,7 +148,7 @@ public class CrudAsyncGraphDataService {
     }
   }
 
-  private GraphEvent sendAndWait(GraphEvent event) throws Exception {
+  private GraphEvent sendAndWait(GraphEvent event) throws CrudException {
 
     long startTimeInMs = System.currentTimeMillis();
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
@@ -163,7 +156,11 @@ public class CrudAsyncGraphDataService {
     override.addAttribute(MdcContext.MDC_START_TIME, formatter.format(startTimeInMs));
 
     // publish to request queue
-    asyncRequestPublisher.sendSync(event.toJson());
+    try {
+      asyncRequestPublisher.sendSync(event.toJson());
+    } catch (Exception e) {
+      throw new CrudException("Error publishing request " + event.getTransactionId() + "  Cause: " + e.getMessage(), Status.INTERNAL_SERVER_ERROR);
+    }
 
     logger.info(CrudServiceMsgs.ASYNC_DATA_SERVICE_INFO,
                 "Event submitted of type: " + event.getObjectType() + " with key: " + event.getObjectKey()
@@ -197,7 +194,7 @@ public class CrudAsyncGraphDataService {
     return response;
   }
 
-  public String addVertex(String version, String type, VertexPayload payload) throws Exception {
+  public String addVertex(String version, String type, VertexPayload payload) throws CrudException {
     // Validate the incoming payload
     Vertex vertex = OxmModelValidator.validateIncomingUpsertPayload(null, version,
                                                                     type, payload.getProperties());
@@ -227,7 +224,7 @@ public class CrudAsyncGraphDataService {
 
   }
 
-  public String addEdge(String version, String type, EdgePayload payload) throws Exception {
+  public String addEdge(String version, String type, EdgePayload payload) throws CrudException {
     Edge edge = RelationshipSchemaValidator.validateIncomingAddPayload(version, type, payload);
     // Create graph request event
     GraphEvent event = GraphEvent.builder(GraphEventOperation.CREATE)
@@ -255,7 +252,7 @@ public class CrudAsyncGraphDataService {
   }
 
   public String updateVertex(String version, String id, String type, VertexPayload payload)
-    throws Exception {
+    throws CrudException {
     Vertex vertex = OxmModelValidator.validateIncomingUpsertPayload(id, version,
                                                                     type, payload.getProperties());
     GraphEvent event = GraphEvent.builder(GraphEventOperation.UPDATE)
@@ -284,7 +281,7 @@ public class CrudAsyncGraphDataService {
   }
 
   public String patchVertex(String version, String id, String type, VertexPayload payload)
-    throws Exception {
+    throws CrudException {
     Vertex existingVertex
       = dao.getVertex(id, OxmModelValidator.resolveCollectionType(version, type));
     Vertex patchedVertex = OxmModelValidator.validateIncomingPatchPayload(id, version,
@@ -315,7 +312,7 @@ public class CrudAsyncGraphDataService {
 
   }
 
-  public String deleteVertex(String version, String id, String type) throws Exception {
+  public String deleteVertex(String version, String id, String type) throws CrudException {
     type = OxmModelValidator.resolveCollectionType(version, type);
     GraphEvent event = GraphEvent.builder(GraphEventOperation.DELETE)
       .vertex(new GraphEventVertex(id, version, type, null)).build();
@@ -340,7 +337,7 @@ public class CrudAsyncGraphDataService {
 
   }
 
-  public String deleteEdge(String version, String id, String type) throws Exception {
+  public String deleteEdge(String version, String id, String type) throws CrudException {
     RelationshipSchemaValidator.validateType(version, type);
     GraphEvent event = GraphEvent.builder(GraphEventOperation.DELETE)
       .edge(new GraphEventEdge(id, version, type, null, null, null)).build();
@@ -366,7 +363,7 @@ public class CrudAsyncGraphDataService {
   }
 
   public String updateEdge(String version, String id, String type, EdgePayload payload)
-    throws Exception {
+    throws CrudException {
     Edge edge = dao.getEdge(id, type);
     Edge validatedEdge = RelationshipSchemaValidator.validateIncomingUpdatePayload(edge, version,
                                                                                    payload);
@@ -396,7 +393,7 @@ public class CrudAsyncGraphDataService {
   }
 
   public String patchEdge(String version, String id, String type, EdgePayload payload)
-    throws Exception {
+    throws CrudException {
     Edge edge = dao.getEdge(id, type);
     Edge patchedEdge = RelationshipSchemaValidator.validateIncomingPatchPayload(edge, version,
                                                                                 payload);
@@ -425,44 +422,15 @@ public class CrudAsyncGraphDataService {
 
   }
 
-  public String getEdge(String version, String id, String type) throws CrudException {
-    RelationshipSchemaValidator.validateType(version, type);
-    Edge edge = dao.getEdge(id, type);
-
-    return CrudResponseBuilder.buildGetEdgeResponse(RelationshipSchemaValidator
-                                                    .validateOutgoingPayload(version, edge),
-                                                    version);
-  }
-
-  public String getEdges(String version, String type, Map<String, String> filter)
-    throws CrudException {
-    RelationshipSchemaValidator.validateType(version, type);
-    List<Edge> items = dao.getEdges(type,
-                                    RelationshipSchemaValidator.resolveCollectionfilter(version, type, filter));
-    return CrudResponseBuilder.buildGetEdgesResponse(items, version);
-  }
-
-  public String getVertex(String version, String id, String type) throws CrudException {
-    type = OxmModelValidator.resolveCollectionType(version, type);
-    Vertex vertex = dao.getVertex(id, type);
-    List<Edge> edges = dao.getVertexEdges(id);
-    return CrudResponseBuilder.buildGetVertexResponse(OxmModelValidator
-                                                      .validateOutgoingPayload(version, vertex), edges,
-                                                      version);
-  }
-
-  public String getVertices(String version, String type, Map<String, String> filter)
-    throws CrudException {
-    type = OxmModelValidator.resolveCollectionType(version, type);
-    List<Vertex> items = dao.getVertices(type,
-                                         OxmModelValidator.resolveCollectionfilter(version, type, filter));
-    return CrudResponseBuilder.buildGetVerticesResponse(items, version);
-  }
-
   @PreDestroy
   protected void preShutdown() {
     timer.cancel();
 
+  }
+
+  @Override
+  public String addBulk(String version, BulkPayload payload) throws CrudException {
+    throw new CrudException("Bulk operation not supported in async mode", Status.BAD_REQUEST);
   }
 
 

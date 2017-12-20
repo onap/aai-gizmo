@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.security.auth.x500.X500Principal;
 import javax.servlet.http.HttpServletRequest;
@@ -62,7 +61,7 @@ import com.google.gson.JsonElement;
 
 public class CrudRestService {
 
-  private CrudGraphDataService crudGraphDataService;
+  private AbstractGraphDataService graphDataService;
   Logger logger = LoggerFactory.getInstance().getLogger(CrudRestService.class.getName());
   Logger auditLogger = LoggerFactory.getInstance().getAuditLogger(CrudRestService.class.getName());
   private Auth auth;
@@ -70,16 +69,14 @@ public class CrudRestService {
   private String mediaType = MediaType.APPLICATION_JSON;
   public static final String HTTP_PATCH_METHOD_OVERRIDE = "X-HTTP-Method-Override";
 
-  public CrudRestService(CrudGraphDataService crudGraphDataService) throws Exception {
-    this.crudGraphDataService = crudGraphDataService;
+  public CrudRestService(AbstractGraphDataService graphDataService) throws Exception {
+    this.graphDataService = graphDataService;
     this.auth = new Auth(CrudServiceConstants.CRD_AUTH_FILE);
   }
 
   public enum Action {
     POST, GET, PUT, DELETE, PATCH
   }
-
-  ;
 
   public void startup() {
 
@@ -100,7 +97,7 @@ public class CrudRestService {
     if (validateRequest(req, uri, content, Action.GET, CrudServiceConstants.CRD_AUTH_POLICY_NAME)) {
 
       try {
-        String result = crudGraphDataService.getVertex(version, id, type);
+        String result = graphDataService.getVertex(version, id, type);
         response = Response.status(Status.OK).entity(result).type(mediaType).build();
       } catch (CrudException ce) {
         response = Response.status(ce.getHttpStatus()).entity(ce.getMessage()).build();
@@ -135,7 +132,7 @@ public class CrudRestService {
       }
 
       try {
-        String result = crudGraphDataService.getVertices(version, type, filter);
+        String result = graphDataService.getVertices(version, type, filter);
         response = Response.status(Status.OK).entity(result).type(mediaType).build();
       } catch (CrudException ce) {
         response = Response.status(ce.getHttpStatus()).entity(ce.getMessage()).build();
@@ -166,7 +163,7 @@ public class CrudRestService {
 
       try {
 
-        String result = crudGraphDataService.getEdge(version, id, type);
+        String result = graphDataService.getEdge(version, id, type);
         response = Response.status(Status.OK).entity(result).type(mediaType).build();
       } catch (CrudException ce) {
         response = Response.status(ce.getHttpStatus()).entity(ce.getMessage()).build();
@@ -202,7 +199,7 @@ public class CrudRestService {
       }
 
       try {
-        String result = crudGraphDataService.getEdges(version, type, filter);
+        String result = graphDataService.getEdges(version, type, filter);
         response = Response.status(Status.OK).entity(result).type(mediaType).build();
       } catch (CrudException ce) {
         response = Response.status(ce.getHttpStatus()).entity(ce.getMessage()).build();
@@ -245,10 +242,10 @@ public class CrudRestService {
 
         if (headers.getRequestHeaders().getFirst(HTTP_PATCH_METHOD_OVERRIDE) != null
             && headers.getRequestHeaders().getFirst(HTTP_PATCH_METHOD_OVERRIDE).equalsIgnoreCase("PATCH")) {
-          result = crudGraphDataService.patchEdge(version, id, type, payload);
+          result = graphDataService.patchEdge(version, id, type, payload);
         } else {
 
-          result = crudGraphDataService.updateEdge(version, id, type, payload);
+          result = graphDataService.updateEdge(version, id, type, payload);
         }
 
         response = Response.status(Status.OK).entity(result).type(mediaType).build();
@@ -289,7 +286,7 @@ public class CrudRestService {
           throw new CrudException("ID Mismatch", Status.BAD_REQUEST);
         }
 
-        String result = crudGraphDataService.patchEdge(version, id, type, payload);
+        String result = graphDataService.patchEdge(version, id, type, payload);
         response = Response.status(Status.OK).entity(result).type(mediaType).build();
       } catch (CrudException ce) {
         response = Response.status(ce.getHttpStatus()).entity(ce.getMessage()).build();
@@ -330,10 +327,10 @@ public class CrudRestService {
         String result;
         if (headers.getRequestHeaders().getFirst(HTTP_PATCH_METHOD_OVERRIDE) != null
             && headers.getRequestHeaders().getFirst(HTTP_PATCH_METHOD_OVERRIDE).equalsIgnoreCase("PATCH")) {
-          result = crudGraphDataService.patchVertex(version, id, type, payload);
+          result = graphDataService.patchVertex(version, id, type, payload);
         } else {
 
-          result = crudGraphDataService.updateVertex(version, id, type, payload);
+          result = graphDataService.updateVertex(version, id, type, payload);
         }
         response = Response.status(Status.OK).entity(result).type(mediaType).build();
       } catch (CrudException ce) {
@@ -372,7 +369,7 @@ public class CrudRestService {
           throw new CrudException("ID Mismatch", Status.BAD_REQUEST);
         }
 
-        String result = crudGraphDataService.patchVertex(version, id, type, payload);
+        String result = graphDataService.patchVertex(version, id, type, payload);
         response = Response.status(Status.OK).entity(result).type(mediaType).build();
       } catch (CrudException ce) {
         response = Response.status(ce.getHttpStatus()).entity(ce.getMessage()).build();
@@ -415,7 +412,7 @@ public class CrudRestService {
           throw new CrudException("Vertex Type mismatch", Status.BAD_REQUEST);
         }
 
-        String result = crudGraphDataService.addVertex(version, type, payload);
+        String result = graphDataService.addVertex(version, type, payload);
         response = Response.status(Status.CREATED).entity(result).type(mediaType).build();
       } catch (CrudException ce) {
         response = Response.status(ce.getHttpStatus()).entity(ce.getMessage()).build();
@@ -554,7 +551,7 @@ public class CrudRestService {
         }
 
         validateBulkPayload(payload);
-        String result = crudGraphDataService.addBulk(version, payload);
+        String result = graphDataService.addBulk(version, payload);
         response = Response.status(Status.OK).entity(result).type(mediaType).build();
       } catch (CrudException ce) {
         response = Response.status(ce.getHttpStatus()).entity(ce.getMessage()).build();
@@ -595,7 +592,7 @@ public class CrudRestService {
         if (payload.getType() == null || payload.getType().isEmpty()) {
           throw new CrudException("Missing Vertex Type ", Status.BAD_REQUEST);
         }
-        String result = crudGraphDataService.addVertex(version, payload.getType(), payload);
+        String result = graphDataService.addVertex(version, payload.getType(), payload);
         response = Response.status(Status.CREATED).entity(result).type(mediaType).build();
       } catch (CrudException ce) {
         response = Response.status(ce.getHttpStatus()).entity(ce.getMessage()).build();
@@ -637,7 +634,7 @@ public class CrudRestService {
         if (payload.getType() != null && !payload.getType().equals(type)) {
           throw new CrudException("Edge Type mismatch", Status.BAD_REQUEST);
         }
-        String result = crudGraphDataService.addEdge(version, type, payload);
+        String result = graphDataService.addEdge(version, type, payload);
         response = Response.status(Status.CREATED).entity(result).type(mediaType).build();
       } catch (CrudException ce) {
         response = Response.status(ce.getHttpStatus()).entity(ce.getMessage()).build();
@@ -678,7 +675,7 @@ public class CrudRestService {
         if (payload.getType() == null || payload.getType().isEmpty()) {
           throw new CrudException("Missing Edge Type ", Status.BAD_REQUEST);
         }
-        String result = crudGraphDataService.addEdge(version, payload.getType(), payload);
+        String result = graphDataService.addEdge(version, payload.getType(), payload);
 
         response = Response.status(Status.CREATED).entity(result).type(mediaType).build();
       } catch (CrudException ce) {
@@ -710,7 +707,7 @@ public class CrudRestService {
     if (validateRequest(req, uri, content, Action.DELETE, CrudServiceConstants.CRD_AUTH_POLICY_NAME)) {
 
       try {
-        String result = crudGraphDataService.deleteVertex(version, id, type);
+        String result = graphDataService.deleteVertex(version, id, type);
         response = Response.status(Status.OK).entity(result).type(mediaType).build();
       } catch (CrudException ce) {
         response = Response.status(ce.getHttpStatus()).entity(ce.getMessage()).build();
@@ -740,7 +737,7 @@ public class CrudRestService {
     if (validateRequest(req, uri, content, Action.DELETE, CrudServiceConstants.CRD_AUTH_POLICY_NAME)) {
 
       try {
-        String result = crudGraphDataService.deleteEdge(version, id, type);
+        String result = graphDataService.deleteEdge(version, id, type);
         response = Response.status(Status.OK).entity(result).type(mediaType).build();
       } catch (CrudException ce) {
         response = Response.status(ce.getHttpStatus()).entity(ce.getMessage()).build();
