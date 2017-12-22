@@ -25,6 +25,8 @@ package org.onap.crud.service;
 
 import java.util.TimerTask;
 
+import javax.naming.OperationNotSupportedException;
+
 import org.onap.aai.cl.api.Logger;
 import org.onap.aai.cl.eelf.LoggerFactory;
 import org.onap.crud.event.GraphEvent;
@@ -107,7 +109,12 @@ public class CrudAsyncResponseConsumer extends TimerTask {
 
     try {
       asyncResponseConsumer.commitOffsets();
-    } catch (Exception e) {
+    }
+    catch(OperationNotSupportedException e) {
+        //Dmaap doesnt support commit with offset    
+        logger.debug(CrudServiceMsgs.ASYNC_RESPONSE_CONSUMER_ERROR, e.getMessage());
+    }
+    catch (Exception e) {
       logger.error(CrudServiceMsgs.ASYNC_RESPONSE_CONSUMER_ERROR, e.getMessage());
     }
 

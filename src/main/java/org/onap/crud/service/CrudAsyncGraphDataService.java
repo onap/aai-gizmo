@@ -161,6 +161,8 @@ public class CrudAsyncGraphDataService extends AbstractGraphDataService {
     } catch (Exception e) {
       throw new CrudException("Error publishing request " + event.getTransactionId() + "  Cause: " + e.getMessage(), Status.INTERNAL_SERVER_ERROR);
     }
+    
+    logger.debug(CrudServiceMsgs.ASYNC_DATA_SERVICE_INFO, "Event Sent ="+event.toJson());
 
     logger.info(CrudServiceMsgs.ASYNC_DATA_SERVICE_INFO,
                 "Event submitted of type: " + event.getObjectType() + " with key: " + event.getObjectKey()
