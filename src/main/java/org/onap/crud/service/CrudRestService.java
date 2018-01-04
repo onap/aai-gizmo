@@ -24,10 +24,14 @@
 package org.onap.crud.service;
 
 import java.security.cert.X509Certificate;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.security.auth.x500.X500Principal;
 import javax.servlet.http.HttpServletRequest;
@@ -51,13 +55,16 @@ import org.apache.cxf.jaxrs.ext.PATCH;
 import org.onap.aaiauth.auth.Auth;
 import org.onap.aai.cl.api.Logger;
 import org.onap.aai.cl.eelf.LoggerFactory;
+import org.onap.aai.db.props.AAIProperties;
 import org.onap.crud.exception.CrudException;
 import org.onap.crud.logging.CrudServiceMsgs;
 import org.onap.crud.logging.LoggingUtil;
 import org.onap.crud.util.CrudServiceConstants;
 import org.slf4j.MDC;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 
 public class CrudRestService {
 
@@ -65,6 +72,8 @@ public class CrudRestService {
   Logger logger = LoggerFactory.getInstance().getLogger(CrudRestService.class.getName());
   Logger auditLogger = LoggerFactory.getInstance().getAuditLogger(CrudRestService.class.getName());
   private Auth auth;
+
+  Gson gson = new Gson();
 
   private String mediaType = MediaType.APPLICATION_JSON;
   public static final String HTTP_PATCH_METHOD_OVERRIDE = "X-HTTP-Method-Override";
@@ -325,6 +334,9 @@ public class CrudRestService {
           throw new CrudException("ID Mismatch", Status.BAD_REQUEST);
         }
         String result;
+        
+        payload.setProperties(mergeHeaderInFoToPayload(payload.getProperties(), headers, false));
+
         if (headers.getRequestHeaders().getFirst(HTTP_PATCH_METHOD_OVERRIDE) != null
             && headers.getRequestHeaders().getFirst(HTTP_PATCH_METHOD_OVERRIDE).equalsIgnoreCase("PATCH")) {
           result = graphDataService.patchVertex(version, id, type, payload);
@@ -369,6 +381,8 @@ public class CrudRestService {
           throw new CrudException("ID Mismatch", Status.BAD_REQUEST);
         }
 
+        payload.setProperties(mergeHeaderInFoToPayload(payload.getProperties(), headers, false));
+
         String result = graphDataService.patchVertex(version, id, type, payload);
         response = Response.status(Status.OK).entity(result).type(mediaType).build();
       } catch (CrudException ce) {
@@ -412,6 +426,8 @@ public class CrudRestService {
           throw new CrudException("Vertex Type mismatch", Status.BAD_REQUEST);
         }
 
+        payload.setProperties(mergeHeaderInFoToPayload(payload.getProperties(), headers, true));
+
         String result = graphDataService.addVertex(version, type, payload);
         response = Response.status(Status.CREATED).entity(result).type(mediaType).build();
       } catch (CrudException ce) {
@@ -426,6 +442,47 @@ public class CrudRestService {
     LoggingUtil.logRestRequest(logger, auditLogger, req, response);
     return response;
   }
+
+  private JsonElement mergeHeaderInFoToPayload(JsonElement propertiesFromRequest,  HttpHeaders headers, boolean isAdd) {
+	    if(!headers.getRequestHeaders().containsKey("X-FromAppId"))  
+	        return propertiesFromRequest;
+	    
+	    String sourceOfTruth = headers.getRequestHeaders().getFirst("X-FromAppId");  
+	    Set<Map.Entry<String, JsonElement>> properties = new HashSet<Map.Entry<String, JsonElement>>();
+	    properties.addAll(propertiesFromRequest.getAsJsonObject().entrySet());
+	    
+	    Set<String> propertyKeys = new HashSet<String>();
+	    for(Map.Entry<String, JsonElement> property : properties) {
+	      propertyKeys.add(property.getKey());
+	    }
+	    
+	    if(!propertyKeys.contains(AAIProperties.LAST_MOD_SOURCE_OF_TRUTH)) {
+	        properties.add(new AbstractMap.SimpleEntry<String, JsonElement>(AAIProperties.LAST_MOD_SOURCE_OF_TRUTH,
+	            (JsonElement)(new JsonPrimitive(sourceOfTruth))));
+	    }
+	   
+	    if(isAdd && !propertyKeys.contains(AAIProperties.SOURCE_OF_TRUTH)) {
+	        properties.add(new AbstractMap.SimpleEntry<String, JsonElement>(AAIProperties.SOURCE_OF_TRUTH,
+	            (JsonElement)(new JsonPrimitive(sourceOfTruth))));
+	    }
+
+	    Object[] propArray = properties.toArray();
+	    StringBuilder sb = new StringBuilder();
+	    sb.append("{");
+	    boolean first=true;
+	    for(int i=0; i<propArray.length; i++) {
+	      
+	      Map.Entry<String, JsonElement> entry = (Entry<String, JsonElement>) propArray[i];
+	      if(!first) {
+	        sb.append(",");
+	      }
+	      sb.append("\"").append(entry.getKey()).append("\"").append(":").append(entry.getValue());
+	      first=false;
+	    }
+	    sb.append("}");
+	    
+	    return gson.fromJson(sb.toString(), JsonElement.class);
+	  }
 
   private void validateBulkPayload(BulkPayload payload) throws CrudException {
     List<String> vertices = new ArrayList<String>();
