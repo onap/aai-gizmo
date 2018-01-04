@@ -45,6 +45,9 @@ public class GraphEvent {
 
   @SerializedName("transaction-id")
   private String transactionId;
+  
+  @SerializedName("database-transaction-id")
+  private String dbTransactionId;
 
   private long timestamp;
 
@@ -75,6 +78,14 @@ public class GraphEvent {
 
   public String getTransactionId() {
     return transactionId;
+  }
+  
+  public String getDbTransactionId() {
+    return dbTransactionId;
+  }
+  
+  public void setDbTransactionId(String id) {
+    dbTransactionId = id;
   }
 
   public long getTimestamp() {
@@ -173,9 +184,8 @@ public class GraphEvent {
     } else if (this.getEdge() != null) {
       return this.getEdge().getId();
     }
-
+    
     return null;
-
   }
 
   public String getObjectType() {
@@ -186,7 +196,6 @@ public class GraphEvent {
     }
 
     return null;
-
   }
 
   public static class Builder {

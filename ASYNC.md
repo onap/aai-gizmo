@@ -35,7 +35,8 @@ original request.
             "type": "pserver",
             "schema-version": "vX"
         },
-        "transaction-id": "c0a81fa7-5ef4-49cd-ab39-e42c53c9b9a4"
+        "transaction-id": "c0a81fa7-5ef4-49cd-ab39-e42c53c9b9a4",
+        "database-transaction-id": "b3e2853e-f643-47a3-a0c3-cb54cc997ad3"
     }
 
 #### Updating a Vertex
@@ -60,7 +61,8 @@ original request.
             "type": "pserver",
             "schema-version": "vX"
         },
-        "transaction-id": "3b8df1d5-4c51-47e3-bbef-c27b47e11149"
+        "transaction-id": "3b8df1d5-4c51-47e3-bbef-c27b47e11149",
+        "database-transaction-id": "b3e2853e-f643-47a3-a0c3-cb54cc997ad3"
     }
 
 #### Deleting a Vertex
@@ -73,7 +75,8 @@ original request.
             "type": "pserver",
             "schema-version": "vX"
         },
-        "transaction-id": "6bb7a27b-a942-4cac-9b2b-0fa1f3897b8c"
+        "transaction-id": "6bb7a27b-a942-4cac-9b2b-0fa1f3897b8c",
+        "database-transaction-id": "b3e2853e-f643-47a3-a0c3-cb54cc997ad3"
     }
 
 
@@ -101,7 +104,8 @@ original request.
           "type": "vserver"
         }
       },
-      "transaction-id": "63a8994d-1118-4e65-ab06-fff40f6f48ef"
+      "transaction-id": "63a8994d-1118-4e65-ab06-fff40f6f48ef",
+      "database-transaction-id": "b3e2853e-f643-47a3-a0c3-cb54cc997ad3"
     }
 
 #### Replace an Edge
@@ -128,7 +132,8 @@ original request.
           "type": "vserver"
         }
       },
-      "transaction-id": "ed284991-6c2f-4c94-a592-76fed17a2f14"
+      "transaction-id": "ed284991-6c2f-4c94-a592-76fed17a2f14",
+      "database-transaction-id": "b3e2853e-f643-47a3-a0c3-cb54cc997ad3"
     }
 
 
@@ -142,5 +147,6 @@ original request.
         "type": "tosca.relationships.HostedOn",
         "schema-version": "v11"
       },
-      "transaction-id": "b4583bc9-dd96-483f-ab2d-20c1c6e5622f"
+      "transaction-id": "b4583bc9-dd96-483f-ab2d-20c1c6e5622f",
+      "database-transaction-id": "b3e2853e-f643-47a3-a0c3-cb54cc997ad3"
     }
