@@ -45,6 +45,7 @@ import org.onap.crud.logging.CrudServiceMsgs;
 import org.onap.crud.parser.CrudResponseBuilder;
 import org.onap.crud.util.CrudProperties;
 import org.onap.crud.util.CrudServiceConstants;
+import org.onap.crud.util.CrudServiceUtil;
 import org.onap.schema.OxmModelValidator;
 import org.onap.schema.RelationshipSchemaValidator;
 
@@ -63,6 +64,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import javax.annotation.PreDestroy;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response.Status;
 
 public class CrudAsyncGraphDataService extends AbstractGraphDataService {
@@ -372,7 +374,7 @@ public class CrudAsyncGraphDataService extends AbstractGraphDataService {
   }
 
   @Override
-  public String addBulk(String version, BulkPayload payload) throws CrudException {
+  public String addBulk(String version, BulkPayload payload, HttpHeaders headers) throws CrudException {
     HashMap<String, Vertex> vertices = new HashMap<String, Vertex>();
     HashMap<String, Edge> edges = new HashMap<String, Edge>();
     String txId = dao.openTransaction();   
@@ -397,13 +399,17 @@ public class CrudAsyncGraphDataService extends AbstractGraphDataService {
           GraphEvent event;
           
           if (opr.getValue().getAsString().equalsIgnoreCase("add")) {
+        	vertexPayload.setProperties(CrudServiceUtil.mergeHeaderInFoToPayload(vertexPayload.getProperties(), 
+        			  headers, true));  
             // Publish add-vertex event
             validatedVertex = OxmModelValidator.validateIncomingUpsertPayload(null, version, vertexPayload.getType(),
                 vertexPayload.getProperties());
             event = GraphEvent.builder(GraphEventOperation.CREATE)
                 .vertex(GraphEventVertex.fromVertex(validatedVertex, version)).build();
           } else {
-            // Publish update-vertex event
+        	vertexPayload.setProperties(CrudServiceUtil.mergeHeaderInFoToPayload(vertexPayload.getProperties(), 
+        			  headers, false));
+        	// Publish update-vertex event
             validatedVertex = OxmModelValidator.validateIncomingUpsertPayload(vertexPayload.getId(), version,
                 vertexPayload.getType(), vertexPayload.getProperties());
             event = GraphEvent.builder(GraphEventOperation.UPDATE)

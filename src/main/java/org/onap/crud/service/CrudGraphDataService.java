@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response.Status;
 
 import org.onap.crud.dao.GraphDao;
@@ -36,6 +37,7 @@ import org.onap.crud.entity.Edge;
 import org.onap.crud.entity.Vertex;
 import org.onap.crud.exception.CrudException;
 import org.onap.crud.parser.CrudResponseBuilder;
+import org.onap.crud.util.CrudServiceUtil;
 import org.onap.schema.OxmModelValidator;
 import org.onap.schema.RelationshipSchemaValidator;
 
@@ -52,7 +54,7 @@ public class CrudGraphDataService extends AbstractGraphDataService {
     return addVertex(version, vertex);
   }
 
-  public String addBulk(String version, BulkPayload payload) throws CrudException {
+  public String addBulk(String version, BulkPayload payload, HttpHeaders headers) throws CrudException {
     HashMap<String, Vertex> vertices = new HashMap<String, Vertex>();
     HashMap<String, Edge> edges = new HashMap<String, Edge>();
     String txId = dao.openTransaction();
@@ -75,11 +77,17 @@ public class CrudGraphDataService extends AbstractGraphDataService {
           Vertex validatedVertex;
           Vertex persistedVertex;
           if (opr.getValue().getAsString().equalsIgnoreCase("add")) {
-            validatedVertex = OxmModelValidator.validateIncomingUpsertPayload(null, version, vertexPayload.getType(),
+        	  vertexPayload.setProperties(CrudServiceUtil.mergeHeaderInFoToPayload(vertexPayload.getProperties(), 
+        			  headers, true));
+
+        	  validatedVertex = OxmModelValidator.validateIncomingUpsertPayload(null, version, vertexPayload.getType(),
                 vertexPayload.getProperties());
+            
             // Call champDAO to add the vertex
             persistedVertex = dao.addVertex(validatedVertex.getType(), validatedVertex.getProperties(), txId);
           } else {
+        	vertexPayload.setProperties(CrudServiceUtil.mergeHeaderInFoToPayload(vertexPayload.getProperties(), 
+        			  headers, false));  
             validatedVertex = OxmModelValidator.validateIncomingUpsertPayload(vertexPayload.getId(), version,
                 vertexPayload.getType(), vertexPayload.getProperties());
             // Call champDAO to update the vertex

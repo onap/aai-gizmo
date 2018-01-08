@@ -26,6 +26,8 @@ package org.onap.crud.service;
 import java.util.List;
 import java.util.Map;
 
+import javax.ws.rs.core.HttpHeaders;
+
 import org.onap.crud.dao.GraphDao;
 import org.onap.crud.entity.Edge;
 import org.onap.crud.entity.Vertex;
@@ -79,5 +81,5 @@ public abstract class AbstractGraphDataService {
   public abstract String deleteEdge(String version, String id, String type) throws CrudException;
   public abstract String updateEdge(String version, String id, String type, EdgePayload payload) throws CrudException;
   public abstract String patchEdge(String version, String id, String type, EdgePayload payload) throws CrudException;
-  public abstract String addBulk(String version, BulkPayload payload) throws CrudException;
+  public abstract String addBulk(String version, BulkPayload payload, HttpHeaders headers) throws CrudException;
 }

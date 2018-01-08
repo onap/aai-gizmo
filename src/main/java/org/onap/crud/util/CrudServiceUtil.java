@@ -23,15 +23,27 @@
  */
 package org.onap.crud.util;
 
+import org.onap.aai.db.props.AAIProperties;
 import org.onap.aaiutils.oxm.OxmModelLoader;
 import org.onap.crud.exception.CrudException;
 import org.onap.schema.RelationshipSchemaLoader;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+
+import java.util.AbstractMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
+
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response.Status;
 
 public class CrudServiceUtil {
 
-
+  private static Gson gson = new Gson();
   public static Object validateFieldType(String value, Class clazz) throws CrudException {
     try {
       if (clazz.isAssignableFrom(Integer.class)) {
@@ -71,4 +83,46 @@ public class CrudServiceUtil {
     }
     RelationshipSchemaLoader.loadModels();
   }
+  
+  public static JsonElement mergeHeaderInFoToPayload(JsonElement propertiesFromRequest,  HttpHeaders headers, boolean isAdd) {
+    if(!headers.getRequestHeaders().containsKey("X-FromAppId"))  
+        return propertiesFromRequest;
+    
+    String sourceOfTruth = headers.getRequestHeaders().getFirst("X-FromAppId");  
+    Set<Map.Entry<String, JsonElement>> properties = new HashSet<Map.Entry<String, JsonElement>>();
+    properties.addAll(propertiesFromRequest.getAsJsonObject().entrySet());
+    
+    Set<String> propertyKeys = new HashSet<String>();
+    for(Map.Entry<String, JsonElement> property : properties) {
+      propertyKeys.add(property.getKey());
+    }
+    
+    if(!propertyKeys.contains(AAIProperties.LAST_MOD_SOURCE_OF_TRUTH)) {
+        properties.add(new AbstractMap.SimpleEntry<String, JsonElement>(AAIProperties.LAST_MOD_SOURCE_OF_TRUTH,
+            (JsonElement)(new JsonPrimitive(sourceOfTruth))));
+    }
+   
+    if(isAdd && !propertyKeys.contains(AAIProperties.SOURCE_OF_TRUTH)) {
+        properties.add(new AbstractMap.SimpleEntry<String, JsonElement>(AAIProperties.SOURCE_OF_TRUTH,
+            (JsonElement)(new JsonPrimitive(sourceOfTruth))));
+    }
+
+    Object[] propArray = properties.toArray();
+    StringBuilder sb = new StringBuilder();
+    sb.append("{");
+    boolean first=true;
+    for(int i=0; i<propArray.length; i++) {
+      
+      Map.Entry<String, JsonElement> entry = (Entry<String, JsonElement>) propArray[i];
+      if(!first) {
+        sb.append(",");
+      }
+      sb.append("\"").append(entry.getKey()).append("\"").append(":").append(entry.getValue());
+      first=false;
+    }
+    sb.append("}");
+    
+    return gson.fromJson(sb.toString(), JsonElement.class);
+  }
+  
 }
