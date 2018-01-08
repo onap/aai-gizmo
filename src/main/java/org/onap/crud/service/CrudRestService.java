@@ -95,7 +95,7 @@ public class CrudRestService {
     logger.debug("Incoming request..." + content);
     Response response = null;
 
-    if (validateRequest(req, uri, content, Action.GET, CrudServiceConstants.CRD_AUTH_POLICY_NAME)) {
+    if (validateRequest(req, uri, content, Action.GET, CrudServiceConstants.CRD_AUTH_POLICY_NAME, headers)) {
 
       try {
         String result = graphDataService.getVertex(version, id, type);
@@ -125,7 +125,7 @@ public class CrudRestService {
 
     logger.debug("Incoming request..." + content);
     Response response = null;
-    if (validateRequest(req, uri, content, Action.GET, CrudServiceConstants.CRD_AUTH_POLICY_NAME)) {
+    if (validateRequest(req, uri, content, Action.GET, CrudServiceConstants.CRD_AUTH_POLICY_NAME, headers)) {
 
       Map<String, String> filter = new HashMap<String, String>();
       for (Map.Entry<String, List<String>> e : uriInfo.getQueryParameters().entrySet()) {
@@ -160,7 +160,7 @@ public class CrudRestService {
     logger.debug("Incoming request..." + content);
     Response response = null;
 
-    if (validateRequest(req, uri, content, Action.GET, CrudServiceConstants.CRD_AUTH_POLICY_NAME)) {
+    if (validateRequest(req, uri, content, Action.GET, CrudServiceConstants.CRD_AUTH_POLICY_NAME, headers)) {
 
       try {
 
@@ -192,7 +192,7 @@ public class CrudRestService {
     logger.debug("Incoming request..." + content);
     Response response = null;
 
-    if (validateRequest(req, uri, content, Action.GET, CrudServiceConstants.CRD_AUTH_POLICY_NAME)) {
+    if (validateRequest(req, uri, content, Action.GET, CrudServiceConstants.CRD_AUTH_POLICY_NAME, headers)) {
 
       Map<String, String> filter = new HashMap<String, String>();
       for (Map.Entry<String, List<String>> e : uriInfo.getQueryParameters().entrySet()) {
@@ -229,7 +229,7 @@ public class CrudRestService {
     logger.debug("Incoming request..." + content);
     Response response = null;
 
-    if (validateRequest(req, uri, content, Action.PUT, CrudServiceConstants.CRD_AUTH_POLICY_NAME)) {
+    if (validateRequest(req, uri, content, Action.PUT, CrudServiceConstants.CRD_AUTH_POLICY_NAME, headers)) {
 
       try {
         EdgePayload payload = EdgePayload.fromJson(content);
@@ -276,7 +276,7 @@ public class CrudRestService {
 
     logger.debug("Incoming request..." + content);
     Response response = null;
-    if (validateRequest(req, uri, content, Action.PATCH, CrudServiceConstants.CRD_AUTH_POLICY_NAME)) {
+    if (validateRequest(req, uri, content, Action.PATCH, CrudServiceConstants.CRD_AUTH_POLICY_NAME, headers)) {
 
       try {
         EdgePayload payload = EdgePayload.fromJson(content);
@@ -315,7 +315,7 @@ public class CrudRestService {
     logger.debug("Incoming request..." + content);
     Response response = null;
 
-    if (validateRequest(req, uri, content, Action.PUT, CrudServiceConstants.CRD_AUTH_POLICY_NAME)) {
+    if (validateRequest(req, uri, content, Action.PUT, CrudServiceConstants.CRD_AUTH_POLICY_NAME, headers)) {
 
       try {
         VertexPayload payload = VertexPayload.fromJson(content);
@@ -325,6 +325,7 @@ public class CrudRestService {
         if (payload.getId() != null && !payload.getId().equals(id)) {
           throw new CrudException("ID Mismatch", Status.BAD_REQUEST);
         }
+        
         String result;
         
         payload.setProperties(CrudServiceUtil.mergeHeaderInFoToPayload(payload.getProperties(), headers, false));
@@ -363,7 +364,7 @@ public class CrudRestService {
     logger.debug("Incoming request..." + content);
     Response response = null;
 
-    if (validateRequest(req, uri, content, Action.PATCH, CrudServiceConstants.CRD_AUTH_POLICY_NAME)) {
+    if (validateRequest(req, uri, content, Action.PATCH, CrudServiceConstants.CRD_AUTH_POLICY_NAME, headers)) {
       try {
         VertexPayload payload = VertexPayload.fromJson(content);
         if (payload.getProperties() == null || payload.getProperties().isJsonNull()) {
@@ -403,7 +404,7 @@ public class CrudRestService {
     logger.debug("Incoming request..." + content);
     Response response = null;
 
-    if (validateRequest(req, uri, content, Action.POST, CrudServiceConstants.CRD_AUTH_POLICY_NAME)) {
+    if (validateRequest(req, uri, content, Action.POST, CrudServiceConstants.CRD_AUTH_POLICY_NAME, headers)) {
 
       try {
         VertexPayload payload = VertexPayload.fromJson(content);
@@ -548,7 +549,7 @@ public class CrudRestService {
     logger.debug("Incoming request..." + content);
     Response response = null;
 
-    if (validateRequest(req, uri, content, Action.POST, CrudServiceConstants.CRD_AUTH_POLICY_NAME)) {
+    if (validateRequest(req, uri, content, Action.POST, CrudServiceConstants.CRD_AUTH_POLICY_NAME, headers)) {
 
       try {
         BulkPayload payload = BulkPayload.fromJson(content);
@@ -586,7 +587,7 @@ public class CrudRestService {
     logger.debug("Incoming request..." + content);
     Response response = null;
 
-    if (validateRequest(req, uri, content, Action.POST, CrudServiceConstants.CRD_AUTH_POLICY_NAME)) {
+    if (validateRequest(req, uri, content, Action.POST, CrudServiceConstants.CRD_AUTH_POLICY_NAME, headers)) {
       try {
 
         VertexPayload payload = VertexPayload.fromJson(content);
@@ -631,7 +632,7 @@ public class CrudRestService {
     logger.debug("Incoming request..." + content);
     Response response = null;
 
-    if (validateRequest(req, uri, content, Action.POST, CrudServiceConstants.CRD_AUTH_POLICY_NAME)) {
+    if (validateRequest(req, uri, content, Action.POST, CrudServiceConstants.CRD_AUTH_POLICY_NAME, headers)) {
 
       try {
         EdgePayload payload = EdgePayload.fromJson(content);
@@ -672,7 +673,7 @@ public class CrudRestService {
     logger.debug("Incoming request..." + content);
     Response response = null;
 
-    if (validateRequest(req, uri, content, Action.POST, CrudServiceConstants.CRD_AUTH_POLICY_NAME)) {
+    if (validateRequest(req, uri, content, Action.POST, CrudServiceConstants.CRD_AUTH_POLICY_NAME, headers)) {
 
       try {
         EdgePayload payload = EdgePayload.fromJson(content);
@@ -715,7 +716,7 @@ public class CrudRestService {
     logger.debug("Incoming request..." + content);
     Response response = null;
 
-    if (validateRequest(req, uri, content, Action.DELETE, CrudServiceConstants.CRD_AUTH_POLICY_NAME)) {
+    if (validateRequest(req, uri, content, Action.DELETE, CrudServiceConstants.CRD_AUTH_POLICY_NAME, headers)) {
 
       try {
         String result = graphDataService.deleteVertex(version, id, type);
@@ -745,7 +746,7 @@ public class CrudRestService {
 
     logger.debug("Incoming request..." + content);
     Response response = null;
-    if (validateRequest(req, uri, content, Action.DELETE, CrudServiceConstants.CRD_AUTH_POLICY_NAME)) {
+    if (validateRequest(req, uri, content, Action.DELETE, CrudServiceConstants.CRD_AUTH_POLICY_NAME, headers)) {
 
       try {
         String result = graphDataService.deleteEdge(version, id, type);
@@ -764,8 +765,9 @@ public class CrudRestService {
   }
 
   protected boolean validateRequest(HttpServletRequest req, String uri, String content, Action action,
-      String authPolicyFunctionName) {
-    try {
+      String authPolicyFunctionName, HttpHeaders headers) {
+	  boolean isValid = false;
+	  try {
       String cipherSuite = (String) req.getAttribute("javax.servlet.request.cipher_suite");
       String authUser = null;
       if (cipherSuite != null) {
@@ -774,7 +776,16 @@ public class CrudRestService {
         X500Principal subjectDn = clientCert.getSubjectX500Principal();
         authUser = subjectDn.toString();
       }
-      return this.auth.validateRequest(authUser.toLowerCase(), action.toString() + ":" + authPolicyFunctionName);
+      isValid = this.auth.validateRequest(authUser.toLowerCase(), action.toString() + ":" + authPolicyFunctionName);
+      
+      String sourceOfTruth = null;
+      if(headers.getRequestHeaders().containsKey("X-FromAppId"))  
+    	sourceOfTruth = headers.getRequestHeaders().getFirst("X-FromAppId");	
+
+      if(sourceOfTruth == null || sourceOfTruth.trim() == "")
+     	throw new CrudException("Invalid request, Missing X-FromAppId header", Status.BAD_REQUEST);
+      
+      return isValid;
     } catch (Exception e) {
       logResult(action, uri, e);
       return false;

@@ -84,10 +84,14 @@ public class CrudServiceUtil {
     RelationshipSchemaLoader.loadModels();
   }
   
+  /**
+   * This method will merge header property from app id in request payload if not already populated
+   * @param propertiesFromRequest
+   * @param headers
+   * @param isAdd
+   * @return
+   */
   public static JsonElement mergeHeaderInFoToPayload(JsonElement propertiesFromRequest,  HttpHeaders headers, boolean isAdd) {
-    if(!headers.getRequestHeaders().containsKey("X-FromAppId"))  
-        return propertiesFromRequest;
-    
     String sourceOfTruth = headers.getRequestHeaders().getFirst("X-FromAppId");  
     Set<Map.Entry<String, JsonElement>> properties = new HashSet<Map.Entry<String, JsonElement>>();
     properties.addAll(propertiesFromRequest.getAsJsonObject().entrySet());
@@ -124,5 +128,4 @@ public class CrudServiceUtil {
     
     return gson.fromJson(sb.toString(), JsonElement.class);
   }
-  
 }
