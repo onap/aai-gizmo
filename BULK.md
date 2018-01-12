@@ -1,8 +1,8 @@
 ## Bulk API
 
-The bulk API allows a client to add/update/delete mutliple verticies and/or edges within a single request.  This request will be treated as an atomic transaction in that all operations within the bulk request will either fail or succeed together.
+The bulk API allows a client to add/modify/patch/delete multiple vertexes and/or edges within a single request.  This request will be treated as an atomic transaction in that all operations within the bulk request will either fail or succeed together.
 
-This is often useful when attempting to add an entire subgraph.  The following example shows how a client could create 2 verticies (pserver and vserver) and link them with an edge.
+This is often useful when attempting to add an entire subgraph.  The following example shows how a client could create 2 vertexes (pserver and vserver) and link them with an edge.
 
 	URL: https://<host>:9520/services/inventory/v11/bulk
 	Method: POST

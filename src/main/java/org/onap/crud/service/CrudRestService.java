@@ -451,11 +451,13 @@ public class CrudRestService {
 
       if (!opr.getValue().getAsString().equalsIgnoreCase("add")
           && !opr.getValue().getAsString().equalsIgnoreCase("modify")
+          && !opr.getValue().getAsString().equalsIgnoreCase("patch")
           && !opr.getValue().getAsString().equalsIgnoreCase("delete")) {
         throw new CrudException("Invalid operation at item: " + item.getKey(), Status.BAD_REQUEST);
       }
-      // check if ID is populate for modify/delete operation
+      // check if ID is populate for modify/patch/delete operation
       if ((opr.getValue().getAsString().equalsIgnoreCase("modify")
+          || opr.getValue().getAsString().equalsIgnoreCase("patch")
           || opr.getValue().getAsString().equalsIgnoreCase("delete")) && (vertexPayload.getId() == null)) {
 
         throw new CrudException("Mising ID at item: " + item.getKey(), Status.BAD_REQUEST);
@@ -491,11 +493,13 @@ public class CrudRestService {
 
       if (!opr.getValue().getAsString().equalsIgnoreCase("add")
           && !opr.getValue().getAsString().equalsIgnoreCase("modify")
+          && !opr.getValue().getAsString().equalsIgnoreCase("patch")
           && !opr.getValue().getAsString().equalsIgnoreCase("delete")) {
         throw new CrudException("Invalid operation at item: " + item.getKey(), Status.BAD_REQUEST);
       }
-      // check if ID is populate for modify/delete operation
+      // check if ID is populate for modify/patch/delete operation
       if ((edgePayload.getId() == null) && (opr.getValue().getAsString().equalsIgnoreCase("modify")
+          || opr.getValue().getAsString().equalsIgnoreCase("patch") 
           || opr.getValue().getAsString().equalsIgnoreCase("delete"))) {
 
         throw new CrudException("Mising ID at item: " + item.getKey(), Status.BAD_REQUEST);

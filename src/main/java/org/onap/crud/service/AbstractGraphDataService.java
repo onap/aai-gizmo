@@ -155,6 +155,23 @@ public abstract class AbstractGraphDataService {
           Vertex outgoingVertex = OxmModelValidator.validateOutgoingPayload(version, persistedVertex);
           vertices.put(item.getKey(), outgoingVertex);
         }
+        
+        // Patch vertex 
+        else if (opr.getValue().getAsString().equalsIgnoreCase("patch")) {
+          if ( (vertexPayload.getId() == null) || (vertexPayload.getType() == null) ) {
+            throw new CrudException("id and type must be specified for patch request", Status.BAD_REQUEST);
+          }
+          
+          vertexPayload.setProperties(CrudServiceUtil.mergeHeaderInFoToPayload(vertexPayload.getProperties(), 
+              headers, false));
+          
+          Vertex existingVertex = dao.getVertex(vertexPayload.getId(), OxmModelValidator.resolveCollectionType(version, vertexPayload.getType()));
+          Vertex validatedVertex = OxmModelValidator.validateIncomingPatchPayload(vertexPayload.getId(), 
+              version, vertexPayload.getType(), vertexPayload.getProperties(), existingVertex);
+          Vertex persistedVertex = updateBulkVertex(validatedVertex, vertexPayload.getId(), version, txId);
+          Vertex outgoingVertex = OxmModelValidator.validateOutgoingPayload(version, persistedVertex);
+          vertices.put(item.getKey(), outgoingVertex);
+        }
       }
 
       // Step 4: Handle edge add/modify 
@@ -171,7 +188,8 @@ public abstract class AbstractGraphDataService {
 
         // Add/Update edge
         if (opr.getValue().getAsString().equalsIgnoreCase("add")
-            || opr.getValue().getAsString().equalsIgnoreCase("modify")) {
+            || opr.getValue().getAsString().equalsIgnoreCase("modify") 
+            || opr.getValue().getAsString().equalsIgnoreCase("patch")) {
           Edge validatedEdge;
           Edge persistedEdge;
           if (opr.getValue().getAsString().equalsIgnoreCase("add")) {
@@ -197,11 +215,19 @@ public abstract class AbstractGraphDataService {
             validatedEdge = RelationshipSchemaValidator.validateIncomingAddPayload(version, edgePayload.getType(),
                 edgePayload);
             persistedEdge = addBulkEdge(validatedEdge, version, txId);
-          } else {
+          } else if (opr.getValue().getAsString().equalsIgnoreCase("modify")) {
             Edge edge = dao.getEdge(edgePayload.getId(), edgePayload.getType(), txId);
             validatedEdge = RelationshipSchemaValidator.validateIncomingUpdatePayload(edge, version, edgePayload);
             persistedEdge = updateBulkEdge(validatedEdge, version, txId);
+          } else {
+            if ( (edgePayload.getId() == null) || (edgePayload.getType() == null) ) {
+              throw new CrudException("id and type must be specified for patch request", Status.BAD_REQUEST);
+            }
+            Edge existingEdge = dao.getEdge(edgePayload.getId(), edgePayload.getType(), txId);
+            Edge patchedEdge = RelationshipSchemaValidator.validateIncomingPatchPayload(existingEdge, version, edgePayload);
+            persistedEdge = updateBulkEdge(patchedEdge, version, txId);
           }
+          
 
           Edge outgoingEdge = RelationshipSchemaValidator.validateOutgoingPayload(version, persistedEdge);
           edges.put(item.getKey(), outgoingEdge);
