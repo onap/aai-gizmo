@@ -23,13 +23,6 @@
  */
 package org.onap.crud.service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Response.Status;
 
 import org.onap.crud.dao.GraphDao;
 import org.onap.crud.entity.Edge;
@@ -37,11 +30,9 @@ import org.onap.crud.entity.Edge;
 import org.onap.crud.entity.Vertex;
 import org.onap.crud.exception.CrudException;
 import org.onap.crud.parser.CrudResponseBuilder;
-import org.onap.crud.util.CrudServiceUtil;
 import org.onap.schema.OxmModelValidator;
 import org.onap.schema.RelationshipSchemaValidator;
 
-import com.google.gson.JsonElement;
 
 public class CrudGraphDataService extends AbstractGraphDataService {
 
@@ -52,131 +43,6 @@ public class CrudGraphDataService extends AbstractGraphDataService {
   public String addVertex(String version, String type, VertexPayload payload) throws CrudException {
     Vertex vertex = OxmModelValidator.validateIncomingUpsertPayload(null, version, type, payload.getProperties());
     return addVertex(version, vertex);
-  }
-
-  public String addBulk(String version, BulkPayload payload, HttpHeaders headers) throws CrudException {
-    HashMap<String, Vertex> vertices = new HashMap<String, Vertex>();
-    HashMap<String, Edge> edges = new HashMap<String, Edge>();
-    String txId = dao.openTransaction();
-    try {
-      // Handle vertices
-      for (JsonElement v : payload.getObjects()) {
-        List<Map.Entry<String, JsonElement>> entries = new ArrayList<Map.Entry<String, JsonElement>>(
-            v.getAsJsonObject().entrySet());
-
-        if (entries.size() != 2) {
-          throw new CrudException("", Status.BAD_REQUEST);
-        }
-        Map.Entry<String, JsonElement> opr = entries.get(0);
-        Map.Entry<String, JsonElement> item = entries.get(1);
-
-        VertexPayload vertexPayload = VertexPayload.fromJson(item.getValue().getAsJsonObject().toString());
-
-        if (opr.getValue().getAsString().equalsIgnoreCase("add")
-            || opr.getValue().getAsString().equalsIgnoreCase("modify")) {
-          Vertex validatedVertex;
-          Vertex persistedVertex;
-          if (opr.getValue().getAsString().equalsIgnoreCase("add")) {
-        	  vertexPayload.setProperties(CrudServiceUtil.mergeHeaderInFoToPayload(vertexPayload.getProperties(), 
-        			  headers, true));
-
-        	  validatedVertex = OxmModelValidator.validateIncomingUpsertPayload(null, version, vertexPayload.getType(),
-                vertexPayload.getProperties());
-            
-            // Call champDAO to add the vertex
-            persistedVertex = dao.addVertex(validatedVertex.getType(), validatedVertex.getProperties(), txId);
-          } else {
-        	vertexPayload.setProperties(CrudServiceUtil.mergeHeaderInFoToPayload(vertexPayload.getProperties(), 
-        			  headers, false));  
-            validatedVertex = OxmModelValidator.validateIncomingUpsertPayload(vertexPayload.getId(), version,
-                vertexPayload.getType(), vertexPayload.getProperties());
-            // Call champDAO to update the vertex
-            persistedVertex = dao.updateVertex(vertexPayload.getId(), validatedVertex.getType(),
-                validatedVertex.getProperties(), txId);
-          }
-
-          Vertex outgoingVertex = OxmModelValidator.validateOutgoingPayload(version, persistedVertex);
-
-          vertices.put(item.getKey(), outgoingVertex);
-
-        } else if (opr.getValue().getAsString().equalsIgnoreCase("delete")) {
-          dao.deleteVertex(vertexPayload.getId(),
-              OxmModelValidator.resolveCollectionType(version, vertexPayload.getType()), txId);
-        }
-
-      }
-      // Handle Edges
-      for (JsonElement v : payload.getRelationships()) {
-        List<Map.Entry<String, JsonElement>> entries = new ArrayList<Map.Entry<String, JsonElement>>(
-            v.getAsJsonObject().entrySet());
-
-        if (entries.size() != 2) {
-          throw new CrudException("", Status.BAD_REQUEST);
-        }
-        Map.Entry<String, JsonElement> opr = entries.get(0);
-        Map.Entry<String, JsonElement> item = entries.get(1);
-
-        EdgePayload edgePayload = EdgePayload.fromJson(item.getValue().getAsJsonObject().toString());
-
-        if (opr.getValue().getAsString().equalsIgnoreCase("add")
-            || opr.getValue().getAsString().equalsIgnoreCase("modify")) {
-          Edge validatedEdge;
-          Edge persistedEdge;
-          if (opr.getValue().getAsString().equalsIgnoreCase("add")) {
-            // Fix the source/detination
-            if (edgePayload.getSource().startsWith("$")) {
-              Vertex source = vertices.get(edgePayload.getSource().substring(1));
-              if (source == null) {
-                throw new CrudException("Not able to find vertex: " + edgePayload.getSource().substring(1),
-                    Status.INTERNAL_SERVER_ERROR);
-              }
-              edgePayload
-                  .setSource("services/inventory/" + version + "/" + source.getType() + "/" + source.getId().get());
-            }
-            if (edgePayload.getTarget().startsWith("$")) {
-              Vertex target = vertices.get(edgePayload.getTarget().substring(1));
-              if (target == null) {
-                throw new CrudException("Not able to find vertex: " + edgePayload.getTarget().substring(1),
-                    Status.INTERNAL_SERVER_ERROR);
-              }
-              edgePayload
-                  .setTarget("services/inventory/" + version + "/" + target.getType() + "/" + target.getId().get());
-            }
-            validatedEdge = RelationshipSchemaValidator.validateIncomingAddPayload(version, edgePayload.getType(),
-                edgePayload);
-            persistedEdge = dao.addEdge(validatedEdge.getType(), validatedEdge.getSource(), validatedEdge.getTarget(),
-                validatedEdge.getProperties(), txId);
-          } else {
-            Edge edge = dao.getEdge(edgePayload.getId(), edgePayload.getType(), txId);
-            validatedEdge = RelationshipSchemaValidator.validateIncomingUpdatePayload(edge, version, edgePayload);
-            persistedEdge = dao.updateEdge(edge, txId);
-          }
-
-          Edge outgoingEdge = RelationshipSchemaValidator.validateOutgoingPayload(version, persistedEdge);
-
-          edges.put(item.getKey(), outgoingEdge);
-
-        } else if (opr.getValue().getAsString().equalsIgnoreCase("delete")) {
-          RelationshipSchemaValidator.validateType(version, edgePayload.getType());
-          dao.deleteEdge(edgePayload.getId(), edgePayload.getType(), txId);
-        }
-
-      }
-      // close champ TX
-      dao.commitTransaction(txId);
-    } catch (CrudException ex) {
-      dao.rollbackTransaction(txId);
-      throw ex;
-    } catch (Exception ex) {
-      dao.rollbackTransaction(txId);
-      throw ex;
-    } finally {
-      if (dao.transactionExists(txId)) {
-        dao.rollbackTransaction(txId);
-      }
-    }
-
-    return CrudResponseBuilder.buildUpsertBulkResponse(vertices, edges, version, payload);
   }
 
   private String addVertex(String version, Vertex vertex) throws CrudException {
@@ -213,28 +79,24 @@ public class CrudGraphDataService extends AbstractGraphDataService {
     Vertex vertex = OxmModelValidator.validateIncomingPatchPayload(id, version, type, payload.getProperties(),
         existingVertex);
     return updateVertex(version, vertex);
-
   }
 
   public String deleteVertex(String version, String id, String type) throws CrudException {
     type = OxmModelValidator.resolveCollectionType(version, type);
     dao.deleteVertex(id, type);
     return "";
-
   }
 
   public String deleteEdge(String version, String id, String type) throws CrudException {
     RelationshipSchemaValidator.validateType(version, type);
     dao.deleteEdge(id, type);
     return "";
-
   }
 
   public String updateEdge(String version, String id, String type, EdgePayload payload) throws CrudException {
     Edge edge = dao.getEdge(id, type);
     Edge validatedEdge = RelationshipSchemaValidator.validateIncomingUpdatePayload(edge, version, payload);
     return updateEdge(version, validatedEdge);
-
   }
 
   private String updateEdge(String version, Edge edge) throws CrudException {
@@ -242,7 +104,7 @@ public class CrudGraphDataService extends AbstractGraphDataService {
     return CrudResponseBuilder
         .buildUpsertEdgeResponse(RelationshipSchemaValidator.validateOutgoingPayload(version, updatedEdge), version);
   }
-
+  
   public String patchEdge(String version, String id, String type, EdgePayload payload) throws CrudException {
     Edge edge = dao.getEdge(id, type);
     Edge patchedEdge = RelationshipSchemaValidator.validateIncomingPatchPayload(edge, version, payload);
@@ -254,4 +116,33 @@ public class CrudGraphDataService extends AbstractGraphDataService {
     return dao.getVertex(id);
   }
 
+  @Override
+  protected Vertex addBulkVertex(Vertex vertex, String version, String dbTransId) throws CrudException {
+    return dao.addVertex(vertex.getType(), vertex.getProperties(), dbTransId);
+  }
+  
+  @Override
+  protected Vertex updateBulkVertex(Vertex vertex, String id, String version, String dbTransId) throws CrudException {
+    return dao.updateVertex(id, vertex.getType(), vertex.getProperties(), dbTransId);
+  }
+  
+  @Override
+  protected void deleteBulkVertex(String id, String version, String type, String dbTransId) throws CrudException {
+    dao.deleteVertex(id, type, dbTransId);
+  }
+  
+  @Override
+  protected Edge addBulkEdge(Edge edge, String version, String dbTransId) throws CrudException {
+    return dao.addEdge(edge.getType(), edge.getSource(), edge.getTarget(), edge.getProperties(), dbTransId);
+  }
+  
+  @Override
+  protected Edge updateBulkEdge(Edge edge, String version, String dbTransId) throws CrudException {
+    return dao.updateEdge(edge, dbTransId);
+  }
+  
+  @Override
+  protected void deleteBulkEdge(String id, String version, String type, String dbTransId) throws CrudException {
+    dao.deleteEdge(id, type, dbTransId);
+  }
 }

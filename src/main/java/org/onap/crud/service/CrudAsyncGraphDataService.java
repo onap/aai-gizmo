@@ -25,7 +25,6 @@ package org.onap.crud.service;
 
 import com.att.ecomp.event.api.EventConsumer;
 import com.att.ecomp.event.api.EventPublisher;
-import com.google.gson.JsonElement;
 
 import org.onap.aai.cl.api.LogFields;
 import org.onap.aai.cl.api.Logger;
@@ -45,15 +44,10 @@ import org.onap.crud.logging.CrudServiceMsgs;
 import org.onap.crud.parser.CrudResponseBuilder;
 import org.onap.crud.util.CrudProperties;
 import org.onap.crud.util.CrudServiceConstants;
-import org.onap.crud.util.CrudServiceUtil;
 import org.onap.schema.OxmModelValidator;
 import org.onap.schema.RelationshipSchemaValidator;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Timer;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
@@ -64,7 +58,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import javax.annotation.PreDestroy;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response.Status;
 
 public class CrudAsyncGraphDataService extends AbstractGraphDataService {
@@ -372,146 +365,54 @@ public class CrudAsyncGraphDataService extends AbstractGraphDataService {
     timer.cancel();
 
   }
-
+  
   @Override
-  public String addBulk(String version, BulkPayload payload, HttpHeaders headers) throws CrudException {
-    HashMap<String, Vertex> vertices = new HashMap<String, Vertex>();
-    HashMap<String, Edge> edges = new HashMap<String, Edge>();
-    String txId = dao.openTransaction();   
-     
-    try {
-      // Handle vertices
-      for (JsonElement v : payload.getObjects()) {
-        List<Map.Entry<String, JsonElement>> entries = new ArrayList<Map.Entry<String, JsonElement>>(
-            v.getAsJsonObject().entrySet());
-
-        if (entries.size() != 2) {
-          throw new CrudException("", Status.BAD_REQUEST);
-        }
-        Map.Entry<String, JsonElement> opr = entries.get(0);
-        Map.Entry<String, JsonElement> item = entries.get(1);
-
-        VertexPayload vertexPayload = VertexPayload.fromJson(item.getValue().getAsJsonObject().toString());
-
-        if (opr.getValue().getAsString().equalsIgnoreCase("add")
-            || opr.getValue().getAsString().equalsIgnoreCase("modify")) {
-          Vertex validatedVertex;
-          GraphEvent event;
-          
-          if (opr.getValue().getAsString().equalsIgnoreCase("add")) {
-        	vertexPayload.setProperties(CrudServiceUtil.mergeHeaderInFoToPayload(vertexPayload.getProperties(), 
-        			  headers, true));  
-            // Publish add-vertex event
-            validatedVertex = OxmModelValidator.validateIncomingUpsertPayload(null, version, vertexPayload.getType(),
-                vertexPayload.getProperties());
-            event = GraphEvent.builder(GraphEventOperation.CREATE)
-                .vertex(GraphEventVertex.fromVertex(validatedVertex, version)).build();
-          } else {
-        	vertexPayload.setProperties(CrudServiceUtil.mergeHeaderInFoToPayload(vertexPayload.getProperties(), 
-        			  headers, false));
-        	// Publish update-vertex event
-            validatedVertex = OxmModelValidator.validateIncomingUpsertPayload(vertexPayload.getId(), version,
-                vertexPayload.getType(), vertexPayload.getProperties());
-            event = GraphEvent.builder(GraphEventOperation.UPDATE)
-                .vertex(GraphEventVertex.fromVertex(validatedVertex, version)).build();           
-          }
-          
-          event.setDbTransactionId(txId);
-          GraphEvent response = publishEvent(event);
-          Vertex persistedVertex = response.getVertex().toVertex();
-          Vertex outgoingVertex = OxmModelValidator.validateOutgoingPayload(version, persistedVertex);
-          vertices.put(item.getKey(), outgoingVertex);
-        } else if (opr.getValue().getAsString().equalsIgnoreCase("delete")) {
-          // Publish delete-vertex event
-          String type = OxmModelValidator.resolveCollectionType(version, vertexPayload.getType());
-          GraphEvent event = GraphEvent.builder(GraphEventOperation.DELETE)
-            .vertex(new GraphEventVertex(vertexPayload.getId(), version, type, null)).build();
-          event.setDbTransactionId(txId);
-          publishEvent(event); 
-        }
-      }
-      
-      // Handle Edges
-      for (JsonElement v : payload.getRelationships()) {
-        List<Map.Entry<String, JsonElement>> entries = new ArrayList<Map.Entry<String, JsonElement>>(
-            v.getAsJsonObject().entrySet());
-
-        if (entries.size() != 2) {
-          throw new CrudException("", Status.BAD_REQUEST);
-        }
-        Map.Entry<String, JsonElement> opr = entries.get(0);
-        Map.Entry<String, JsonElement> item = entries.get(1);
-
-        EdgePayload edgePayload = EdgePayload.fromJson(item.getValue().getAsJsonObject().toString());
-
-        if (opr.getValue().getAsString().equalsIgnoreCase("add")
-            || opr.getValue().getAsString().equalsIgnoreCase("modify")) {
-          Edge validatedEdge;
-          Edge persistedEdge;
-          if (opr.getValue().getAsString().equalsIgnoreCase("add")) {
-            // Fix the source/destination
-            if (edgePayload.getSource().startsWith("$")) {
-              Vertex source = vertices.get(edgePayload.getSource().substring(1));
-              if (source == null) {
-                throw new CrudException("Not able to find vertex: " + edgePayload.getSource().substring(1),
-                    Status.INTERNAL_SERVER_ERROR);
-              }
-              edgePayload
-                  .setSource("services/inventory/" + version + "/" + source.getType() + "/" + source.getId().get());
-            }
-            if (edgePayload.getTarget().startsWith("$")) {
-              Vertex target = vertices.get(edgePayload.getTarget().substring(1));
-              if (target == null) {
-                throw new CrudException("Not able to find vertex: " + edgePayload.getTarget().substring(1),
-                    Status.INTERNAL_SERVER_ERROR);
-              }
-              edgePayload
-                  .setTarget("services/inventory/" + version + "/" + target.getType() + "/" + target.getId().get());
-            }
-            validatedEdge = RelationshipSchemaValidator.validateIncomingAddPayload(version, edgePayload.getType(),
-                edgePayload);
-            GraphEvent event = GraphEvent.builder(GraphEventOperation.CREATE)
-                .edge(GraphEventEdge.fromEdge(validatedEdge, version)).build();
-            event.setDbTransactionId(txId);
-            GraphEvent response = publishEvent(event);
-            persistedEdge =  response.getEdge().toEdge();
-          } else {
-            Edge edge = dao.getEdge(edgePayload.getId(), edgePayload.getType(), txId);
-            validatedEdge = RelationshipSchemaValidator.validateIncomingUpdatePayload(edge, version, edgePayload);
-            GraphEvent event = GraphEvent.builder(GraphEventOperation.UPDATE)
-                .edge(GraphEventEdge.fromEdge(validatedEdge, version)).build();
-            event.setDbTransactionId(txId);
-            GraphEvent response = publishEvent(event);
-            persistedEdge = response.getEdge().toEdge();
-          }
-
-          Edge outgoingEdge = RelationshipSchemaValidator.validateOutgoingPayload(version, persistedEdge);
-          edges.put(item.getKey(), outgoingEdge);
-        } else if (opr.getValue().getAsString().equalsIgnoreCase("delete")) {
-          RelationshipSchemaValidator.validateType(version, edgePayload.getType());
-          // Publish delete-vertex event
-          GraphEvent event = GraphEvent.builder(GraphEventOperation.DELETE)
-            .edge(new GraphEventEdge(edgePayload.getId(), version, edgePayload.getType(), null, null, null)).build();
-          event.setDbTransactionId(txId);
-          publishEvent(event);
-        }
-      } 
-      
-      // commit transaction
-      dao.commitTransaction(txId);
-    } catch (CrudException ex) {
-      dao.rollbackTransaction(txId);
-      throw ex;
-    } catch (Exception ex) {
-      dao.rollbackTransaction(txId);
-      throw ex;
-    } finally {
-      if (dao.transactionExists(txId)) {
-        dao.rollbackTransaction(txId);
-      }
-    }
-    
-    return CrudResponseBuilder.buildUpsertBulkResponse(vertices, edges, version, payload);
+  protected Vertex addBulkVertex(Vertex vertex, String version, String dbTransId) throws CrudException {
+    GraphEvent event = GraphEvent.builder(GraphEventOperation.CREATE)
+        .vertex(GraphEventVertex.fromVertex(vertex, version)).build();
+    event.setDbTransactionId(dbTransId);
+    GraphEvent response = publishEvent(event); 
+    return response.getVertex().toVertex();
+  }
+  
+  @Override
+  protected Vertex updateBulkVertex(Vertex vertex, String id, String version, String dbTransId) throws CrudException {
+    GraphEvent event = GraphEvent.builder(GraphEventOperation.UPDATE)
+        .vertex(GraphEventVertex.fromVertex(vertex, version)).build();    
+    event.setDbTransactionId(dbTransId);
+    GraphEvent response = publishEvent(event);
+    return response.getVertex().toVertex();
+  }
+  
+  @Override
+  protected void deleteBulkVertex(String id, String version, String type, String dbTransId) throws CrudException {
+    GraphEvent event = GraphEvent.builder(GraphEventOperation.DELETE).vertex(new GraphEventVertex(id, version, type, null)).build();
+    event.setDbTransactionId(dbTransId);
+    publishEvent(event); 
+  }
+  
+  @Override
+  protected Edge addBulkEdge(Edge edge, String version, String dbTransId) throws CrudException {
+    GraphEvent event = GraphEvent.builder(GraphEventOperation.CREATE).edge(GraphEventEdge.fromEdge(edge, version)).build();
+    event.setDbTransactionId(dbTransId);
+    GraphEvent response = publishEvent(event);
+    return response.getEdge().toEdge();
+  }
+  
+  @Override
+  protected Edge updateBulkEdge(Edge edge, String version, String dbTransId) throws CrudException {
+    GraphEvent event = GraphEvent.builder(GraphEventOperation.UPDATE).edge(GraphEventEdge.fromEdge(edge, version)).build();
+    event.setDbTransactionId(dbTransId);
+    GraphEvent response = publishEvent(event);
+    return response.getEdge().toEdge();
+  }
+  
+  @Override
+  protected void deleteBulkEdge(String id, String version, String type, String dbTransId) throws CrudException {
+    GraphEvent event = GraphEvent.builder(GraphEventOperation.DELETE)
+        .edge(new GraphEventEdge(id, version, type, null, null, null)).build();
+    event.setDbTransactionId(dbTransId);
+    publishEvent(event);
   }
   
   private GraphEvent publishEvent(GraphEvent event) throws CrudException {
