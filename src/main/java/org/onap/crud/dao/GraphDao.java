@@ -23,6 +23,7 @@
  */
 package org.onap.crud.dao;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -60,6 +61,21 @@ public interface GraphDao {
    * @throws CrudException
    */
   public List<Vertex> getVertices(String type, Map<String, Object> filter) throws CrudException;
+
+  /**
+   * Retrieve a collection of {@link Vertex} objects which match the supplied
+   * type label and filter properties.
+   *
+   * @param type
+   *          - The vertex type that we want to retrieve.
+   * @param filter
+   *          - The parameters to filter our results by.
+   * @param properties
+   *          - The properties to retrieve with the vertex
+   * @return - A collection of vertices.
+   * @throws CrudException
+   */
+  public List<Vertex> getVertices(String type, Map<String, Object> filter, HashSet<String> properties) throws CrudException;
 
   /**
    * Retrieve an {@link Edge} from the graph database by specifying its unique

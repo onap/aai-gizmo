@@ -25,6 +25,7 @@ package org.onap.crud.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -72,9 +73,9 @@ public abstract class AbstractGraphDataService {
         version);
   }
 
-  public String getVertices(String version, String type, Map<String, String> filter) throws CrudException {
+  public String getVertices(String version, String type, Map<String, String> filter, HashSet<String> properties) throws CrudException {
     type = OxmModelValidator.resolveCollectionType(version, type);
-    List<Vertex> items = dao.getVertices(type, OxmModelValidator.resolveCollectionfilter(version, type, filter));
+    List<Vertex> items = dao.getVertices(type, OxmModelValidator.resolveCollectionfilter(version, type, filter), properties);
     return CrudResponseBuilder.buildGetVerticesResponse(items, version);
   }
   

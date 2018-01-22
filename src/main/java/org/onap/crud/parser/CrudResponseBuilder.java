@@ -153,6 +153,13 @@ public class CrudResponseBuilder {
       item.addProperty("id", v.getId().get());
       item.addProperty("type", v.getType());
       item.addProperty("url", "services/inventory/" + version + "/" + v.getType() + "/" + v.getId().get());
+      if (!v.getProperties().isEmpty()) {
+        JsonObject propertiesObject = new JsonObject();
+        for (String key : v.getProperties().keySet()) {
+          propertiesObject.addProperty(key, v.getProperties().get(key).toString());
+        }
+        item.add("properties", propertiesObject);
+      }
 
       arry.add(item);
     }

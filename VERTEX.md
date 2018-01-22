@@ -198,7 +198,52 @@ Optionally, a vertex can be created by posting to an endpoint which doesn't incl
 		
 		Code: 500 (Internal Server Error)
 		Content: Error message describing the failure.
-		Situation: Any scenario not covered by the above error codes.		
+		Situation: Any scenario not covered by the above error codes.	
+		
+### Get Vertices with Properties
+Note: Adding query param of properties=all will return all properties
+
+	URL: https://<host>:9520/services/inventory/v11/pserver/
+	Optional Query Param: ?equip-vendor=HP
+	Optional Query Param: ?properties=hostname&properties=equip-vendor
+	Method: GET
+	Success	Response:
+		Code: 200
+		Content:
+			[
+                {
+                    "idfdsa": "1263346e-372b-4681-8ce4-d40411620487",
+                    "type": "pserver",
+                    "url": "services/inventory/v11/pserver/1263346e-372b-4681-8ce4-d40411620487",
+                    "properties": {
+                        "equip-vendor": "HP",
+                        "hostname": "mtanjasdf119snd"
+                    }
+                },
+                {
+                    "idfdsa": "b57a9e54-bbb5-4e11-b537-aaa7bc8fd726",
+                    "type": "pserver",
+                    "url": "services/inventory/v11/pserver/b57a9e54-bbb5-4e11-b537-aaa7bc8fd726",
+                    "properties": {
+                        "equip-vendor": "HP",
+                        "hostname": "mtanjasdf119snd"
+                    }
+                }
+            ]
+	Error Response:
+		Code: 404 (NOT FOUND)
+		Situation: Resource Not found
+
+		Code: 403 (FORBIDDEN)
+		Content: Error message describing the Authorization failure.
+		Situation: Authorization failure.
+
+		Code: 415 (UNSUPPORTED MEDIA TYPE)
+		Situation: Unsupported content type .
+		
+		Code: 500 (Internal Server Error)
+		Content: Error message describing the failure.
+		Situation: Any scenario not covered by the above error codes.	
 
 ### Update Vertex
 

@@ -9,18 +9,19 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * ============LICENSE_END=========================================================
- *
+ * <p>
  * ECOMP is a trademark and service mark of AT&T Intellectual Property.
  */
+
 package org.onap.crud.service;
 
 import com.google.gson.JsonElement;
@@ -32,6 +33,7 @@ import org.onap.aaiauth.auth.Auth;
 import org.onap.crud.exception.CrudException;
 import org.onap.crud.logging.CrudServiceMsgs;
 import org.onap.crud.logging.LoggingUtil;
+import org.onap.crud.util.CrudProperties;
 import org.onap.crud.util.CrudServiceConstants;
 import org.onap.crud.util.CrudServiceUtil;
 import org.slf4j.MDC;
@@ -39,13 +41,26 @@ import org.slf4j.MDC;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import javax.security.auth.x500.X500Principal;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.Encoded;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriInfo;
 
 public class CrudRestService {
 
@@ -115,13 +130,27 @@ public class CrudRestService {
     Response response = null;
     try {
       if (validateRequest(req, uri, content, Action.GET, CrudServiceConstants.CRD_AUTH_POLICY_NAME, headers)) {
+        String propertiesKey = CrudProperties.get(CrudServiceConstants.CRD_COLLECTION_PROPERTIES_KEY);
 
         Map<String, String> filter = new HashMap<String, String>();
         for (Map.Entry<String, List<String>> e : uriInfo.getQueryParameters().entrySet()) {
           filter.put(e.getKey(), e.getValue().get(0));
         }
 
-        String result = graphDataService.getVertices(version, type, filter);
+        for (Map.Entry<String, List<String>> e : uriInfo.getQueryParameters().entrySet()) {
+          if (!e.getKey().equals(propertiesKey)) {
+            filter.put(e.getKey(), e.getValue().get(0));
+          }
+        }
+
+        HashSet<String> properties;
+        if (uriInfo.getQueryParameters().containsKey(propertiesKey)) {
+          properties = new HashSet<>(uriInfo.getQueryParameters().get(propertiesKey));
+        } else {
+          properties = new HashSet<>();
+        }
+
+        String result = graphDataService.getVertices(version, type, filter, properties);
         response = Response.status(Status.OK).entity(result).type(mediaType).build();
       } else {
         response = Response.status(Status.FORBIDDEN).entity(content).type(MediaType.APPLICATION_JSON).build();
@@ -499,7 +528,7 @@ public class CrudRestService {
       }
       // check if ID is populate for modify/patch/delete operation
       if ((edgePayload.getId() == null) && (opr.getValue().getAsString().equalsIgnoreCase("modify")
-          || opr.getValue().getAsString().equalsIgnoreCase("patch") 
+          || opr.getValue().getAsString().equalsIgnoreCase("patch")
           || opr.getValue().getAsString().equalsIgnoreCase("delete"))) {
 
         throw new CrudException("Mising ID at item: " + item.getKey(), Status.BAD_REQUEST);

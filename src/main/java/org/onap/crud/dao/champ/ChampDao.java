@@ -50,6 +50,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import javax.ws.rs.core.MediaType;
@@ -150,10 +151,17 @@ public class ChampDao implements GraphDao {
 
   @Override
   public List<Vertex> getVertices(String type, Map<String, Object> filter) throws CrudException {
+    return getVertices(type, filter, new HashSet<String>());
+  }
+
+  @Override
+  public List<Vertex> getVertices(String type, Map<String, Object> filter, HashSet<String> properties) throws CrudException {
     filter.put(org.onap.schema.OxmModelValidator.Metadata.NODE_TYPE.propertyName(), type);
 
+    List<NameValuePair> queryParams = convertToNameValuePair(filter);
+    queryParams.addAll(convertToNameValuePair("properties", properties));
     String url = baseObjectUrl + "/filter" + "?"
-        + URLEncodedUtils.format(convertToNameValuePair(filter), Charset.defaultCharset());
+        + URLEncodedUtils.format(queryParams, Charset.defaultCharset());
 
     OperationResult getResult = client.get(url, createHeader(), MediaType.APPLICATION_JSON_TYPE);
 
@@ -544,6 +552,15 @@ public class ChampDao implements GraphDao {
     List<NameValuePair> nvpList = new ArrayList<>(pairs.size());
 
     pairs.forEach((key, value) -> nvpList.add(new BasicNameValuePair(key, value.toString())));
+
+    return nvpList;
+  }
+
+  // https://stackoverflow.com/questions/26942330/convert-mapstring-string-to-listnamevaluepair-is-this-the-most-efficient
+  private List<NameValuePair> convertToNameValuePair(String key, HashSet<String> values) {
+    List<NameValuePair> nvpList = new ArrayList<>(values.size());
+
+    values.forEach((value) -> nvpList.add(new BasicNameValuePair(key, value)));
 
     return nvpList;
   }
