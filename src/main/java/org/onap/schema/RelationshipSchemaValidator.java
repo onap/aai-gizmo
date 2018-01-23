@@ -31,6 +31,7 @@ import org.onap.crud.entity.Vertex;
 import org.onap.crud.exception.CrudException;
 import org.onap.crud.service.EdgePayload;
 import org.onap.crud.util.CrudServiceUtil;
+import org.onap.schema.OxmModelValidator.Metadata;
 import org.radeox.util.logging.Logger;
 
 import java.util.HashMap;
@@ -179,6 +180,17 @@ public class RelationshipSchemaValidator {
           throw new CrudException("Target can't be updated", Status.BAD_REQUEST);
         }
       }
+      
+      // Remove the timestamp properties from the existing edge, as these should be managed by Champ.
+      Map<String,Object> existingProps = edge.getProperties();
+      
+      if (existingProps.containsKey(Metadata.CREATED_TS.propertyName())) {
+        existingProps.remove(Metadata.CREATED_TS.propertyName());
+      }
+      if (existingProps.containsKey(Metadata.UPDATED_TS.propertyName())) {
+        existingProps.remove(Metadata.UPDATED_TS.propertyName());
+      }
+      
       // create key based on source:target:relationshipType
 
       String key = edge.getSource().getType() + ":" + edge.getTarget().getType()
