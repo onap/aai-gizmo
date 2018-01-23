@@ -34,9 +34,9 @@ import org.onap.crud.exception.CrudException;
 
 public interface GraphDao {
 
-  public Vertex getVertex(String id) throws CrudException;
+  public Vertex getVertex(String id, String version) throws CrudException;
 
-  public Vertex getVertex(String id, String type) throws CrudException;
+  public Vertex getVertex(String id, String type, String version) throws CrudException;
 
   /**
    * Retrieve all of the edges which are incident to the vertex with the
@@ -111,7 +111,7 @@ public interface GraphDao {
    * @return - The {@link Vertex} object that was created.
    * @throws CrudException
    */
-  public Vertex addVertex(String type, Map<String, Object> properties) throws CrudException;
+  public Vertex addVertex(String type, Map<String, Object> properties, String version) throws CrudException;
 
   /**
    * Updates an existing {@link Vertex}.
@@ -123,7 +123,7 @@ public interface GraphDao {
    * @return - The udpated vertex.
    * @throws CrudException
    */
-  public Vertex updateVertex(String id, String type, Map<String, Object> properties) throws CrudException;
+  public Vertex updateVertex(String id, String type, Map<String, Object> properties, String version) throws CrudException;
 
   /**
    * Removes the specified vertex from the graph data base.
@@ -151,7 +151,7 @@ public interface GraphDao {
    * @return - The {@link Edge} object that was created.
    * @throws CrudException
    */
-  public Edge addEdge(String type, Vertex source, Vertex target, Map<String, Object> properties) throws CrudException;
+  public Edge addEdge(String type, Vertex source, Vertex target, Map<String, Object> properties, String version) throws CrudException;
 
   /**
    * Updates an existing {@link Edge}.
@@ -182,12 +182,12 @@ public interface GraphDao {
 
   public boolean transactionExists(String id) throws CrudException;
 
-  public Vertex addVertex(String type, Map<String, Object> properties, String txId) throws CrudException;
+  public Vertex addVertex(String type, Map<String, Object> properties, String version, String txId) throws CrudException;
 
-  public Edge addEdge(String type, Vertex source, Vertex target, Map<String, Object> properties, String txId)
+  public Edge addEdge(String type, Vertex source, Vertex target, Map<String, Object> properties, String version, String txId)
       throws CrudException;
 
-  public Vertex updateVertex(String id, String type, Map<String, Object> properties, String txId) throws CrudException;
+  public Vertex updateVertex(String id, String type, Map<String, Object> properties, String version, String txId) throws CrudException;
 
   public Edge updateEdge(Edge edge, String txId) throws CrudException;
 

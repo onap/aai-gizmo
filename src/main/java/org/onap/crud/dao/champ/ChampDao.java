@@ -95,12 +95,12 @@ public class ChampDao implements GraphDao {
   }
 
   @Override
-  public Vertex getVertex(String id) throws CrudException {
+  public Vertex getVertex(String id, String version) throws CrudException {
     String url = baseObjectUrl + "/" + id;
     OperationResult getResult = client.get(url, createHeader(), MediaType.APPLICATION_JSON_TYPE);
 
     if (getResult.getResultCode() == 200) {
-      return Vertex.fromJson(getResult.getResult());
+      return Vertex.fromJson(getResult.getResult(), version);
     } else {
       // We didn't find a vertex with the supplied id, so just throw an
       // exception.
@@ -110,12 +110,12 @@ public class ChampDao implements GraphDao {
   }
 
   @Override
-  public Vertex getVertex(String id, String type) throws CrudException {
+  public Vertex getVertex(String id, String type, String version) throws CrudException {
     String url = baseObjectUrl + "/" + id;
     OperationResult getResult = client.get(url, createHeader(), MediaType.APPLICATION_JSON_TYPE);
 
     if (getResult.getResultCode() == 200) {
-      Vertex vert = Vertex.fromJson(getResult.getResult());
+      Vertex vert = Vertex.fromJson(getResult.getResult(), version);
 
       if (!vert.getType().equalsIgnoreCase(type)) {
         // We didn't find a vertex with the supplied type, so just throw an
@@ -216,7 +216,7 @@ public class ChampDao implements GraphDao {
   }
 
   @Override
-  public Vertex addVertex(String type, Map<String, Object> properties) throws CrudException {
+  public Vertex addVertex(String type, Map<String, Object> properties, String version) throws CrudException {
     String url = baseObjectUrl;
 
     // Add the aai_node_type so that AAI can read the data created by gizmo
@@ -231,7 +231,7 @@ public class ChampDao implements GraphDao {
         MediaType.APPLICATION_JSON_TYPE);
 
     if (getResult.getResultCode() == Response.Status.CREATED.getStatusCode()) {
-      return Vertex.fromJson(getResult.getResult());
+      return Vertex.fromJson(getResult.getResult(), version);
     } else {
       // We didn't create a vertex with the supplied type, so just throw an
       // exception.
@@ -240,7 +240,7 @@ public class ChampDao implements GraphDao {
   }
 
   @Override
-  public Vertex updateVertex(String id, String type, Map<String, Object> properties) throws CrudException {
+  public Vertex updateVertex(String id, String type, Map<String, Object> properties, String version) throws CrudException {
     String url = baseObjectUrl + "/" + id;
 
     // Add the aai_node_type so that AAI can read the data created by gizmo
@@ -257,11 +257,11 @@ public class ChampDao implements GraphDao {
         MediaType.APPLICATION_JSON_TYPE);
 
     if (getResult.getResultCode() == Response.Status.OK.getStatusCode()) {
-      return Vertex.fromJson(getResult.getResult());
+      return Vertex.fromJson(getResult.getResult(), version);
     } else {
       // We didn't create a vertex with the supplied type, so just throw an
       // exception.
-      throw new CrudException("Failed to update vertex", Response.Status.fromStatusCode(getResult.getResultCode()));
+      throw new CrudException("Failed to update vertex: " + getResult.getFailureCause(), Response.Status.fromStatusCode(getResult.getResultCode()));
     }
   }
 
@@ -273,17 +273,17 @@ public class ChampDao implements GraphDao {
     if (getResult.getResultCode() != Response.Status.OK.getStatusCode()) {
       // We didn't delete a vertex with the supplied id, so just throw an
       // exception.
-      throw new CrudException("Failed to delete vertex", Response.Status.fromStatusCode(getResult.getResultCode()));
+      throw new CrudException("Failed to delete vertex: " + getResult.getFailureCause(), Response.Status.fromStatusCode(getResult.getResultCode()));
     }
   }
 
   @Override
-  public Edge addEdge(String type, Vertex source, Vertex target, Map<String, Object> properties) throws CrudException {
+  public Edge addEdge(String type, Vertex source, Vertex target, Map<String, Object> properties, String version) throws CrudException {
     String url = baseRelationshipUrl;
 
     // Try requests to ensure source and target exist in Champ
-    Vertex dbSource = getVertex(source.getId().get(), source.getType());
-    Vertex dbTarget = getVertex(target.getId().get(), target.getType());
+    Vertex dbSource = getVertex(source.getId().get(), source.getType(), version);
+    Vertex dbTarget = getVertex(target.getId().get(), target.getType(), version);
 
     Edge.Builder insertEdgeBuilder = new Edge.Builder(type).source(dbSource).target(dbTarget);
     properties.forEach(insertEdgeBuilder::property);
@@ -298,7 +298,7 @@ public class ChampDao implements GraphDao {
     } else {
       // We didn't create an edge with the supplied type, so just throw an
       // exception.
-      throw new CrudException("Failed to create edge", Response.Status.fromStatusCode(getResult.getResultCode()));
+      throw new CrudException("Failed to create edge: " + getResult.getFailureCause(), Response.Status.fromStatusCode(getResult.getResultCode()));
     }
   }
 
@@ -318,7 +318,7 @@ public class ChampDao implements GraphDao {
     } else {
       // We didn't create an edge with the supplied type, so just throw an
       // exception.
-      throw new CrudException("Failed to update edge", Response.Status.fromStatusCode(getResult.getResultCode()));
+      throw new CrudException("Failed to update edge: " + getResult.getFailureCause(), Response.Status.fromStatusCode(getResult.getResultCode()));
     }
   }
 
@@ -386,7 +386,7 @@ public class ChampDao implements GraphDao {
   }
 
   @Override
-  public Vertex addVertex(String type, Map<String, Object> properties, String txId) throws CrudException {
+  public Vertex addVertex(String type, Map<String, Object> properties, String version, String txId) throws CrudException {
     String url = baseObjectUrl + "?transactionId=" + txId;
 
     // Add the aai_node_type so that AAI can read the data created by gizmo
@@ -401,22 +401,22 @@ public class ChampDao implements GraphDao {
         MediaType.APPLICATION_JSON_TYPE);
 
     if (getResult.getResultCode() == Response.Status.CREATED.getStatusCode()) {
-      return Vertex.fromJson(getResult.getResult());
+      return Vertex.fromJson(getResult.getResult(), version);
     } else {
       // We didn't create a vertex with the supplied type, so just throw an
       // exception.
-      throw new CrudException("Failed to create vertex", Response.Status.fromStatusCode(getResult.getResultCode()));
+      throw new CrudException("Failed to create vertex: " + getResult.getFailureCause(), Response.Status.fromStatusCode(getResult.getResultCode()));
     }
   }
 
   @Override
-  public Edge addEdge(String type, Vertex source, Vertex target, Map<String, Object> properties, String txId)
+  public Edge addEdge(String type, Vertex source, Vertex target, Map<String, Object> properties, String version, String txId)
       throws CrudException {
     String url = baseRelationshipUrl + "?transactionId=" + txId;
 
     // Try requests to ensure source and target exist in Champ
-    Vertex dbSource = getVertex(source.getId().get(), source.getType(), txId);
-    Vertex dbTarget = getVertex(target.getId().get(), target.getType(), txId);
+    Vertex dbSource = getVertex(source.getId().get(), source.getType(), version, txId);
+    Vertex dbTarget = getVertex(target.getId().get(), target.getType(), version, txId);
 
     Edge.Builder insertEdgeBuilder = new Edge.Builder(type).source(dbSource).target(dbTarget);
     properties.forEach(insertEdgeBuilder::property);
@@ -430,12 +430,12 @@ public class ChampDao implements GraphDao {
     } else {
       // We didn't create an edge with the supplied type, so just throw an
       // exception.
-      throw new CrudException("Failed to create edge", Response.Status.fromStatusCode(getResult.getResultCode()));
+      throw new CrudException("Failed to create edge: " + getResult.getFailureCause(), Response.Status.fromStatusCode(getResult.getResultCode()));
     }
   }
 
   @Override
-  public Vertex updateVertex(String id, String type, Map<String, Object> properties, String txId) throws CrudException {
+  public Vertex updateVertex(String id, String type, Map<String, Object> properties, String version, String txId) throws CrudException {
     String url = baseObjectUrl + "/" + id + "?transactionId=" + txId;
 
     // Add the aai_node_type so that AAI can read the data created by gizmo
@@ -452,11 +452,11 @@ public class ChampDao implements GraphDao {
         MediaType.APPLICATION_JSON_TYPE);
 
     if (getResult.getResultCode() == Response.Status.OK.getStatusCode()) {
-      return Vertex.fromJson(getResult.getResult());
+      return Vertex.fromJson(getResult.getResult(), version);
     } else {
       // We didn't create a vertex with the supplied type, so just throw an
       // exception.
-      throw new CrudException("Failed to update vertex", Response.Status.fromStatusCode(getResult.getResultCode()));
+      throw new CrudException("Failed to update vertex: " + getResult.getFailureCause(), Response.Status.fromStatusCode(getResult.getResultCode()));
     }
   }
 
@@ -468,7 +468,7 @@ public class ChampDao implements GraphDao {
     if (getResult.getResultCode() != Response.Status.OK.getStatusCode()) {
       // We didn't delete a vertex with the supplied id, so just throw an
       // exception.
-      throw new CrudException("Failed to delete vertex", Response.Status.fromStatusCode(getResult.getResultCode()));
+      throw new CrudException("Failed to delete vertex: " + getResult.getFailureCause(), Response.Status.fromStatusCode(getResult.getResultCode()));
     }
   }
 
@@ -525,12 +525,12 @@ public class ChampDao implements GraphDao {
     }
   }
 
-  public Vertex getVertex(String id, String type, String txId) throws CrudException {
+  public Vertex getVertex(String id, String type, String version, String txId) throws CrudException {
     String url = baseObjectUrl + "/" + id + "?transactionId=" + txId;
     OperationResult getResult = client.get(url, createHeader(), MediaType.APPLICATION_JSON_TYPE);
 
     if (getResult.getResultCode() == 200) {
-      Vertex vert = Vertex.fromJson(getResult.getResult());
+      Vertex vert = Vertex.fromJson(getResult.getResult(), version);
 
       if (!vert.getType().equalsIgnoreCase(type)) {
         // We didn't find a vertex with the supplied type, so just throw an

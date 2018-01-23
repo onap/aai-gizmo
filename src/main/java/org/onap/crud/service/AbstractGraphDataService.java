@@ -67,7 +67,7 @@ public abstract class AbstractGraphDataService {
   
   public String getVertex(String version, String id, String type) throws CrudException {
     type = OxmModelValidator.resolveCollectionType(version, type);
-    Vertex vertex = dao.getVertex(id, type);
+    Vertex vertex = dao.getVertex(id, type, version);
     List<Edge> edges = dao.getVertexEdges(id);
     return CrudResponseBuilder.buildGetVertexResponse(OxmModelValidator.validateOutgoingPayload(version, vertex), edges,
         version);
@@ -166,7 +166,7 @@ public abstract class AbstractGraphDataService {
           vertexPayload.setProperties(CrudServiceUtil.mergeHeaderInFoToPayload(vertexPayload.getProperties(), 
               headers, false));
           
-          Vertex existingVertex = dao.getVertex(vertexPayload.getId(), OxmModelValidator.resolveCollectionType(version, vertexPayload.getType()));
+          Vertex existingVertex = dao.getVertex(vertexPayload.getId(), OxmModelValidator.resolveCollectionType(version, vertexPayload.getType()), version);
           Vertex validatedVertex = OxmModelValidator.validateIncomingPatchPayload(vertexPayload.getId(), 
               version, vertexPayload.getType(), vertexPayload.getProperties(), existingVertex);
           Vertex persistedVertex = updateBulkVertex(validatedVertex, vertexPayload.getId(), version, txId);

@@ -25,6 +25,7 @@ package org.onap.crud.entity;
 
 import net.dongliu.gson.GsonJava8TypeAdapterFactory;
 
+import com.google.common.base.CaseFormat;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
@@ -32,6 +33,17 @@ import com.google.gson.annotations.SerializedName;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+
+import org.eclipse.persistence.dynamic.DynamicType;
+import org.eclipse.persistence.internal.helper.DatabaseField;
+import org.eclipse.persistence.jaxb.dynamic.DynamicJAXBContext;
+import org.eclipse.persistence.mappings.DatabaseMapping;
+import org.json.JSONObject;
+import org.onap.aaiutils.oxm.OxmModelLoader;
+import org.onap.crud.exception.CrudException;
+import org.onap.crud.util.CrudServiceUtil;
+import org.onap.schema.OxmModelValidator;
 
 public class Vertex {
   private static final Gson gson = new GsonBuilder().registerTypeAdapterFactory(new GsonJava8TypeAdapterFactory())
@@ -91,8 +103,50 @@ public class Vertex {
     return customGson.toJson(this);
   }
 
-  public static Vertex fromJson(String jsonString) {
-    return gson.fromJson(jsonString, Vertex.class);
+  public static Vertex fromJson(String jsonString, String version) throws CrudException {
+    Builder builder;
+
+    try {
+      JSONObject doc = new JSONObject(jsonString);
+      String type = doc.getString("type");
+      builder = new Builder(type).id(doc.getString("key"));
+      
+      type = OxmModelValidator.resolveCollectionType(version, type);
+      DynamicJAXBContext jaxbContext = OxmModelLoader.getContextForVersion(version);
+      String modelObjectClass = CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, CaseFormat.LOWER_HYPHEN.to(CaseFormat.UPPER_CAMEL, type));
+
+      final DynamicType modelObjectType = jaxbContext.getDynamicType(modelObjectClass);
+      final DynamicType reservedType = jaxbContext.getDynamicType("ReservedPropNames");
+      
+      
+      if (modelObjectType == null) {
+        throw new CrudException("Unable to load oxm version", javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
+      }
+
+      if (doc.has("properties")) {
+        JSONObject jsonProps = doc.getJSONObject("properties");
+        for (String key : (Set<String>)jsonProps.keySet()) {
+          String keyJavaName = CaseFormat.LOWER_HYPHEN.to(CaseFormat.LOWER_CAMEL, key);
+          DatabaseMapping mapping = modelObjectType.getDescriptor().getMappingForAttributeName(keyJavaName);
+          
+          if (mapping == null) {
+            // This might be one of the reserved properties
+            mapping = reservedType.getDescriptor().getMappingForAttributeName(keyJavaName);
+          }
+          
+          if (mapping != null) {
+            DatabaseField field = mapping.getField();
+            Object value = CrudServiceUtil.validateFieldType(jsonProps.get(key).toString(), field.getType());
+            builder.property(key, value);
+          }
+        }
+      }
+    }
+    catch (Exception ex) {
+      throw new CrudException("Unable to transform response: " + jsonString, javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
+    }
+    
+    return builder.build(); 
   }
 
   @Override

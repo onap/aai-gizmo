@@ -46,7 +46,7 @@ public class CrudGraphDataService extends AbstractGraphDataService {
   }
 
   private String addVertex(String version, Vertex vertex) throws CrudException {
-    Vertex addedVertex = dao.addVertex(vertex.getType(), vertex.getProperties());
+    Vertex addedVertex = dao.addVertex(vertex.getType(), vertex.getProperties(), version);
     return CrudResponseBuilder
         .buildUpsertVertexResponse(OxmModelValidator.validateOutgoingPayload(version, addedVertex), version);
   }
@@ -57,7 +57,7 @@ public class CrudGraphDataService extends AbstractGraphDataService {
   }
 
   private String addEdge(String version, Edge edge) throws CrudException {
-    Edge addedEdge = dao.addEdge(edge.getType(), edge.getSource(), edge.getTarget(), edge.getProperties());
+    Edge addedEdge = dao.addEdge(edge.getType(), edge.getSource(), edge.getTarget(), edge.getProperties(), version);
     return CrudResponseBuilder
         .buildUpsertEdgeResponse(RelationshipSchemaValidator.validateOutgoingPayload(version, addedEdge), version);
   }
@@ -69,13 +69,13 @@ public class CrudGraphDataService extends AbstractGraphDataService {
   }
 
   private String updateVertex(String version, Vertex vertex) throws CrudException {
-    Vertex updatedVertex = dao.updateVertex(vertex.getId().get(), vertex.getType(), vertex.getProperties());
+    Vertex updatedVertex = dao.updateVertex(vertex.getId().get(), vertex.getType(), vertex.getProperties(), version);
     return CrudResponseBuilder
         .buildUpsertVertexResponse(OxmModelValidator.validateOutgoingPayload(version, updatedVertex), version);
   }
 
   public String patchVertex(String version, String id, String type, VertexPayload payload) throws CrudException {
-    Vertex existingVertex = dao.getVertex(id, OxmModelValidator.resolveCollectionType(version, type));
+    Vertex existingVertex = dao.getVertex(id, OxmModelValidator.resolveCollectionType(version, type), version);
     Vertex vertex = OxmModelValidator.validateIncomingPatchPayload(id, version, type, payload.getProperties(),
         existingVertex);
     return updateVertex(version, vertex);
@@ -112,18 +112,18 @@ public class CrudGraphDataService extends AbstractGraphDataService {
 
   }
 
-  public Vertex getVertex(String id) throws CrudException {
-    return dao.getVertex(id);
+  public Vertex getVertex(String id, String version) throws CrudException {
+    return dao.getVertex(id, version);
   }
 
   @Override
   protected Vertex addBulkVertex(Vertex vertex, String version, String dbTransId) throws CrudException {
-    return dao.addVertex(vertex.getType(), vertex.getProperties(), dbTransId);
+    return dao.addVertex(vertex.getType(), vertex.getProperties(), version, dbTransId);
   }
   
   @Override
   protected Vertex updateBulkVertex(Vertex vertex, String id, String version, String dbTransId) throws CrudException {
-    return dao.updateVertex(id, vertex.getType(), vertex.getProperties(), dbTransId);
+    return dao.updateVertex(id, vertex.getType(), vertex.getProperties(), version, dbTransId);
   }
   
   @Override
@@ -133,7 +133,7 @@ public class CrudGraphDataService extends AbstractGraphDataService {
   
   @Override
   protected Edge addBulkEdge(Edge edge, String version, String dbTransId) throws CrudException {
-    return dao.addEdge(edge.getType(), edge.getSource(), edge.getTarget(), edge.getProperties(), dbTransId);
+    return dao.addEdge(edge.getType(), edge.getSource(), edge.getTarget(), edge.getProperties(), version, dbTransId);
   }
   
   @Override

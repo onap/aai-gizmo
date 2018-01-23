@@ -44,8 +44,12 @@ import javax.ws.rs.core.Response.Status;
 
 public class OxmModelValidator {
   public enum Metadata {
-    NODE_TYPE("aai-node-type"), URI("aai-uri"), CREATED_TS("aai-created-ts"), SOT("source-of-truth"), LAST_MOD_SOT(
-        "last-mod-source-of-truth");
+    NODE_TYPE("aai-node-type"), 
+    URI("aai-uri"), 
+    CREATED_TS("aai-created-ts"), 
+    UPDATED_TS("aai-last-mod-ts"), 
+    SOT("source-of-truth"), 
+    LAST_MOD_SOT("last-mod-source-of-truth");
 
     private final String propName;
 
@@ -143,7 +147,7 @@ public class OxmModelValidator {
 
   public static Vertex validateIncomingUpsertPayload(String id, String version, String type, JsonElement properties)
       throws CrudException {
-
+    
     try {
       type = resolveCollectionType(version, type);
       DynamicJAXBContext jaxbContext = OxmModelLoader.getContextForVersion(version);
@@ -226,7 +230,6 @@ public class OxmModelValidator {
 
   public static Vertex validateIncomingPatchPayload(String id, String version, String type, JsonElement properties,
       Vertex existingVertex) throws CrudException {
-
     try {
       type = resolveCollectionType(version, type);
       DynamicJAXBContext jaxbContext = OxmModelLoader.getContextForVersion(version);
@@ -276,14 +279,12 @@ public class OxmModelValidator {
           Object value = CrudServiceUtil.validateFieldType(entry.getValue().getAsString(), field.getType());
           existingVertex.getProperties().put(entry.getKey(), value);
         }
-
       }
 
       return existingVertex;
     } catch (Exception e) {
       throw new CrudException(e.getMessage(), Status.BAD_REQUEST);
     }
-
   }
 
   private static DatabaseField getDatabaseField(String fieldName, DynamicType modelObjectType) {
@@ -301,8 +302,7 @@ public class OxmModelValidator {
     return null;
   }
 
-  public static Vertex validateOutgoingPayload(String version, Vertex vertex) {
-
+  public static Vertex validateOutgoingPayload(String version, Vertex vertex) { 
     Vertex.Builder modelVertexBuilder = new Vertex.Builder(vertex.getType()).id(vertex.getId().get());
 
     try {
@@ -321,6 +321,7 @@ public class OxmModelValidator {
           }
         }
       }
+      
       return modelVertexBuilder.build();
     } catch (Exception ex) {
       return vertex;

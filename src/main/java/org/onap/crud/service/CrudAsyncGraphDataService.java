@@ -261,7 +261,7 @@ public class CrudAsyncGraphDataService extends AbstractGraphDataService {
   public String patchVertex(String version, String id, String type, VertexPayload payload)
     throws CrudException {
     Vertex existingVertex
-      = dao.getVertex(id, OxmModelValidator.resolveCollectionType(version, type));
+      = dao.getVertex(id, OxmModelValidator.resolveCollectionType(version, type), version);
     Vertex patchedVertex = OxmModelValidator.validateIncomingPatchPayload(id, version,
                                                                           type, payload.getProperties(),
                                                                           existingVertex);
