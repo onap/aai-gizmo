@@ -16,7 +16,7 @@
 				<Set name="startWithUnavailable">false</Set>
 			</New>
 		</Set>
-		<Set name="extraClasspath"><SystemProperty name="AJSC_HOME" />/extJars/json-20131018.jar</Set>
+		<Set name="extraClasspath"><SystemProperty name="AJSC_HOME" />/extJars/gizmo.jar,<SystemProperty name="AJSC_HOME" />/extJars/json-20160212.jar,<SystemProperty name="AJSC_HOME" />/extJars/javax.ws.rs-api-2.0.1.jar,<SystemProperty name="AJSC_HOME" />/extJars/jersey-client-2.23.jar</Set>
 	</New>
 
 	<Set name="handler">

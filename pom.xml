@@ -81,7 +81,11 @@
           <artifactId>common-logging</artifactId>
           <version>1.1.0</version>
         </dependency>
-
+	    <dependency>
+		  <groupId>org.glassfish.jersey.core</groupId>
+		  <artifactId>jersey-client</artifactId>
+		  <version>2.23</version>
+	    </dependency>
         <dependency>
           <groupId>ch.qos.logback</groupId>
           <artifactId>logback-core</artifactId>
@@ -166,7 +170,7 @@
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20131018</version>
+            <version>20160212</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -201,6 +205,7 @@
     </repositories>
 
     <build>
+      <finalName>${project.artifactId}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
