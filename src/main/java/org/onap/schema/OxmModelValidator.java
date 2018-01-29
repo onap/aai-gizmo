@@ -87,12 +87,18 @@ public class OxmModelValidator {
     }
     final DynamicType modelObjectType = jaxbContext.getDynamicType(
         CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, CaseFormat.LOWER_HYPHEN.to(CaseFormat.UPPER_CAMEL, type)));
+    final DynamicType reservedObjectType = jaxbContext.getDynamicType("ReservedPropNames");
 
     for (String key : filter.keySet()) {
       String keyJavaName = CaseFormat.LOWER_HYPHEN.to(CaseFormat.LOWER_CAMEL, key);
-      if (modelObjectType.getDescriptor().getMappingForAttributeName(keyJavaName) != null) {
+      DatabaseMapping mapping = modelObjectType.getDescriptor().getMappingForAttributeName(keyJavaName);
+
+      // Try both the model for the specified type and the reserved properties for our key
+      if (mapping == null) {
+        mapping = reservedObjectType.getDescriptor().getMappingForAttributeName(keyJavaName);
+      }
+      if (mapping != null) {
         try {
-          DatabaseMapping mapping = modelObjectType.getDescriptor().getMappingForAttributeName(keyJavaName);
           Object value = CrudServiceUtil.validateFieldType(filter.get(key), mapping.getField().getType());
           result.put(key, value);
         } catch (Exception ex) {

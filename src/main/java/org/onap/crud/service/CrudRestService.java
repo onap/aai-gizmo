@@ -133,9 +133,6 @@ public class CrudRestService {
         String propertiesKey = CrudProperties.get(CrudServiceConstants.CRD_COLLECTION_PROPERTIES_KEY);
 
         Map<String, String> filter = new HashMap<String, String>();
-        for (Map.Entry<String, List<String>> e : uriInfo.getQueryParameters().entrySet()) {
-          filter.put(e.getKey(), e.getValue().get(0));
-        }
 
         for (Map.Entry<String, List<String>> e : uriInfo.getQueryParameters().entrySet()) {
           if (!e.getKey().equals(propertiesKey)) {
