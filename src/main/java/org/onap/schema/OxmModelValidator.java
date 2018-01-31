@@ -44,11 +44,11 @@ import javax.ws.rs.core.Response.Status;
 
 public class OxmModelValidator {
   public enum Metadata {
-    NODE_TYPE("aai-node-type"), 
-    URI("aai-uri"), 
-    CREATED_TS("aai-created-ts"), 
-    UPDATED_TS("aai-last-mod-ts"), 
-    SOT("source-of-truth"), 
+    NODE_TYPE("aai-node-type"),
+    URI("aai-uri"),
+    CREATED_TS("aai-created-ts"),
+    UPDATED_TS("aai-last-mod-ts"),
+    SOT("source-of-truth"),
     LAST_MOD_SOT("last-mod-source-of-truth");
 
     private final String propName;
@@ -318,13 +318,15 @@ public class OxmModelValidator {
               vertex.getProperties().get(Metadata.NODE_TYPE.propertyName()) != null
                   ? vertex.getProperties().get(Metadata.NODE_TYPE.propertyName()).toString() : vertex.getType()));
       final DynamicType modelObjectType = jaxbContext.getDynamicType(modelObjectClass);
+      final DynamicType reservedObjectType = jaxbContext.getDynamicType("ReservedPropNames");
 
       for (String key : vertex.getProperties().keySet()) {
         DatabaseField field = getDatabaseField(key, modelObjectType);
+        if (field == null) {
+          field = getDatabaseField(key, reservedObjectType);
+        }
         if (field != null) {
-          if (!Metadata.isProperty(key)) {
-            modelVertexBuilder.property(key, vertex.getProperties().get(key));
-          }
+          modelVertexBuilder.property(key, vertex.getProperties().get(key));
         }
       }
       
