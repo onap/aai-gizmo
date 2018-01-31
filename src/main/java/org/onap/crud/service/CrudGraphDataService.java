@@ -35,9 +35,18 @@ import org.onap.schema.RelationshipSchemaValidator;
 
 
 public class CrudGraphDataService extends AbstractGraphDataService {
-
+ 
+  
   public CrudGraphDataService(GraphDao dao) throws CrudException {
-    super(dao);
+    super();
+    this.dao = dao;
+    this.daoForGet = dao;
+  }
+
+  public CrudGraphDataService(GraphDao dao, GraphDao daoForGet) throws CrudException {
+    super();
+    this.dao = dao;
+    this.daoForGet = daoForGet;
   }
 
   public String addVertex(String version, String type, VertexPayload payload) throws CrudException {
@@ -110,10 +119,6 @@ public class CrudGraphDataService extends AbstractGraphDataService {
     Edge patchedEdge = RelationshipSchemaValidator.validateIncomingPatchPayload(edge, version, payload);
     return updateEdge(version, patchedEdge);
 
-  }
-
-  public Vertex getVertex(String id, String version) throws CrudException {
-    return dao.getVertex(id, version);
   }
 
   @Override

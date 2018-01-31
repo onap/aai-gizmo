@@ -44,45 +44,44 @@ import org.onap.schema.RelationshipSchemaValidator;
 import com.google.gson.JsonElement;
 
 public abstract class AbstractGraphDataService {
+  protected GraphDao daoForGet;
   protected GraphDao dao;
   
-  public AbstractGraphDataService(GraphDao dao) throws CrudException {
-    this.dao = dao;
-
+  public AbstractGraphDataService() throws CrudException {
     CrudServiceUtil.loadModels();
   }
   
   public String getEdge(String version, String id, String type) throws CrudException {
     RelationshipSchemaValidator.validateType(version, type);
-    Edge edge = dao.getEdge(id, type);
+    Edge edge = daoForGet.getEdge(id, type);
 
     return CrudResponseBuilder.buildGetEdgeResponse(RelationshipSchemaValidator.validateOutgoingPayload(version, edge), version);
   }
   
   public String getEdges(String version, String type, Map<String, String> filter) throws CrudException {
     RelationshipSchemaValidator.validateType(version, type);
-    List<Edge> items = dao.getEdges(type, RelationshipSchemaValidator.resolveCollectionfilter(version, type, filter));
+    List<Edge> items = daoForGet.getEdges(type, RelationshipSchemaValidator.resolveCollectionfilter(version, type, filter));
     return CrudResponseBuilder.buildGetEdgesResponse(items, version);
   }
   
   public String getVertex(String version, String id, String type) throws CrudException {
     type = OxmModelValidator.resolveCollectionType(version, type);
-    Vertex vertex = dao.getVertex(id, type, version);
-    List<Edge> edges = dao.getVertexEdges(id);
+    Vertex vertex = daoForGet.getVertex(id, type, version);
+    List<Edge> edges = daoForGet.getVertexEdges(id);
     return CrudResponseBuilder.buildGetVertexResponse(OxmModelValidator.validateOutgoingPayload(version, vertex), edges,
         version);
   }
 
   public String getVertices(String version, String type, Map<String, String> filter, HashSet<String> properties) throws CrudException {
     type = OxmModelValidator.resolveCollectionType(version, type);
-    List<Vertex> items = dao.getVertices(type, OxmModelValidator.resolveCollectionfilter(version, type, filter), properties);
+    List<Vertex> items = daoForGet.getVertices(type, OxmModelValidator.resolveCollectionfilter(version, type, filter), properties);
     return CrudResponseBuilder.buildGetVerticesResponse(items, version);
   }
   
   public String addBulk(String version, BulkPayload payload, HttpHeaders headers) throws CrudException {
     HashMap<String, Vertex> vertices = new HashMap<String, Vertex>();
     HashMap<String, Edge> edges = new HashMap<String, Edge>();
-
+    
     String txId = dao.openTransaction();   
      
     try {
@@ -269,4 +268,5 @@ public abstract class AbstractGraphDataService {
   protected abstract Edge addBulkEdge(Edge edge, String version, String dbTransId) throws CrudException;
   protected abstract Edge updateBulkEdge(Edge edge, String version, String dbTransId) throws CrudException;
   protected abstract void deleteBulkEdge(String id, String version, String type, String dbTransId) throws CrudException;
+  
 }

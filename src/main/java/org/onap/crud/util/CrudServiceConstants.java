@@ -35,6 +35,7 @@ public class CrudServiceConstants {
   public static final String CRD_HOME_AUTH = CRD_SPECIFIC_CONFIG + "auth" + CRD_FILESEP;
   public static final String CRD_AUTH_FILE = CRD_HOME_AUTH + "crud_policy.json";
   public static final String CRD_CHAMP_AUTH_FILE = CRD_HOME_AUTH + "champ-cert.p12";
+  public static final String CRD_DATAROUTER_AUTH_FILE = CRD_HOME_AUTH + "datalayer-client-cert.p12";
   public static final String CRD_AUTH_POLICY_NAME = "crud";
   public static final String CRD_ASYNC_REQUEST_TIMEOUT = "crud.async.request.timeout";
   public static final String CRD_ASYNC_RESPONSE_PROCESS_POLL_INTERVAL  = "crud.async.response.process.poll.interval";

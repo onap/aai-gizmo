@@ -57,26 +57,29 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 public class ChampDao implements GraphDao {
-  private RestClient client;
-  private String baseObjectUrl;
-  private String baseRelationshipUrl;
-  private String baseTransactionUrl;
+  protected RestClient client;
+  protected String baseObjectUrl;
+  protected String baseRelationshipUrl;
+  protected String baseTransactionUrl;
 
-  private static final String HEADER_FROM_APP = "X-FromAppId";
-  private static final String HEADER_TRANS_ID = "X-TransactionId";
-  private static final String FROM_APP_NAME = "Gizmo";
-  private static final String OBJECT_SUB_URL = "objects";
-  private static final String RELATIONSHIP_SUB_URL = "relationships";
-  private static final String TRANSACTION_SUB_URL = "transaction";
+  protected static final String HEADER_FROM_APP = "X-FromAppId";
+  protected static final String HEADER_TRANS_ID = "X-TransactionId";
+  protected static final String FROM_APP_NAME = "Gizmo";
+  protected static final String OBJECT_SUB_URL = "objects";
+  protected static final String RELATIONSHIP_SUB_URL = "relationships";
+  protected static final String TRANSACTION_SUB_URL = "transaction";
 
   private Logger logger = LoggerFactory.getInstance().getLogger(ChampDao.class.getName());
 
   // We use a custom vertex serializer for champ because it expects "key"
   // instead of "id"
-  private static final Gson champGson = new GsonBuilder()
+  protected static final Gson champGson = new GsonBuilder()
       .registerTypeAdapterFactory(new GsonJava8TypeAdapterFactory())
       .registerTypeAdapter(Vertex.class, new ChampVertexSerializer())
       .registerTypeAdapter(Edge.class, new ChampEdgeSerializer()).create();
+  
+  public ChampDao() {
+  }
 
   public ChampDao(String champUrl, String certPassword) {
     try {
@@ -92,6 +95,13 @@ public class ChampDao implements GraphDao {
       e.printStackTrace();
       System.exit(1);
     }
+  }
+
+  public ChampDao(RestClient client, String baseObjectUrl, String baseRelationshipUrl, String baseTransactionUrl) {
+      this.client = client;
+      this.baseObjectUrl = baseObjectUrl;
+      this.baseRelationshipUrl = baseRelationshipUrl;
+      this.baseTransactionUrl = baseTransactionUrl;
   }
 
   @Override
