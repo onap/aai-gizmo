@@ -84,12 +84,21 @@ public class CrudAsyncGraphDataService extends AbstractGraphDataService {
   public static Integer getRequestTimeOut() {
     return requestTimeOut;
   }
+  
+  public CrudAsyncGraphDataService(GraphDao dao, 
+          EventPublisher asyncRequestPublisher,
+          EventConsumer asyncResponseConsumer) throws CrudException {
+      this(dao,dao,asyncRequestPublisher,asyncResponseConsumer);
+  }
 
   public CrudAsyncGraphDataService(GraphDao dao, 
+          GraphDao daoForGet, 
 		  EventPublisher asyncRequestPublisher,
 		  EventConsumer asyncResponseConsumer) throws CrudException {
 
-     super(dao);
+    super();
+    this.dao = dao;
+    this.daoForGet = daoForGet;
      
     requestTimeOut = DEFAULT_REQUEST_TIMEOUT;
     try {
@@ -443,5 +452,4 @@ public class CrudAsyncGraphDataService extends AbstractGraphDataService {
         + " , operation: " + event.getOperation().toString() + " , result: "
         + response.getResult() + " , error: " + response.getErrorMessage());
   }
-  
 }
