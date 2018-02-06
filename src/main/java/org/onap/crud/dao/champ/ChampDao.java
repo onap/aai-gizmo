@@ -160,12 +160,12 @@ public class ChampDao implements GraphDao {
   }
 
   @Override
-  public List<Vertex> getVertices(String type, Map<String, Object> filter) throws CrudException {
-    return getVertices(type, filter, new HashSet<String>());
+  public List<Vertex> getVertices(String type, Map<String, Object> filter, String version) throws CrudException {
+    return getVertices(type, filter, new HashSet<String>(), version);
   }
 
   @Override
-  public List<Vertex> getVertices(String type, Map<String, Object> filter, HashSet<String> properties) throws CrudException {
+  public List<Vertex> getVertices(String type, Map<String, Object> filter, HashSet<String> properties, String version) throws CrudException {
     filter.put(org.onap.schema.OxmModelValidator.Metadata.NODE_TYPE.propertyName(), type);
 
     List<NameValuePair> queryParams = convertToNameValuePair(filter);
@@ -176,8 +176,7 @@ public class ChampDao implements GraphDao {
     OperationResult getResult = client.get(url, createHeader(), MediaType.APPLICATION_JSON_TYPE);
 
     if (getResult.getResultCode() == 200) {
-      return champGson.fromJson(getResult.getResult(), new TypeToken<List<Vertex>>() {
-      }.getType());
+      return Vertex.collectionFromJson(getResult.getResult(), version);
     } else {
       // We didn't find a vertex with the supplied id, so just throw an
       // exception.

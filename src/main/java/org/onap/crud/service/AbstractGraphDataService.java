@@ -74,7 +74,7 @@ public abstract class AbstractGraphDataService {
 
   public String getVertices(String version, String type, Map<String, String> filter, HashSet<String> properties) throws CrudException {
     type = OxmModelValidator.resolveCollectionType(version, type);
-    List<Vertex> items = daoForGet.getVertices(type, OxmModelValidator.resolveCollectionfilter(version, type, filter), properties);
+    List<Vertex> items = daoForGet.getVertices(type, OxmModelValidator.resolveCollectionfilter(version, type, filter), properties, version);
     return CrudResponseBuilder.buildGetVerticesResponse(items, version);
   }
   

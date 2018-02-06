@@ -30,7 +30,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -39,6 +41,7 @@ import org.eclipse.persistence.dynamic.DynamicType;
 import org.eclipse.persistence.internal.helper.DatabaseField;
 import org.eclipse.persistence.jaxb.dynamic.DynamicJAXBContext;
 import org.eclipse.persistence.mappings.DatabaseMapping;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.onap.aaiutils.oxm.OxmModelLoader;
 import org.onap.crud.exception.CrudException;
@@ -104,12 +107,16 @@ public class Vertex {
   }
 
   public static Vertex fromJson(String jsonString, String version) throws CrudException {
+    JSONObject doc = new JSONObject(jsonString);
+    return fromJson(doc, version);
+  }
+
+  public static Vertex fromJson(JSONObject jsonObject, String version) throws CrudException {
     Builder builder;
 
     try {
-      JSONObject doc = new JSONObject(jsonString);
-      String type = doc.getString("type");
-      builder = new Builder(type).id(doc.getString("key"));
+      String type = jsonObject.getString("type");
+      builder = new Builder(type).id(jsonObject.getString("key"));
       
       type = OxmModelValidator.resolveCollectionType(version, type);
       DynamicJAXBContext jaxbContext = OxmModelLoader.getContextForVersion(version);
@@ -123,8 +130,8 @@ public class Vertex {
         throw new CrudException("Unable to load oxm version", javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
       }
 
-      if (doc.has("properties")) {
-        JSONObject jsonProps = doc.getJSONObject("properties");
+      if (jsonObject.has("properties")) {
+        JSONObject jsonProps = jsonObject.getJSONObject("properties");
         for (String key : (Set<String>)jsonProps.keySet()) {
           String keyJavaName = CaseFormat.LOWER_HYPHEN.to(CaseFormat.LOWER_CAMEL, key);
           DatabaseMapping mapping = modelObjectType.getDescriptor().getMappingForAttributeName(keyJavaName);
@@ -143,10 +150,21 @@ public class Vertex {
       }
     }
     catch (Exception ex) {
-      throw new CrudException("Unable to transform response: " + jsonString, javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
+      throw new CrudException("Unable to transform response: " + jsonObject.toString(), javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
     }
     
     return builder.build(); 
+  }
+
+  public static List<Vertex> collectionFromJson(String jsonString, String version) throws CrudException {
+    List<Vertex> result = new ArrayList<>();
+    JSONArray array = new JSONArray(jsonString);
+
+    for (Object jsonObject : array) {
+      result.add(Vertex.fromJson((JSONObject)jsonObject, version));
+    }
+
+    return result;
   }
 
   @Override

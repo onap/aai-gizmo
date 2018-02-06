@@ -60,7 +60,7 @@ public interface GraphDao {
    * @return - A collection of vertices.
    * @throws CrudException
    */
-  public List<Vertex> getVertices(String type, Map<String, Object> filter) throws CrudException;
+  public List<Vertex> getVertices(String type, Map<String, Object> filter, String version) throws CrudException;
 
   /**
    * Retrieve a collection of {@link Vertex} objects which match the supplied
@@ -75,7 +75,7 @@ public interface GraphDao {
    * @return - A collection of vertices.
    * @throws CrudException
    */
-  public List<Vertex> getVertices(String type, Map<String, Object> filter, HashSet<String> properties) throws CrudException;
+  public List<Vertex> getVertices(String type, Map<String, Object> filter, HashSet<String> properties, String version) throws CrudException;
 
   /**
    * Retrieve an {@link Edge} from the graph database by specifying its unique
