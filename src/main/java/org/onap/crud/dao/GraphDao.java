@@ -36,7 +36,7 @@ public interface GraphDao {
 
   public Vertex getVertex(String id, String version) throws CrudException;
 
-  public Vertex getVertex(String id, String type, String version) throws CrudException;
+  public Vertex getVertex(String id, String type, String version, Map<String, String> queryParams) throws CrudException;
 
   /**
    * Retrieve all of the edges which are incident to the vertex with the
@@ -44,10 +44,12 @@ public interface GraphDao {
    *
    * @param id
    *          - The unique identifier of the vertex to retrieve the edges for.
+   * @param queryParams
+   * 		  - query parameters to be passed         
    * @return - A collection of edges.
    * @throws CrudException
    */
-  public List<Edge> getVertexEdges(String id) throws CrudException;
+  public List<Edge> getVertexEdges(String id, Map<String, String> queryParams) throws CrudException;
 
   /**
    * Retrieve a collection of {@link Vertex} objects which match the supplied
@@ -83,10 +85,14 @@ public interface GraphDao {
    *
    * @param id
    *          - The unique identifier for the Edge to be retrieved.
+   * @param type
+   *          - The type that we want to retrieve.
+   * @param queryParams
+   * 		  - query parameters to be passed                
    * @return - The Edge corresponding to the specified identifier.
    * @throws CrudException
    */
-  public Edge getEdge(String id, String type) throws CrudException;
+  public Edge getEdge(String id, String type, Map<String, String> queryParams) throws CrudException;
 
   /**
    * Retrieve a collection of {@link Edge} objects with a given type and which

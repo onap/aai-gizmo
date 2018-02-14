@@ -48,6 +48,7 @@ import org.onap.schema.OxmModelValidator;
 import org.onap.schema.RelationshipSchemaValidator;
 
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.Timer;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
@@ -270,7 +271,7 @@ public class CrudAsyncGraphDataService extends AbstractGraphDataService {
   public String patchVertex(String version, String id, String type, VertexPayload payload)
     throws CrudException {
     Vertex existingVertex
-      = dao.getVertex(id, OxmModelValidator.resolveCollectionType(version, type), version);
+      = dao.getVertex(id, OxmModelValidator.resolveCollectionType(version, type), version, new HashMap<String, String>());
     Vertex patchedVertex = OxmModelValidator.validateIncomingPatchPayload(id, version,
                                                                           type, payload.getProperties(),
                                                                           existingVertex);
@@ -327,7 +328,7 @@ public class CrudAsyncGraphDataService extends AbstractGraphDataService {
 
   public String updateEdge(String version, String id, String type, EdgePayload payload)
     throws CrudException {
-    Edge edge = dao.getEdge(id, type);
+    Edge edge = dao.getEdge(id, type, new HashMap<String, String>());
     Edge validatedEdge = RelationshipSchemaValidator.validateIncomingUpdatePayload(edge, version,
                                                                                    payload);
     GraphEvent event = GraphEvent.builder(GraphEventOperation.UPDATE)
@@ -349,7 +350,7 @@ public class CrudAsyncGraphDataService extends AbstractGraphDataService {
 
   public String patchEdge(String version, String id, String type, EdgePayload payload)
     throws CrudException {
-    Edge edge = dao.getEdge(id, type);
+    Edge edge = dao.getEdge(id, type, new HashMap<String, String>());
     Edge patchedEdge = RelationshipSchemaValidator.validateIncomingPatchPayload(edge, version,
                                                                                 payload);
     GraphEvent event = GraphEvent.builder(GraphEventOperation.UPDATE)

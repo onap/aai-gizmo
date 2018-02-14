@@ -24,6 +24,8 @@
 package org.onap.crud.service;
 
 
+import java.util.HashMap;
+
 import org.onap.crud.dao.GraphDao;
 import org.onap.crud.entity.Edge;
 
@@ -84,7 +86,7 @@ public class CrudGraphDataService extends AbstractGraphDataService {
   }
 
   public String patchVertex(String version, String id, String type, VertexPayload payload) throws CrudException {
-    Vertex existingVertex = dao.getVertex(id, OxmModelValidator.resolveCollectionType(version, type), version);
+    Vertex existingVertex = dao.getVertex(id, OxmModelValidator.resolveCollectionType(version, type), version, new HashMap<String, String>());
     Vertex vertex = OxmModelValidator.validateIncomingPatchPayload(id, version, type, payload.getProperties(),
         existingVertex);
     return updateVertex(version, vertex);
@@ -103,7 +105,7 @@ public class CrudGraphDataService extends AbstractGraphDataService {
   }
 
   public String updateEdge(String version, String id, String type, EdgePayload payload) throws CrudException {
-    Edge edge = dao.getEdge(id, type);
+    Edge edge = dao.getEdge(id, type, new HashMap<String, String>());
     Edge validatedEdge = RelationshipSchemaValidator.validateIncomingUpdatePayload(edge, version, payload);
     return updateEdge(version, validatedEdge);
   }
@@ -115,7 +117,7 @@ public class CrudGraphDataService extends AbstractGraphDataService {
   }
   
   public String patchEdge(String version, String id, String type, EdgePayload payload) throws CrudException {
-    Edge edge = dao.getEdge(id, type);
+    Edge edge = dao.getEdge(id, type, new HashMap<String, String>());
     Edge patchedEdge = RelationshipSchemaValidator.validateIncomingPatchPayload(edge, version, payload);
     return updateEdge(version, patchedEdge);
 

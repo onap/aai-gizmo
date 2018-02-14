@@ -96,10 +96,14 @@ public class CrudRestService {
     logger.debug("Incoming request..." + content);
     Response response = null;
 
+    Map<String, String> params = new HashMap<String, String>();
+    for (Map.Entry<String, List<String>> e : uriInfo.getQueryParameters().entrySet()) {
+        params.put(e.getKey(), e.getValue().get(0));
+    }
 
     try {
       if (validateRequest(req, uri, content, Action.GET, CrudServiceConstants.CRD_AUTH_POLICY_NAME, headers)) {
-        String result = graphDataService.getVertex(version, id, type);
+          String result = graphDataService.getVertex(version, id, type, params);
         response = Response.status(Status.OK).entity(result).type(mediaType).build();
       } else {
         response = Response.status(Status.FORBIDDEN).entity(content).type(MediaType.APPLICATION_JSON).build();
@@ -174,11 +178,15 @@ public class CrudRestService {
     logger.debug("Incoming request..." + content);
     Response response = null;
 
+    Map<String, String> params = new HashMap<String, String>();
+    for (Map.Entry<String, List<String>> e : uriInfo.getQueryParameters().entrySet()) {
+        params.put(e.getKey(), e.getValue().get(0));
+    }
 
     try {
       if (validateRequest(req, uri, content, Action.GET, CrudServiceConstants.CRD_AUTH_POLICY_NAME, headers)) {
 
-        String result = graphDataService.getEdge(version, id, type);
+        String result = graphDataService.getEdge(version, id, type, params);
         response = Response.status(Status.OK).entity(result).type(mediaType).build();
       } else {
         response = Response.status(Status.FORBIDDEN).entity(content).type(MediaType.APPLICATION_JSON).build();

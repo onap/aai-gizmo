@@ -120,9 +120,17 @@ public class ChampDao implements GraphDao {
   }
 
   @Override
-  public Vertex getVertex(String id, String type, String version) throws CrudException {
-    String url = baseObjectUrl + "/" + id;
-    OperationResult getResult = client.get(url, createHeader(), MediaType.APPLICATION_JSON_TYPE);
+  public Vertex getVertex(String id, String type, String version, Map<String, String> queryParams) throws CrudException {
+    StringBuilder strBuild = new StringBuilder(baseObjectUrl);
+    strBuild.append("/");
+    strBuild.append(id);
+    if(queryParams != null && !queryParams.isEmpty())
+    {
+        strBuild.append("?");
+        strBuild.append(URLEncodedUtils.format(convertToNameValuePair(queryParams), Charset.defaultCharset()));
+    }
+
+    OperationResult getResult = client.get(strBuild.toString(), createHeader(), MediaType.APPLICATION_JSON_TYPE);
 
     if (getResult.getResultCode() == 200) {
       Vertex vert = Vertex.fromJson(getResult.getResult(), version);
@@ -143,11 +151,18 @@ public class ChampDao implements GraphDao {
   }
 
   @Override
-  public List<Edge> getVertexEdges(String id) throws CrudException {
-    String url = baseObjectUrl + "/relationships/" + id;
+  public List<Edge> getVertexEdges(String id, Map<String, String> queryParams) throws CrudException {
+    StringBuilder strBuild = new StringBuilder(baseObjectUrl);
+    strBuild.append("/relationships/");
+    strBuild.append(id);
+    if(queryParams != null && !queryParams.isEmpty())
+    {
+        strBuild.append("?");
+        strBuild.append(URLEncodedUtils.format(convertToNameValuePair(queryParams), Charset.defaultCharset()));
+    }
 
-    OperationResult getResult = client.get(url, createHeader(), MediaType.APPLICATION_JSON_TYPE);
-
+    OperationResult getResult = client.get(strBuild.toString(), createHeader(), MediaType.APPLICATION_JSON_TYPE);
+  
     if (getResult.getResultCode() == 200) {
       return champGson.fromJson(getResult.getResult(), new TypeToken<List<Edge>>() {
       }.getType());
@@ -186,10 +201,17 @@ public class ChampDao implements GraphDao {
   }
 
   @Override
-  public Edge getEdge(String id, String type) throws CrudException {
-    String url = baseRelationshipUrl + "/" + id;
-    OperationResult getResult = client.get(url, createHeader(), MediaType.APPLICATION_JSON_TYPE);
-
+  public Edge getEdge(String id, String type, Map<String, String> queryParams) throws CrudException {
+    StringBuilder strBuild = new StringBuilder(baseRelationshipUrl);
+    strBuild.append("/");
+    strBuild.append(id);
+    if(queryParams != null && !queryParams.isEmpty())
+    {
+        strBuild.append("?");
+        strBuild.append(URLEncodedUtils.format(convertToNameValuePair(queryParams), Charset.defaultCharset()));
+    }
+    OperationResult getResult = client.get(strBuild.toString(), createHeader(), MediaType.APPLICATION_JSON_TYPE);
+  
     if (getResult.getResultCode() == 200) {
       Edge edge = Edge.fromJson(getResult.getResult());
 
@@ -291,8 +313,8 @@ public class ChampDao implements GraphDao {
     String url = baseRelationshipUrl;
 
     // Try requests to ensure source and target exist in Champ
-    Vertex dbSource = getVertex(source.getId().get(), source.getType(), version);
-    Vertex dbTarget = getVertex(target.getId().get(), target.getType(), version);
+    Vertex dbSource = getVertex(source.getId().get(), source.getType(), version, new HashMap<String, String>());
+    Vertex dbTarget = getVertex(target.getId().get(), target.getType(), version, new HashMap<String, String>());
 
     Edge.Builder insertEdgeBuilder = new Edge.Builder(type).source(dbSource).target(dbTarget);
     properties.forEach(insertEdgeBuilder::property);
@@ -557,7 +579,7 @@ public class ChampDao implements GraphDao {
   }
 
   // https://stackoverflow.com/questions/26942330/convert-mapstring-string-to-listnamevaluepair-is-this-the-most-efficient
-  private List<NameValuePair> convertToNameValuePair(Map<String, Object> pairs) {
+  private List<NameValuePair> convertToNameValuePair(Map<String, ? super String> pairs) {
     List<NameValuePair> nvpList = new ArrayList<>(pairs.size());
 
     pairs.forEach((key, value) -> nvpList.add(new BasicNameValuePair(key, value.toString())));

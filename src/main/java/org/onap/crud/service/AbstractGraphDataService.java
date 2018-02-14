@@ -50,10 +50,10 @@ public abstract class AbstractGraphDataService {
   public AbstractGraphDataService() throws CrudException {
     CrudServiceUtil.loadModels();
   }
-  
-  public String getEdge(String version, String id, String type) throws CrudException {
+
+  public String getEdge(String version, String id, String type, Map<String, String> queryParams) throws CrudException {
     RelationshipSchemaValidator.validateType(version, type);
-    Edge edge = daoForGet.getEdge(id, type);
+    Edge edge = daoForGet.getEdge(id, type, queryParams);
 
     return CrudResponseBuilder.buildGetEdgeResponse(RelationshipSchemaValidator.validateOutgoingPayload(version, edge), version);
   }
@@ -64,10 +64,10 @@ public abstract class AbstractGraphDataService {
     return CrudResponseBuilder.buildGetEdgesResponse(items, version);
   }
   
-  public String getVertex(String version, String id, String type) throws CrudException {
+  public String getVertex(String version, String id, String type, Map<String, String> queryParams) throws CrudException {
     type = OxmModelValidator.resolveCollectionType(version, type);
-    Vertex vertex = daoForGet.getVertex(id, type, version);
-    List<Edge> edges = daoForGet.getVertexEdges(id);
+    Vertex vertex = daoForGet.getVertex(id, type, version, queryParams);
+    List<Edge> edges = daoForGet.getVertexEdges(id, queryParams);
     return CrudResponseBuilder.buildGetVertexResponse(OxmModelValidator.validateOutgoingPayload(version, vertex), edges,
         version);
   }
@@ -165,7 +165,7 @@ public abstract class AbstractGraphDataService {
           vertexPayload.setProperties(CrudServiceUtil.mergeHeaderInFoToPayload(vertexPayload.getProperties(), 
               headers, false));
           
-          Vertex existingVertex = dao.getVertex(vertexPayload.getId(), OxmModelValidator.resolveCollectionType(version, vertexPayload.getType()), version);
+          Vertex existingVertex = dao.getVertex(vertexPayload.getId(), OxmModelValidator.resolveCollectionType(version, vertexPayload.getType()), version, new HashMap<String, String>());
           Vertex validatedVertex = OxmModelValidator.validateIncomingPatchPayload(vertexPayload.getId(), 
               version, vertexPayload.getType(), vertexPayload.getProperties(), existingVertex);
           Vertex persistedVertex = updateBulkVertex(validatedVertex, vertexPayload.getId(), version, txId);
