@@ -67,7 +67,7 @@ public abstract class AbstractGraphDataService {
   public String getVertex(String version, String id, String type, Map<String, String> queryParams) throws CrudException {
     type = OxmModelValidator.resolveCollectionType(version, type);
     Vertex vertex = daoForGet.getVertex(id, type, version, queryParams);
-    List<Edge> edges = daoForGet.getVertexEdges(id, null); //Not passing parameters as backend doesnt support these queries
+    List<Edge> edges = daoForGet.getVertexEdges(id, queryParams);
     return CrudResponseBuilder.buildGetVertexResponse(OxmModelValidator.validateOutgoingPayload(version, vertex), edges,
         version);
   }
