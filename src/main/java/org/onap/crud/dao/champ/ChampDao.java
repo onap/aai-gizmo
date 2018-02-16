@@ -114,8 +114,7 @@ public class ChampDao implements GraphDao {
     } else {
       // We didn't find a vertex with the supplied id, so just throw an
       // exception.
-      throw new CrudException("No vertex with id " + id + " found in graph",
-          javax.ws.rs.core.Response.Status.NOT_FOUND);
+      throw createErrorException(getResult, javax.ws.rs.core.Response.Status.NOT_FOUND, "No vertex with id " + id + " found in graph");    
     }
   }
 
@@ -145,8 +144,7 @@ public class ChampDao implements GraphDao {
     } else {
       // We didn't find a vertex with the supplied id, so just throw an
       // exception.
-      throw new CrudException("No vertex with id " + id + " found in graph",
-          javax.ws.rs.core.Response.Status.NOT_FOUND);
+        throw createErrorException(getResult, javax.ws.rs.core.Response.Status.NOT_FOUND, "No vertex with id " + id + " found in graph");    
     }
   }
 
@@ -169,8 +167,7 @@ public class ChampDao implements GraphDao {
     } else {
       // We didn't find a vertex with the supplied id, so just throw an
       // exception.
-      throw new CrudException("No vertex with id " + id + " found in graph",
-          javax.ws.rs.core.Response.Status.NOT_FOUND);
+      throw createErrorException(getResult, javax.ws.rs.core.Response.Status.NOT_FOUND, "No vertex with id " + id + " found in graph");    
     }
   }
 
@@ -195,8 +192,7 @@ public class ChampDao implements GraphDao {
     } else {
       // We didn't find a vertex with the supplied id, so just throw an
       // exception.
-      throw new CrudException("No vertices found in graph for given filters",
-          javax.ws.rs.core.Response.Status.NOT_FOUND);
+      throw createErrorException(getResult, javax.ws.rs.core.Response.Status.NOT_FOUND, "No vertices found in graph for given filters");    
     }
   }
 
@@ -225,7 +221,7 @@ public class ChampDao implements GraphDao {
     } else {
       // We didn't find a edge with the supplied type, so just throw an
       // exception.
-      throw new CrudException("No edge with id " + id + " found in graph", javax.ws.rs.core.Response.Status.NOT_FOUND);
+      throw createErrorException(getResult, javax.ws.rs.core.Response.Status.NOT_FOUND, "No edge with id " + id + " found in graph");    
     }
   }
 
@@ -242,7 +238,7 @@ public class ChampDao implements GraphDao {
     } else {
       // We didn't find a vertex with the supplied id, so just throw an
       // exception.
-      throw new CrudException("No edges found in graph for given filters", javax.ws.rs.core.Response.Status.NOT_FOUND);
+      throw createErrorException(getResult, javax.ws.rs.core.Response.Status.NOT_FOUND, "No edges found in graph  for given filters");    
     }
   }
 
@@ -361,7 +357,7 @@ public class ChampDao implements GraphDao {
     if (getResult.getResultCode() != 200) {
       // We didn't find an edge with the supplied type, so just throw an
       // exception.
-      throw new CrudException("No edge with id " + id + " found in graph", javax.ws.rs.core.Response.Status.NOT_FOUND);
+      throw createErrorException(getResult, javax.ws.rs.core.Response.Status.NOT_FOUND, "No edge with id " + id + " found in graph");    
     }
   }
 
@@ -530,7 +526,7 @@ public class ChampDao implements GraphDao {
     if (getResult.getResultCode() != 200) {
       // We didn't find an edge with the supplied type, so just throw an
       // exception.
-      throw new CrudException("No edge with id " + id + " found in graph", javax.ws.rs.core.Response.Status.NOT_FOUND);
+      throw createErrorException(getResult, javax.ws.rs.core.Response.Status.NOT_FOUND, "No edge with id " + id + " found in graph");    
     }
   }
 
@@ -552,7 +548,7 @@ public class ChampDao implements GraphDao {
     } else {
       // We didn't find an edge with the supplied id, so just throw an
       // exception.
-      throw new CrudException("No edge with id " + id + " found in graph", javax.ws.rs.core.Response.Status.NOT_FOUND);
+      throw createErrorException(getResult, javax.ws.rs.core.Response.Status.NOT_FOUND, "No edge with id " + id + " found in graph");    
     }
   }
 
@@ -573,8 +569,7 @@ public class ChampDao implements GraphDao {
     } else {
       // We didn't find a vertex with the supplied id, so just throw an
       // exception.
-      throw new CrudException("No vertex with id " + id + " found in graph",
-          javax.ws.rs.core.Response.Status.NOT_FOUND);
+      throw createErrorException(getResult, javax.ws.rs.core.Response.Status.NOT_FOUND, "No vertex with id " + id + " found in graph");    
     }
   }
 
@@ -602,4 +597,15 @@ public class ChampDao implements GraphDao {
     headers.put(HEADER_TRANS_ID, Arrays.asList(MDC.get(LoggingContext.LoggingField.REQUEST_ID.toString())));
     return headers;
   }
+  
+  private CrudException createErrorException(OperationResult result, javax.ws.rs.core.Response.Status defaultErrorCode , String defaultErrorMsg) 
+  {
+      CrudException ce = null;
+      if(result != null)
+          ce = new CrudException(result.getFailureCause(), Response.Status.fromStatusCode(result.getResultCode()));
+      else
+          ce = new CrudException(defaultErrorMsg, defaultErrorCode);
+      return ce;
+  }
+
 }
