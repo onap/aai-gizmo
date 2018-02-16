@@ -32,7 +32,7 @@ import org.onap.aai.cl.eelf.LoggerFactory;
 import org.onap.crud.event.GraphEvent;
 import org.onap.crud.logging.CrudServiceMsgs;
 
-import com.att.ecomp.event.api.EventConsumer;
+import org.onap.aai.event.api.EventConsumer;
 
 public class CrudAsyncResponseConsumer extends TimerTask {
 

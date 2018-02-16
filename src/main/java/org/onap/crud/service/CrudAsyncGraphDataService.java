@@ -23,8 +23,8 @@
  */
 package org.onap.crud.service;
 
-import com.att.ecomp.event.api.EventConsumer;
-import com.att.ecomp.event.api.EventPublisher;
+import org.onap.aai.event.api.EventConsumer;
+import org.onap.aai.event.api.EventPublisher;
 
 import org.onap.aai.cl.api.LogFields;
 import org.onap.aai.cl.api.Logger;
