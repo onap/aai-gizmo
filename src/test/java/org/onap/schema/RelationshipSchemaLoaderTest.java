@@ -41,7 +41,7 @@ public class RelationshipSchemaLoaderTest {
         RelationshipSchemaLoader.loadModels("v11");
         String version = RelationshipSchemaLoader.getLatestSchemaVersion();
         RelationshipSchema g = RelationshipSchemaLoader.getSchemaForVersion(version);
-        assertNotNull(g.lookupRelationType("org.onap.relationships.inventory.BelongsTo"));
+        assertNotNull(g.lookupRelationType("isMemberOf"));
     }
 
     @Test
