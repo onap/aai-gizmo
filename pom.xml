@@ -14,6 +14,7 @@
     <name>aai-gizmo</name>
 
     <properties>
+        <docker.location>${basedir}/target</docker.location>
         <module.ajsc.namespace.name>crud-api</module.ajsc.namespace.name>
         <module.ajsc.namespace.version>v1</module.ajsc.namespace.version>
         <ajscRuntimeVersion>2.0.0</ajscRuntimeVersion>
