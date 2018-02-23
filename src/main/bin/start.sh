@@ -1,26 +1,29 @@
-#!/bin/sh
+#!/bin/bash
 
 BASEDIR="/opt/app/crud-api/"
 AJSC_HOME="$BASEDIR"
 AJSC_CONF_HOME="$AJSC_HOME/bundleconfig/"
 
+# List of ajsc properties which are exposed for modification at deploy time
+declare -a MODIFY_PROP_LIST=("KEY_STORE_PASSWORD"
+                             "KEY_MANAGER_PASSWORD"
+                             "AJSC_JETTY_ThreadCount_MIN" 
+                             "AJSC_JETTY_ThreadCount_MAX"
+                             "AJSC_JETTY_BLOCKING_QUEUE_SIZE")
+PROP_LIST_LENGTH=${#MODIFY_PROP_LIST[@]}  
+
+for (( i=1; i<${PROP_LIST_LENGTH}+1; i++ ));
+do
+   PROP_NAME=${MODIFY_PROP_LIST[$i-1]}
+   PROP_VALUE=${!PROP_NAME}
+   if [ ! -z "$PROP_VALUE" ]; then
+      sed -i "s/$PROP_NAME.*$/$PROP_NAME=$PROP_VALUE/g" $AJSC_CONF_HOME/etc/sysprops/sys-props.properties
+   fi
+done
+
 if [ -z "$CONFIG_HOME" ]; then
 	echo "CONFIG_HOME must be set in order to start up process"
 	exit 1
-fi
-
-if [ -z "$KEY_STORE_PASSWORD" ]; then
-	echo "KEY_STORE_PASSWORD must be set in order to start up process"
-	exit 1
-else
-	echo "KEY_STORE_PASSWORD=$KEY_STORE_PASSWORD\n" >> $AJSC_CONF_HOME/etc/sysprops/sys-props.properties
-fi
-
-if [ -z "$KEY_MANAGER_PASSWORD" ]; then
-	echo "KEY_MANAGER_PASSWORD must be set in order to start up process"
-	exit 1
-else
-	echo "KEY_MANAGER_PASSWORD=$KEY_MANAGER_PASSWORD\n" >> $AJSC_CONF_HOME/etc/sysprops/sys-props.properties
 fi
 
 # Add any spring bean configuration files to the Gizmo deployment
