@@ -72,6 +72,13 @@ public class CrudRestService {
     this.graphDataService = graphDataService;
     this.auth = new Auth(CrudServiceConstants.CRD_AUTH_FILE);
   }
+  
+  // For unit testing
+  public CrudRestService(AbstractGraphDataService graphDataService, Auth auth) throws Exception {
+    this.graphDataService = graphDataService;
+    this.auth = auth;
+  }
+
 
   public enum Action {
     POST, GET, PUT, DELETE, PATCH

@@ -1,0 +1,23 @@
+    {
+        "timestamp": 1514927928167,
+        "operation": "UPDATE",
+        "vertex": {
+            "properties": {
+                "ipv4-oam-address": "1.2.3.4",
+                "resource-version": "1477013499",
+                "purpose": "my-purpose",
+                "fqdn": "myhost.onap.net",
+                "in-maint": false,
+                "equip-model": "DL380p-nd",
+                "equip-vendor": "HP",
+                "equip-type": "server",
+                "hostname": "myhost",
+                "ptnii-equip-name": "e-name"
+            },
+            "key": "mykey",
+            "type": "pserver",
+            "schema-version": "v11"
+        },
+        "transaction-id": "c0a81fa7-5ef4-49cd-ab39-e42c53c9b9a4",
+        "database-transaction-id": "b3e2853e-f643-47a3-a0c3-cb54cc997ad3"
+    }

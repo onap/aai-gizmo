@@ -71,7 +71,7 @@ public class RelationshipSchemaTest {
         loadRelations(versionContextMap);
         assertNotNull(versionContextMap.get("v11").lookupRelation("availability-zone:complex:groupsResourcesIn"));
         assertTrue(versionContextMap.get("v11")
-                .lookupRelation("availability-zone:complex:groupsResourcesIn").containsKey("usesResource"));
+                .lookupRelation("availability-zone:complex:groupsResourcesIn").containsKey("prevent-delete"));
     }
 
     @Test
@@ -80,7 +80,7 @@ public class RelationshipSchemaTest {
         loadRelations(versionContextMap);
         assertNotNull(versionContextMap.get("v11").lookupRelationType("groupsResourcesIn"));
         assertTrue(versionContextMap.get("v11")
-                .lookupRelation("availability-zone:complex:groupsResourcesIn").containsKey("usesResource"));
+                .lookupRelation("availability-zone:complex:groupsResourcesIn").containsKey("prevent-delete"));
     }
 
     private void loadRelations(Map<String, RelationshipSchema> map){

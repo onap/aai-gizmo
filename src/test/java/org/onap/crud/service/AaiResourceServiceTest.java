@@ -18,7 +18,7 @@
  * limitations under the License.
  * ============LICENSE_END=========================================================
  */
-package org.onap.schema;
+package org.onap.crud.service;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -33,7 +33,6 @@ import org.onap.aai.serialization.db.EdgeRule;
 import org.onap.aai.serialization.db.EdgeRules;
 import org.onap.aai.serialization.db.EdgeType;
 import org.onap.crud.exception.CrudException;
-import org.onap.crud.service.AaiResourceService;
 import org.onap.crud.service.EdgePayload;
 
 import com.google.gson.JsonElement;
