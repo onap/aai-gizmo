@@ -45,12 +45,14 @@ public class RelationshipSchemaLoaderTest {
 
     @Test
     public void loadModels() throws Exception {
+        RelationshipSchemaLoader.resetVersionContextMap();
         RelationshipSchemaLoader.loadModels();
         assertFalse( RelationshipSchemaLoader.getVersionContextMap().keySet().isEmpty());
     }
 
     @Test
     public void loadModelsWithAVersion() throws Exception {
+        RelationshipSchemaLoader.resetVersionContextMap();
         RelationshipSchemaLoader.loadModels("v11");
         assertEquals(1, RelationshipSchemaLoader.getVersionContextMap().keySet().size());
         assertEquals("v11",  RelationshipSchemaLoader.getLatestSchemaVersion());
@@ -58,14 +60,25 @@ public class RelationshipSchemaLoaderTest {
 
     @Test
     public void getSchemaForVersion() throws Exception {
+        RelationshipSchemaLoader.resetVersionContextMap();
         RelationshipSchemaLoader.loadModels("v11");
         String version = RelationshipSchemaLoader.getLatestSchemaVersion();
         RelationshipSchema g = RelationshipSchemaLoader.getSchemaForVersion(version);
         assertNotNull(g.lookupRelationType("org.onap.relationships.inventory.BelongsTo"));
     }
 
+    public void getSchemaForVersionManualFile() throws Exception {
+      RelationshipSchemaLoader.resetVersionContextMap();
+      RelationshipSchemaLoader.loadModels("v10");
+      String version = RelationshipSchemaLoader.getLatestSchemaVersion();
+      RelationshipSchema g = RelationshipSchemaLoader.getSchemaForVersion(version);
+      assertNotNull(g.lookupRelationType("locatedIn"));
+    }
+
+
     @Test
     public void getSchemaForVersionFail() throws Exception {
+        RelationshipSchemaLoader.resetVersionContextMap();
         RelationshipSchemaLoader.loadModels();
         try {
             RelationshipSchemaLoader.getSchemaForVersion("v1");
@@ -76,6 +89,7 @@ public class RelationshipSchemaLoaderTest {
 
     @Test
     public void setVersionContextMap() throws Exception {
+        RelationshipSchemaLoader.resetVersionContextMap();
         ArrayList<String> jsonString = new ArrayList<String>();
         String rules = "{" +
                 "\"rules\": [" +

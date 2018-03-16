@@ -24,6 +24,8 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.onap.crud.exception.CrudException;
 
+import com.att.aft.dme2.internal.apache.commons.lang.ArrayUtils;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -60,17 +62,17 @@ public class RelationshipSchemaTest {
     public void shouldContainValidTypes() throws Exception {
         Map<String, RelationshipSchema> versionContextMap = new ConcurrentHashMap<>();
         loadRelations(versionContextMap);
-        assertTrue(versionContextMap.get("v11").isValidType("groupsResourcesIn"));
-        assertTrue(versionContextMap.get("v11").isValidType("uses"));
-        assertFalse(versionContextMap.get("v11").isValidType("notValidType"));
+        assertTrue(versionContextMap.get("v10").isValidType("groupsResourcesIn"));
+        assertTrue(versionContextMap.get("v10").isValidType("uses"));
+        assertFalse(versionContextMap.get("v10").isValidType("notValidType"));
     }
 
     @Test
     public void shouldLookUpByRelation() throws Exception {
         Map<String, RelationshipSchema> versionContextMap = new ConcurrentHashMap<>();
         loadRelations(versionContextMap);
-        assertNotNull(versionContextMap.get("v11").lookupRelation("availability-zone:complex:groupsResourcesIn"));
-        assertTrue(versionContextMap.get("v11")
+        assertNotNull(versionContextMap.get("v10").lookupRelation("availability-zone:complex:groupsResourcesIn"));
+        assertTrue(versionContextMap.get("v10")
                 .lookupRelation("availability-zone:complex:groupsResourcesIn").containsKey("prevent-delete"));
     }
 
@@ -78,8 +80,8 @@ public class RelationshipSchemaTest {
     public void shouldLookUpByRelationType() throws Exception {
         Map<String, RelationshipSchema> versionContextMap = new ConcurrentHashMap<>();
         loadRelations(versionContextMap);
-        assertNotNull(versionContextMap.get("v11").lookupRelationType("groupsResourcesIn"));
-        assertTrue(versionContextMap.get("v11")
+        assertNotNull(versionContextMap.get("v10").lookupRelationType("groupsResourcesIn"));
+        assertTrue(versionContextMap.get("v10")
                 .lookupRelation("availability-zone:complex:groupsResourcesIn").containsKey("prevent-delete"));
     }
 
@@ -88,7 +90,14 @@ public class RelationshipSchemaTest {
         File dir = new File(classLoader.getResource("model").getFile());
         File[] allFiles = dir.listFiles((d, name) ->
                 (propsFilePattern.matcher(name).matches() || rulesFilePattern.matcher(name).matches()));
-
+        
+        // Special handling for the v12 file, as it is used for a special test
+        for (File f : allFiles) {
+          if (f.getName().equals("edge_properties_v11.json")) {
+            allFiles = (File[]) ArrayUtils.removeElement(allFiles, f);
+          }
+        }
+        
         Arrays.stream(allFiles).sorted(Comparator.comparing(File::getName))
                 .collect(Collectors.groupingBy(f -> myMatcher(versionPattern, f.getName())))
                 .forEach((e, f) -> map.put(e, jsonFilesLoader(f)));
@@ -104,7 +113,9 @@ public class RelationshipSchemaTest {
         }
 
         try {
-            rsSchema = new RelationshipSchema(fileContents);
+            if (fileContents.size() == 2) {
+                rsSchema = new RelationshipSchema(fileContents);
+            }
         } catch (CrudException e) {
             e.printStackTrace();
         } catch (IOException e) {

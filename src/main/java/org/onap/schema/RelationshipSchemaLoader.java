@@ -29,8 +29,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -48,6 +50,7 @@ import org.onap.crud.exception.CrudException;
 import org.onap.crud.logging.CrudServiceMsgs;
 import org.onap.crud.util.CrudServiceConstants;
 import org.onap.crud.util.FileWatcher;
+import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -71,7 +74,7 @@ public class RelationshipSchemaLoader {
   }
 
   public synchronized static void loadModels(String version) throws CrudException {
-    String pattern = String.format(".*(%s)" + fileExt, version);
+    String pattern = String.format("DbEdgeRules.*(%s)" + fileExt, version);
     load(Pattern.compile(pattern), Pattern.compile(edgePropsFiles + version + fileExt));
   }
 
@@ -111,20 +114,31 @@ public class RelationshipSchemaLoader {
   private static void load(Pattern rulesPattern, Pattern edgePropsPattern) throws CrudException {
     ClassLoader cl = RelationshipSchemaLoader.class.getClassLoader();
     ResourcePatternResolver rulesResolver = new PathMatchingResourcePatternResolver(cl);
-    List<Object> rulesFiles;
+    List<Object> rulesFiles = new ArrayList<Object>();
+    Set<String> existingFiles = new HashSet<String>();
     String rulesDir = CrudServiceConstants.CRD_HOME_MODEL;
     try {
 
-      // getResources method returns objects of type "Resource"
-      // 1. We are getting all the objects from the classpath which has
-      // "DbEdgeRules" in the name.
-      // 2. We run them through a filter and return only the objects which match
-      // the supplied pattern "p"
-      // 3. We then collect the objects in a list. At this point we have a list
-      // of the kind of files we require.
-      rulesFiles = Arrays.stream(rulesResolver.getResources("classpath*:/dbedgerules/DbEdgeRules*" + fileExt))
-          .filter(r -> !myMatcher(rulesPattern, r.getFilename()).isEmpty()).collect(Collectors.toList());
-
+      // Allow additional DBEdgeRule files to be dropped in manually (in addition to those found on the classpath)
+      File[] edgeRuleFileList = new File(rulesDir).listFiles((d, name) -> rulesPattern.matcher(name).matches());
+      for (File file : edgeRuleFileList) {
+        rulesFiles.add(file);
+        existingFiles.add(filename(file));
+      }
+      
+      // Get DBEdgeRules from the jar on the classpath.  Don't include any that conflict with files which 
+      // were dropped manually.
+      Resource[] rawResourceList = rulesResolver.getResources("classpath*:/dbedgerules/DbEdgeRules*" + fileExt);
+      List<Resource> prunedResourceList = new ArrayList<Resource>();
+      for (Resource resource : rawResourceList) {
+        if (!existingFiles.contains(filename(resource))) {
+          prunedResourceList.add(resource);
+        }
+      }
+      
+      rulesFiles.addAll(Arrays.stream(prunedResourceList.toArray(new Resource[prunedResourceList.size()]))
+          .filter(r -> !myMatcher(rulesPattern, r.getFilename()).isEmpty()).collect(Collectors.toList()));
+      
       // This gets all the objects of type "File" from external directory (not
       // on the classpath)
       // 1. From an external directory (one not on the classpath) we get all the
@@ -135,7 +149,7 @@ public class RelationshipSchemaLoader {
       // this list
       // to the previous collection (rulesFiles)
       rulesFiles
-          .addAll(Arrays.stream(new File(rulesDir).listFiles((d, name) -> edgePropsPattern.matcher(name).matches()))
+          .addAll(Arrays.stream(new File(rulesDir).listFiles( (d, name) -> edgePropsPattern.matcher(name).matches()  ))
               .collect(Collectors.toList()));
 
       if (rulesFiles.isEmpty()) {
