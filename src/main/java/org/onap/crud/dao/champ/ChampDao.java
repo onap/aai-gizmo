@@ -30,6 +30,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 import org.eclipse.jetty.util.security.Password;
+import org.onap.aai.cl.mdc.MdcContext;
 import org.onap.aai.logging.LoggingContext;
 import org.onap.aai.cl.api.Logger;
 import org.onap.aai.cl.eelf.LoggerFactory;
@@ -591,7 +592,7 @@ public class ChampDao implements GraphDao {
   private Map<String, List<String>> createHeader() {
     Map<String, List<String>> headers = new HashMap<>();
     headers.put(HEADER_FROM_APP, Arrays.asList(FROM_APP_NAME));
-    headers.put(HEADER_TRANS_ID, Arrays.asList(MDC.get(LoggingContext.LoggingField.REQUEST_ID.toString())));
+    headers.put(HEADER_TRANS_ID, Arrays.asList(MDC.get(MdcContext.MDC_REQUEST_ID)));
     return headers;
   }
   
