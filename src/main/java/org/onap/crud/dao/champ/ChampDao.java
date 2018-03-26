@@ -260,7 +260,7 @@ public class ChampDao implements GraphDao {
     } else {
       // We didn't create a vertex with the supplied type, so just throw an
       // exception.
-      throw new CrudException("Failed to create vertex", Response.Status.fromStatusCode(getResult.getResultCode()));
+      throw new CrudException("Failed to create vertex: " + getResult.getFailureCause(), Response.Status.fromStatusCode(getResult.getResultCode()));
     }
   }
 
