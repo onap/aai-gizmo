@@ -1,7 +1,16 @@
-.classpath
-.project
-.settings/
-target/
+# Application
 logs/
 debug-logs/
+
+# Maven
+target/
+
+# Eclipse
+.classpath
+.factorypath
+.project
+.settings/
+
+# IntelliJ
 .idea/
+*.iml

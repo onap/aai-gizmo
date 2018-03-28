@@ -24,36 +24,34 @@ import javax.ws.rs.core.Response.Status;
 
 public class CrudException extends Exception {
 
-  private static final long serialVersionUID = 8162385108397238865L;
+    private static final long serialVersionUID = 8162385108397238865L;
 
-  private Status httpStatus;
+    private Status httpStatus;
 
-  public CrudException() {
-  }
+    public CrudException() {}
 
-  public CrudException(String message, Status httpStatus) {
-    super(message);
-    this.setHttpStatus(httpStatus);
-  }
+    public CrudException(String message, Status httpStatus) {
+        super(message);
+        this.setHttpStatus(httpStatus);
+    }
 
-  public CrudException(Throwable cause) {
-    super(cause);
-  }
+    public CrudException(Throwable cause) {
+        super(cause);
+    }
 
-  public CrudException(String message, Throwable cause) {
-    super(message, cause);
-  }
+    public CrudException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-  public CrudException(String message, Throwable cause, boolean enableSuppression,
-                       boolean writableStackTrace) {
-    super(message, cause, enableSuppression, writableStackTrace);
-  }
+    public CrudException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
+    }
 
-  public Status getHttpStatus() {
-    return httpStatus;
-  }
+    public Status getHttpStatus() {
+        return httpStatus;
+    }
 
-  public void setHttpStatus(Status httpStatus) {
-    this.httpStatus = httpStatus;
-  }
+    public void setHttpStatus(Status httpStatus) {
+        this.httpStatus = httpStatus;
+    }
 }

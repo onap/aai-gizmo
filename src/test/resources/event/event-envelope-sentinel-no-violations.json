@@ -1,0 +1,23 @@
+{
+  "header": {
+    "request-id": "5cf7f973-c406-4507-ad71-72d7b3d26c36",
+    "timestamp": "20180316T092301Z",
+    "source-name": "SENTINE",
+    "event-type": "update-result",
+    "validation-entity-type": "pserver"
+  },
+  "body": {
+    "operation": "CREATE",
+    "transaction-id": "6544a144-0c56-4f71-81d8-a6170efbb296",
+    "timestamp": 1521192181065,
+    "vertex": {
+      "key": "",
+      "schema-version": "v13",
+      "type": "pserver",
+      "properties": {
+        
+      }
+    }
+  },
+  "policyViolations": []
+}

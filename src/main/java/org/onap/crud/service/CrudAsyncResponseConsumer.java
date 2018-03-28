@@ -27,6 +27,7 @@ import javax.naming.OperationNotSupportedException;
 import org.onap.aai.cl.api.Logger;
 import org.onap.aai.cl.eelf.LoggerFactory;
 import org.onap.crud.event.GraphEvent;
+import org.onap.crud.event.envelope.GraphEventEnvelope;
 import org.onap.crud.logging.CrudServiceMsgs;
 
 import org.onap.aai.event.api.EventConsumer;
@@ -76,7 +77,8 @@ public class CrudAsyncResponseConsumer extends TimerTask {
     for (String event : events) {
       try {
 
-        GraphEvent graphEvent = GraphEvent.fromJson(event);
+        GraphEventEnvelope graphEventEnvelope = GraphEventEnvelope.fromJson(event);
+        GraphEvent graphEvent = graphEventEnvelope.getBody();
         auditLogger.info(CrudServiceMsgs.ASYNC_RESPONSE_CONSUMER_INFO,
                            "Event received of type: " + graphEvent.getObjectType() + " with key: "
                            + graphEvent.getObjectKey() + " , transaction-id: "
@@ -92,7 +94,7 @@ public class CrudAsyncResponseConsumer extends TimerTask {
 
         if (CrudAsyncGraphEventCache.get(graphEvent.getTransactionId()) != null) {
           CrudAsyncGraphEventCache.get(graphEvent.getTransactionId())
-            .populateGraphEvent(graphEvent);
+            .populateGraphEventEnvelope(graphEventEnvelope);
         } else {
           logger.error(CrudServiceMsgs.ASYNC_DATA_SERVICE_ERROR,
                        "Request timed out. Not sending response for transaction-id: "
