@@ -20,10 +20,6 @@
  */
 package org.onap.crud.service;
 
-import org.onap.aai.cl.api.Logger;
-import org.onap.aai.cl.eelf.LoggerFactory;
-import org.onap.crud.logging.LoggingUtil;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -34,8 +30,13 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
+import org.onap.aai.cl.api.Logger;
+import org.onap.aai.cl.eelf.LoggerFactory;
+import org.onap.crud.logging.LoggingUtil;
+import org.springframework.stereotype.Component;
 
-
+@Component
+@Path("/services/gizmo/v1/echo-service/")
 public class JaxrsEchoService {
 
   private static Logger logger = LoggerFactory.getInstance()

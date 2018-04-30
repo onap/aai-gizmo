@@ -1,4 +1,0 @@
-<route xmlns="http://camel.apache.org/schema/spring" trace="true">
-  <from uri="att-dme2-servlet:///resources?matchOnUriPrefix=true" />
-  <to uri="cxfbean:aaiResourceService" />
-</route>

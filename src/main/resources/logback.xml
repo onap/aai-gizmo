@@ -2,7 +2,7 @@
   <!--<jmxConfigurator /> -->
   <!-- directory path for all other type logs -->
   
-  <property name="logDir"  value="${AJSC_HOME}/logs" />
+  <property name="logDir"  value="${APP_HOME}/logs" />
   
   
   <!--  specify the component name 
@@ -132,6 +132,7 @@
     <appender-ref ref="asyncEELFDebug" />
   </logger>
 
+<!--
   <logger name="com.att.eelf.security" level="info" additivity="false">
     <appender-ref ref="asyncEELFSecurity" /> 
   </logger>
@@ -144,6 +145,7 @@
   <logger name="com.att.eelf.policy" level="info" additivity="false">
     <appender-ref ref="asyncEELFPolicy" />
   </logger>
+-->
   <logger name="com.att.eelf.audit" level="info" additivity="false">
     <appender-ref ref="asyncEELFAudit" />
   </logger>

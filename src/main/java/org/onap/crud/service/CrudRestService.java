@@ -20,20 +20,6 @@
  */
 package org.onap.crud.service;
 
-import com.google.gson.JsonElement;
-
-import org.apache.cxf.jaxrs.ext.PATCH;
-import org.onap.aai.cl.api.Logger;
-import org.onap.aai.cl.eelf.LoggerFactory;
-import org.onap.aaiauth.auth.Auth;
-import org.onap.crud.exception.CrudException;
-import org.onap.crud.logging.CrudServiceMsgs;
-import org.onap.crud.logging.LoggingUtil;
-import org.onap.crud.util.CrudProperties;
-import org.onap.crud.util.CrudServiceConstants;
-import org.onap.crud.util.CrudServiceUtil;
-import org.slf4j.MDC;
-
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,7 +43,20 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
+import org.apache.cxf.jaxrs.ext.PATCH;
+import org.onap.aai.cl.api.Logger;
+import org.onap.aai.cl.eelf.LoggerFactory;
+import org.onap.aaiauth.auth.Auth;
+import org.onap.crud.exception.CrudException;
+import org.onap.crud.logging.CrudServiceMsgs;
+import org.onap.crud.logging.LoggingUtil;
+import org.onap.crud.util.CrudProperties;
+import org.onap.crud.util.CrudServiceConstants;
+import org.onap.crud.util.CrudServiceUtil;
+import org.slf4j.MDC;
+import com.google.gson.JsonElement;
 
+@Path("/services/inventory")
 public class CrudRestService {
 
   private AbstractGraphDataService graphDataService;
@@ -72,13 +71,12 @@ public class CrudRestService {
     this.graphDataService = graphDataService;
     this.auth = new Auth(CrudServiceConstants.CRD_AUTH_FILE);
   }
-  
+
   // For unit testing
   public CrudRestService(AbstractGraphDataService graphDataService, Auth auth) throws Exception {
     this.graphDataService = graphDataService;
     this.auth = auth;
   }
-
 
   public enum Action {
     POST, GET, PUT, DELETE, PATCH

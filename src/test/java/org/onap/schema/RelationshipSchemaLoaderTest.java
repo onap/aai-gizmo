@@ -20,18 +20,16 @@
  */
 package org.onap.schema;
 
-import static org.junit.Assert.*;
-import edu.emory.mathcs.backport.java.util.Arrays;
-import org.junit.Before;
-import org.junit.Test;
-import org.onap.crud.exception.CrudException;
-
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.onap.crud.exception.CrudException;
 
 public class RelationshipSchemaLoaderTest {
 

@@ -15,7 +15,7 @@ RUN export JAVA_HOME
 
 # Build up the deployment folder structure
 RUN mkdir -p $MICRO_HOME
-ADD swm/package/nix/dist_files/appl/gizmo/* $MICRO_HOME/
+COPY gizmo.jar $MICRO_HOME/
 RUN mkdir -p $BIN_HOME
 COPY *.sh $BIN_HOME
 RUN chmod 755 $BIN_HOME/*

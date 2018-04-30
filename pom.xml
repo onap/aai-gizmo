@@ -19,15 +19,15 @@ limitations under the License.
 ============LICENSE_END=========================================================
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>ajsc-archetype-parent</artifactId>
-        <groupId>com.att.ajsc</groupId>
-        <version>2.0.0</version>
+        <groupId>org.onap.oparent</groupId>
+        <artifactId>oparent</artifactId>
+        <version>1.1.0</version>
+        <relativePath />
     </parent>
 
     <groupId>org.onap.aai.gizmo</groupId>
@@ -35,89 +35,134 @@ limitations under the License.
     <version>1.2.0-SNAPSHOT</version>
     <name>aai-gizmo</name>
 
+
     <properties>
         <docker.location>${basedir}/target</docker.location>
-        <module.ajsc.namespace.name>crud-api</module.ajsc.namespace.name>
-        <module.ajsc.namespace.version>v1</module.ajsc.namespace.version>
-        <ajscRuntimeVersion>2.0.0</ajscRuntimeVersion>
-        <absoluteDistFilesRoot>/appl/${project.artifactId}</absoluteDistFilesRoot>
-        <nexusproxy>https://nexus.onap.org</nexusproxy>
-
-        <!-- For NO Versioning, REMOVE the /${project.version} from the <distFilesRoot>
-            property, below. PLEASE, NOTE: If your ${project.version} is a "-SNAPSHOT"
-            version, THIS will be used as your directory structure. If you do NOT want
-            this, simply remove the "-SNAPSHOT" from your <version> declaration at the
-            top of pom.xml -->
-        <distFilesRoot>/appl/${project.artifactId}/${project.version}</distFilesRoot>
-        <runAjscHome>${basedir}/target/swm/package/nix/dist_files${distFilesRoot}</runAjscHome>
-
-        <!-- Port Selection. A value of 0 will allow for dynamic port selection.
-            For local testing, you may choose to hardcode this value to something like
-            8080 -->
-        <serverPort>0</serverPort>
-        <sslport>9520</sslport>
+        <onap.nexus.url>https://nexus.onap.org</onap.nexus.url>
 
         <testRouteOffer>workstation</testRouteOffer>
         <testEnv>DEV</testEnv>
-        <checkstyle.config.location>google_checks.xml</checkstyle.config.location>
 
         <sonar.language>java</sonar.language>
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
-        <sonar.surefire.reportsPath>${project.build.directory}/surefire-reports
-        </sonar.surefire.reportsPath>
-        <sonar.jacoco.reportPath>${project.build.directory}/coverage-reports/jacoco.exec
-        </sonar.jacoco.reportPath>
+        <sonar.surefire.reportsPath>${project.build.directory}/surefire-reports</sonar.surefire.reportsPath>
+        <sonar.jacoco.reportPath>${project.build.directory}/coverage-reports/jacoco.exec</sonar.jacoco.reportPath>
         <sonar.jacoco.reportMissing.force.zero>false</sonar.jacoco.reportMissing.force.zero>
         <sonar.projectVersion>${project.version}</sonar.projectVersion>
         <version.org.hamcrest.hamcrest-library>1.3</version.org.hamcrest.hamcrest-library>
     </properties>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <!-- Import dependency management from Spring Boot -->
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>1.5.12.RELEASE</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jetty</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jersey</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+            <version>3.2.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>23.0</version>
+        </dependency>
+        <dependency>
+            <groupId>radeox</groupId>
+            <artifactId>radeox</artifactId>
+            <version>1.0-b2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+            <version>1.9.13</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>1.9.5</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>dom4j</groupId>
             <artifactId>dom4j</artifactId>
             <version>1.6.1</version>
             <scope>provided</scope>
         </dependency>
-
-        <dependency>
-            <groupId>com.att.aft</groupId>
-            <artifactId>dme2</artifactId>
-            <version>3.1.200</version>
-        </dependency>
-
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>2.4</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.3.1</version>
+        </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>2.6.2</version>
         </dependency>
-
         <!-- Common logging framework -->
         <dependency>
             <groupId>org.onap.aai.logging-service</groupId>
             <artifactId>common-logging</artifactId>
             <version>1.2.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jersey.core</groupId>
-            <artifactId>jersey-client</artifactId>
-            <version>2.23</version>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-core</artifactId>
-            <version>1.1.7</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.onap.aai.event-client</groupId>
             <artifactId>event-client-dmaap</artifactId>
             <version>1.2.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.onap.aai.aai-common</groupId>
@@ -140,19 +185,16 @@ limitations under the License.
                 </exclusion>
             </exclusions>
         </dependency>
-
         <dependency>
             <groupId>org.onap.aai.aai-common</groupId>
             <artifactId>aai-auth</artifactId>
             <version>1.2.1</version>
         </dependency>
-
         <dependency>
             <groupId>org.eclipse.persistence</groupId>
             <artifactId>eclipselink</artifactId>
             <version>2.6.2</version>
         </dependency>
-
         <dependency>
             <groupId>org.onap.aai</groupId>
             <artifactId>rest-client</artifactId>
@@ -167,8 +209,13 @@ limitations under the License.
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
             <version>2.2.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
-
         <!-- AAI-CORE specific dependencies -->
         <dependency>
             <groupId>org.apache.tinkerpop</groupId>
@@ -184,16 +231,18 @@ limitations under the License.
                     <groupId>org.slf4j</groupId>
                     <artifactId>jcl-over-slf4j</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
-
         <dependency>
             <groupId>org.apache.tinkerpop</groupId>
             <artifactId>tinkergraph-gremlin</artifactId>
             <version>3.2.3</version>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
@@ -203,44 +252,36 @@ limitations under the License.
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.skyscreamer</groupId>
             <artifactId>jsonassert</artifactId>
             <version>1.5.0</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-library</artifactId>
             <version>${version.org.hamcrest.hamcrest-library}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+            <version>4.4.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>
+                    spring-boot-configuration-processor
+                </artifactId>
+            <optional>true</optional>
+        </dependency>
     </dependencies>
-
-    <repositories>
-        <repository>
-            <id>central</id>
-            <name>Maven 2 repository 2</name>
-            <url>http://repo2.maven.org/maven2/</url>
-        </repository>
-        <repository>
-            <id>ecomp-releases</id>
-            <name>ECOMP Release Repository</name>
-            <url>${nexusproxy}/content/repositories/releases/</url>
-        </repository>
-        <repository>
-            <id>ecomp-snapshots</id>
-            <name>ECOMP Snapshot Repository</name>
-            <url>${nexusproxy}/content/repositories/snapshots/</url>
-        </repository>
-        <repository>
-            <id>ecomp-staging</id>
-            <name>ECOMP Staging Repository</name>
-            <url>${nexusproxy}/content/repositories/staging/</url>
-        </repository>
-    </repositories>
 
     <build>
         <finalName>${project.artifactId}</finalName>
@@ -293,7 +334,7 @@ limitations under the License.
             </plugin>
 
             <!-- license plugin -->
-            <!-- Uncomment this to add a license header to every source file
+            <!-- Uncomment this to add a license header to every source file -->
             <plugin>
                 <groupId>com.mycila</groupId>
                 <artifactId>license-maven-plugin</artifactId>
@@ -314,7 +355,7 @@ limitations under the License.
                     </execution>
                 </executions>
             </plugin>
-            -->
+
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -373,157 +414,22 @@ limitations under the License.
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>2.0.1.RELEASE</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
-    <profiles>
-        <profile>
-            <id>runAjsc</id>
-            <build>
-                <defaultGoal>initialize</defaultGoal>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <version>1.3.2</version>
-                        <executions>
-                            <execution>
-                                <phase>initialize</phase>
-                                <goals>
-                                    <goal>java</goal>
-                                </goals>
-                                <configuration>
-                                    <includeProjectDependencies>false</includeProjectDependencies>
-                                    <includePluginDependencies>true</includePluginDependencies>
-                                    <executable>java</executable>
-                                    <mainClass>com.att.ajsc.runner.Runner</mainClass>
-                                    <executableDependency>
-                                        <groupId>com.att.ajsc</groupId>
-                                        <artifactId>ajsc-runner</artifactId>
-                                    </executableDependency>
-                                    <additionalClasspathElements>
-                                        <additionalClasspathElement>
-                                            ${basedir}/ajsc-shared-config/etc
-                                        </additionalClasspathElement>
-                                    </additionalClasspathElements>
-
-                                    <environmentVariables>
-                                        <AJSC_HOME>${runAjscHome}</AJSC_HOME>
-                                    </environmentVariables>
-
-                                    <!-- Main AJSC System Properties below (necessary for proper startup) -->
-                                    <systemProperties>
-                                        <systemProperty>
-                                            <key>AJSC_HOME</key>
-                                            <value>${runAjscHome}</value>
-                                        </systemProperty>
-                                        <systemProperty>
-                                            <key>CONFIG_HOME</key>
-                                            <value>${basedir}/appconfig-local/</value>
-                                        </systemProperty>
-                                        <systemProperty>
-                                            <key>AJSC_CONF_HOME</key>
-                                            <value>${basedir}/bundleconfig-local</value>
-                                        </systemProperty>
-                                        <systemProperty>
-                                            <key>logback.configurationFile</key>
-                                            <value>${basedir}/ajsc-shared-config/etc/logback.xml
-                                            </value>
-                                        </systemProperty>
-                                        <systemProperty>
-                                            <key>AJSC_SHARED_CONFIG</key>
-                                            <value>${basedir}/ajsc-shared-config</value>
-                                        </systemProperty>
-
-                                        <sysproperty>
-                                            <key>AJSC_EXTERNAL_LIB_FOLDERS</key>
-                                            <value>${basedir}/target/commonLibs</value>
-                                        </sysproperty>
-                                        <sysproperty>
-                                            <key>AJSC_EXTERNAL_PROPERTIES_FOLDERS</key>
-                                            <value>${basedir}/ajsc-shared-config/etc</value>
-                                        </sysproperty>
-
-                                        <systemProperty>
-                                            <key>AJSC_SERVICE_NAMESPACE</key>
-                                            <value>${module.ajsc.namespace.name}</value>
-                                        </systemProperty>
-                                        <systemProperty>
-                                            <key>AJSC_SERVICE_VERSION</key>
-                                            <value>${module.ajsc.namespace.version}</value>
-                                        </systemProperty>
-                                        <systemProperty>
-                                            <key>SOACLOUD_SERVICE_VERSION</key>
-                                            <value>${project.version}</value>
-                                        </systemProperty>
-                                        <systemProperty>
-                                            <key>server.port</key>
-                                            <value>${serverPort}</value>
-                                        </systemProperty>
-                                    </systemProperties>
-
-                                    <!-- Command Line Arguments to add to the java command. Here, you
-                                        can specify the port as well as the Context you want your service to run
-                                        in. Use context=/ to run in an unnamed Context (Root Context). The default
-                                        configuration of the AJSC is to run under the / Context. Setting the port
-                                        here can aid during the development phase of your service. However, you can
-                                        leave this argument out entirely, and the AJSC will default to using an Ephemeral
-                                        port. -->
-                                    <arguments>
-                                        <argument>context=/</argument>
-                                        <argument>port=${serverPort}</argument>
-                                        <argument>sslport=${sslport}</argument>
-                                    </arguments>
-                                </configuration>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <executable>java</executable>
-                        </configuration>
-                        <dependencies>
-                            <dependency>
-                                <groupId>com.att.ajsc</groupId>
-                                <artifactId>ajsc-runner</artifactId>
-                                <version>${ajscRuntimeVersion}</version>
-                            </dependency>
-                        </dependencies>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.apache.httpcomponents</groupId>
-                <artifactId>httpclient</artifactId>
-                <version>4.5</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.httpcomponents</groupId>
-                <artifactId>httpcore</artifactId>
-                <version>4.4.1</version>
-            </dependency>
-            <dependency>
-                <groupId>org.json</groupId>
-                <artifactId>json</artifactId>
-                <version>20131018</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <distributionManagement>
-        <repository>
-            <id>ecomp-releases</id>
-            <name>ECOMP Release Repository</name>
-            <url>${nexusproxy}/content/repositories/releases/</url>
-        </repository>
-        <snapshotRepository>
-            <id>ecomp-snapshots</id>
-            <name>ECOMP Snapshot Repository</name>
-            <url>${nexusproxy}/content/repositories/snapshots/</url>
-        </snapshotRepository>
         <site>
             <id>ecomp-javadoc</id>
             <url>dav:https://ecomp-nexus:8443/repository/aai/gizmo-javadoc/${project.version}</url>
