@@ -39,16 +39,8 @@ limitations under the License.
     <properties>
         <docker.location>${basedir}/target</docker.location>
         <onap.nexus.url>https://nexus.onap.org</onap.nexus.url>
-
         <testRouteOffer>workstation</testRouteOffer>
         <testEnv>DEV</testEnv>
-
-        <sonar.language>java</sonar.language>
-        <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
-        <sonar.surefire.reportsPath>${project.build.directory}/surefire-reports</sonar.surefire.reportsPath>
-        <sonar.jacoco.reportPath>${project.build.directory}/coverage-reports/jacoco.exec</sonar.jacoco.reportPath>
-        <sonar.jacoco.reportMissing.force.zero>false</sonar.jacoco.reportMissing.force.zero>
-        <sonar.projectVersion>${project.version}</sonar.projectVersion>
         <version.org.hamcrest.hamcrest-library>1.3</version.org.hamcrest.hamcrest-library>
     </properties>
 
@@ -378,7 +370,6 @@ limitations under the License.
                 </executions>
             </plugin>
 
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
@@ -407,34 +398,6 @@ limitations under the License.
                 <configuration>
                     <skip>true</skip>
                 </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>sonar-maven-plugin</artifactId>
-                <version>3.2</version>
-            </plugin>
-
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.7.7.201606060606</version>
-                <configuration>
-                    <dumpOnExit>true</dumpOnExit>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>jacoco-initialize-unit-tests</id>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                        <configuration>
-                            <destFile>${project.build.directory}/coverage-reports/jacoco.exec
-                            </destFile>
-                            <!-- <append>true</append> -->
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
