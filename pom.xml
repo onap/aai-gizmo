@@ -70,10 +70,10 @@ limitations under the License.
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
             <exclusions>
-            	<exclusion>
-            		<groupId>ch.qos.logback</groupId>
-            		<artifactId>logback-classic</artifactId>
-            	</exclusion>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -105,6 +105,11 @@ limitations under the License.
                 </exclusion>
             </exclusions>
         </dependency> 
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-access</artifactId>
+            <version>1.2.3</version>
+        </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
