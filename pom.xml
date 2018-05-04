@@ -181,17 +181,17 @@ limitations under the License.
         <dependency>
             <groupId>org.onap.aai.aai-common</groupId>
             <artifactId>aai-schema</artifactId>
-            <version>1.2.3</version>
+            <version>1.2.4</version>
         </dependency>
         <dependency>
             <groupId>org.onap.aai.aai-common</groupId>
             <artifactId>aai-utils</artifactId>
-            <version>1.2.3</version>
+            <version>1.2.4</version>
         </dependency>
         <dependency>
             <groupId>org.onap.aai.aai-common</groupId>
             <artifactId>aai-core</artifactId>
-            <version>1.2.3</version>
+            <version>1.2.4</version>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>
@@ -202,7 +202,7 @@ limitations under the License.
         <dependency>
             <groupId>org.onap.aai.aai-common</groupId>
             <artifactId>aai-auth</artifactId>
-            <version>1.2.3</version>
+            <version>1.2.4</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.persistence</groupId>
