@@ -175,7 +175,7 @@ limitations under the License.
         <dependency>
             <groupId>org.onap.aai.event-client</groupId>
             <artifactId>event-client-dmaap</artifactId>
-            <version>1.2.1</version>
+            <version>1.2.2</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
