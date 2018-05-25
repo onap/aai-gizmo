@@ -1,6 +1,6 @@
 #!/bin/bash
 
-APP_HOME="/opt/app/crud-api/"
+APP_HOME="/opt/app/crud-api"
 
 if [ -z "$CONFIG_HOME" ]; then
 	echo "CONFIG_HOME must be set in order to start up process"
@@ -19,6 +19,7 @@ fi
 
 PROPS="-DAPP_HOME=$APP_HOME"
 PROPS="$PROPS -DCONFIG_HOME=$CONFIG_HOME"
+PROPS="$PROPS -Dlogging.config=$APP_HOME/bundleconfig/etc/logback.xml"
 PROPS="$PROPS -DKEY_STORE_PASSWORD=$KEY_STORE_PASSWORD"
 JVM_MAX_HEAP=${MAX_HEAP:-1024}
 
