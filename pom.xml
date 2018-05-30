@@ -328,6 +328,13 @@ limitations under the License.
                                     </includes>
                                 </resource>
                                 <resource>
+                                    <directory>${basedir}</directory>
+                                    <filtering>true</filtering>
+                                    <includes>
+                                        <include>bundleconfig-local/**</include>
+                                    </includes>
+                                </resource>
+                                <resource>
                                     <directory>${basedir}/src/main/bin/</directory>
                                 </resource>
                             </resources>
