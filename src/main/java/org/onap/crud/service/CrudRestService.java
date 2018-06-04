@@ -98,10 +98,7 @@ public class CrudRestService {
     logger.debug("Incoming request..." + content);
     Response response = null;
 
-    Map<String, String> params = new HashMap<String, String>();
-    for (Map.Entry<String, List<String>> e : uriInfo.getQueryParameters().entrySet()) {
-        params.put(e.getKey(), e.getValue().get(0));
-    }
+    Map<String, String> params = addParams ( uriInfo, false, type, version );
 
     try {
       if (validateRequest(req, uri, content, Action.GET, CrudServiceConstants.CRD_AUTH_POLICY_NAME, headers)) {
@@ -136,14 +133,7 @@ public class CrudRestService {
     try {
       if (validateRequest(req, uri, content, Action.GET, CrudServiceConstants.CRD_AUTH_POLICY_NAME, headers)) {
         String propertiesKey = CrudProperties.get(CrudServiceConstants.CRD_COLLECTION_PROPERTIES_KEY);
-
-        Map<String, String> filter = new HashMap<String, String>();
-
-        for (Map.Entry<String, List<String>> e : uriInfo.getQueryParameters().entrySet()) {
-          if (!e.getKey().equals(propertiesKey)) {
-            filter.put(e.getKey(), e.getValue().get(0));
-          }
-        }
+        Map<String, String> filter = addParams ( uriInfo, true, type, version );
 
         HashSet<String> properties;
         if (uriInfo.getQueryParameters().containsKey(propertiesKey)) {
@@ -180,10 +170,7 @@ public class CrudRestService {
     logger.debug("Incoming request..." + content);
     Response response = null;
 
-    Map<String, String> params = new HashMap<String, String>();
-    for (Map.Entry<String, List<String>> e : uriInfo.getQueryParameters().entrySet()) {
-        params.put(e.getKey(), e.getValue().get(0));
-    }
+    Map<String, String> params = addParams ( uriInfo, false, type, version );
 
     try {
       if (validateRequest(req, uri, content, Action.GET, CrudServiceConstants.CRD_AUTH_POLICY_NAME, headers)) {
@@ -215,12 +202,7 @@ public class CrudRestService {
 
     logger.debug("Incoming request..." + content);
     Response response = null;
-
-
-    Map<String, String> filter = new HashMap<String, String>();
-    for (Map.Entry<String, List<String>> e : uriInfo.getQueryParameters().entrySet()) {
-      filter.put(e.getKey(), e.getValue().get(0));
-    }
+    Map<String, String> filter = addParams ( uriInfo, true, type, version );
 
     try {
       if (validateRequest(req, uri, content, Action.GET, CrudServiceConstants.CRD_AUTH_POLICY_NAME, headers)) {
@@ -827,5 +809,24 @@ public class CrudRestService {
     // Clear the MDC context so that no other transaction inadvertently
     // uses our transaction id.
     MDC.clear();
+  }
+
+  private Map<String, String> addParams ( UriInfo info, boolean filter, String type, String version ) {
+    String propertiesKey = CrudProperties.get ( CrudServiceConstants.CRD_COLLECTION_PROPERTIES_KEY );
+    Map<String, String> params = new HashMap<String, String> ();
+    params.put ( CrudServiceConstants.CRD_RESERVED_VERSION, version );
+    params.put ( CrudServiceConstants.CRD_RESERVED_NODE_TYPE, type );
+    if (filter) {
+      for (Map.Entry<String, List<String>> e : info.getQueryParameters ().entrySet ()) {
+        if (!e.getKey ().equals ( propertiesKey )) {
+          params.put ( e.getKey (), e.getValue ().get ( 0 ) );
+        }
+      }
+    } else {
+      for (Map.Entry<String, List<String>> e : info.getQueryParameters ().entrySet ()) {
+        params.put ( e.getKey (), e.getValue ().get ( 0 ) );
+      }
+    }
+    return params;
   }
 }

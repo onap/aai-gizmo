@@ -37,4 +37,6 @@ public class CrudServiceConstants {
   public static final String CRD_ASYNC_REQUEST_TIMEOUT = "crud.async.request.timeout";
   public static final String CRD_ASYNC_RESPONSE_PROCESS_POLL_INTERVAL  = "crud.async.response.process.poll.interval";
   public static final String CRD_COLLECTION_PROPERTIES_KEY = "crud.collection.properties.key";
+  public static final String CRD_RESERVED_VERSION = "_reserved_version";
+  public static final String CRD_RESERVED_NODE_TYPE = "_reserved_aai-type";
 }

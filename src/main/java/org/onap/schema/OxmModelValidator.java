@@ -32,6 +32,7 @@ import org.eclipse.persistence.oxm.XMLField;
 import org.onap.aaiutils.oxm.OxmModelLoader;
 import org.onap.crud.entity.Vertex;
 import org.onap.crud.exception.CrudException;
+import org.onap.crud.util.CrudServiceConstants;
 import org.onap.crud.util.CrudServiceUtil;
 
 import java.util.HashMap;
@@ -87,6 +88,10 @@ public class OxmModelValidator {
     final DynamicType reservedObjectType = jaxbContext.getDynamicType("ReservedPropNames");
 
     for (String key : filter.keySet()) {
+        if ((key == CrudServiceConstants.CRD_RESERVED_VERSION )  || key == CrudServiceConstants.CRD_RESERVED_NODE_TYPE ) {
+          result.put ( key, filter.get ( key ) );
+          continue;
+        }
       String keyJavaName = CaseFormat.LOWER_HYPHEN.to(CaseFormat.LOWER_CAMEL, key);
       DatabaseMapping mapping = modelObjectType.getDescriptor().getMappingForAttributeName(keyJavaName);
 
