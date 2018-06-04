@@ -2,7 +2,7 @@
   <!--<jmxConfigurator /> -->
   <!-- directory path for all other type logs -->
   
-  <property name="logDir"  value="/var/log/onap" />
+  <property name="logDir"  value="${APP_HOME}/logs" />
   
   
   <!--  specify the component name 
@@ -145,8 +145,8 @@
   <logger name="org.springframework.web" level="WARN" />
   <logger name="com.blog.spring.jms" level="WARN" />
 
-  <!-- ARMAdapter Service loggers -->
-  <logger name="com.amdocs.aai.armadapter" level="INFO" />
+  <!-- CRUD Service loggers -->
+  <logger name="org.onap.crud" level="INFO" />
 
   <!-- Other Loggers that may help troubleshoot -->
   <logger name="net.sf" level="WARN" />
