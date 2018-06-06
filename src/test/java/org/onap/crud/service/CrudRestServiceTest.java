@@ -20,19 +20,19 @@
  */
 package org.onap.crud.service;
 
-import static org.junit.Assert.*;
-
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
-
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.onap.crud.exception.CrudException;
 import org.onap.schema.RelationshipSchemaLoader;
@@ -69,6 +69,9 @@ public class CrudRestServiceTest {
   
   private CrudRestService mockService;
   
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
   @Before
   public void init() throws Exception {
       ClassLoader classLoader = getClass().getClassLoader();
@@ -141,7 +144,7 @@ public class CrudRestServiceTest {
   @Test
   public void testUpdateVertex() throws CrudException {
     Response response;
-    
+
     // Test ID mismatch
     response = mockService.updateVertex(putVertexPayload, "v11", "pserver", "bad-id", 
         "services/inventory/v11", new TestHeaders(), null, new TestRequest());
@@ -202,6 +205,42 @@ public class CrudRestServiceTest {
     assertTrue(response.getStatus() == 200);
   }
   
+  @Test
+  public void testValidRequestHeader() throws CrudException {
+    TestHeaders testHeaders = new TestHeaders();
+    mockService.validateRequestHeader(testHeaders);
+  }
+
+  @Test
+  public void testInvalidRequestHeaderXTransactionId() throws CrudException {
+    thrown.expect(CrudException.class);
+    thrown.expectMessage("Invalid request, Missing X-TransactionId header");
+
+    TestHeaders testHeaders = new TestHeaders();
+    testHeaders.clearRequestHeader("X-TransactionId");
+    mockService.validateRequestHeader(testHeaders);
+  }
+
+  @Test
+  public void testInvalidRequestHeaderXFromAppId() throws CrudException {
+    thrown.expect(CrudException.class);
+    thrown.expectMessage("Invalid request, Missing X-FromAppId header");
+
+    TestHeaders testHeaders = new TestHeaders();
+    testHeaders.clearRequestHeader("X-FromAppId");
+    mockService.validateRequestHeader(testHeaders);
+  }
+
+  @Test
+  public void testEmptyRequestHeader() throws CrudException {
+    thrown.expect(CrudException.class);
+    thrown.expectMessage("Invalid request, Missing X-FromAppId header");
+
+    TestHeaders testHeaders = new TestHeaders();
+    testHeaders.clearRequestHeader("X-TransactionId", "X-FromAppId");
+    mockService.validateRequestHeader(testHeaders);
+  }
+
   @Test
   public void testBulk() throws CrudException, IOException {
     Response response;

@@ -790,16 +790,29 @@ public class CrudRestService {
       return false;
     }
 
-    String sourceOfTruth = null;
-    if (headers.getRequestHeaders().containsKey("X-FromAppId")) {
-      sourceOfTruth = headers.getRequestHeaders().getFirst("X-FromAppId");
-    }
-
-    if (sourceOfTruth == null || sourceOfTruth.trim() == "") {
-      throw new CrudException("Invalid request, Missing X-FromAppId header", Status.BAD_REQUEST);
-    }
-
+    validateRequestHeader(headers);
+    
     return isValid;
+  }
+  
+  public void validateRequestHeader(HttpHeaders headers) throws CrudException {
+      String sourceOfTruth = null;
+      if (headers.getRequestHeaders().containsKey("X-FromAppId")) {
+        sourceOfTruth = headers.getRequestHeaders().getFirst("X-FromAppId");
+      }
+
+      if (sourceOfTruth == null || sourceOfTruth.trim() == "") {
+        throw new CrudException("Invalid request, Missing X-FromAppId header", Status.BAD_REQUEST);
+      }
+      
+      String transId = null;
+      if (headers.getRequestHeaders().containsKey("X-TransactionId")) {
+          transId = headers.getRequestHeaders().getFirst("X-TransactionId");
+      }
+
+      if (transId == null || transId.trim() == "") {
+        throw new CrudException("Invalid request, Missing X-TransactionId header", Status.BAD_REQUEST);
+      }
   }
 
   void logResult(Action op, String uri, Exception e) {

@@ -33,6 +33,14 @@ import javax.ws.rs.core.MultivaluedMap;
 
 public class TestHeaders implements HttpHeaders {
 
+  private MultivaluedMap<String, String> headers;
+
+  public TestHeaders() {
+    headers = new MultivaluedHashMap<String, String>();
+    headers.add("X-FromAppId", "test-app");
+    headers.add("X-TransactionId", "65f7e29c-57fd-45b2-bfd5-19e25c59110e");
+  }
+
   @Override
   public List<Locale> getAcceptableLanguages() {
     return null;
@@ -82,10 +90,13 @@ public class TestHeaders implements HttpHeaders {
 
   @Override
   public MultivaluedMap<String, String> getRequestHeaders() {
-    MultivaluedMap<String, String> map = new MultivaluedHashMap<String, String>();
-    map.add("X-FromAppId", "test-app");
-    map.add("X-TransactionId", "65f7e29c-57fd-45b2-bfd5-19e25c59110e");
-    return map;
+    return headers;
+  }
+
+  public void clearRequestHeader(String... keys) {
+      for (String key : keys) {
+          headers.remove(key);
+      }
   }
 
 }
