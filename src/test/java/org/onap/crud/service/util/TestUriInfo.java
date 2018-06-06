@@ -18,7 +18,7 @@
  * limitations under the License.
  * ============LICENSE_END=========================================================
  */
-package org.onap.crud.service;
+package org.onap.crud.service.util;
 
 import java.net.URI;
 import java.util.List;

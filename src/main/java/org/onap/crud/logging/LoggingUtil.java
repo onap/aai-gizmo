@@ -37,21 +37,29 @@ public class LoggingUtil {
    */
   public static void initMdcContext(HttpServletRequest httpReq, HttpHeaders headers) {
     String fromIp = httpReq.getRemoteAddr();
-    String fromAppId = "";
-    String transId = null;
 
-    if (headers.getRequestHeaders().getFirst("X-FromAppId") != null) {
+    MdcContext.initialize(getTransactionId(headers), CrudServiceConstants.CRD_SERVICE_NAME, "", getAppId(headers), fromIp);
+  }
+  
+  public static String getAppId(HttpHeaders headers) {
+    String fromAppId = "";
+    if (headers.getRequestHeaders().getFirst("X-FromMsId") != null) {
+      fromAppId = headers.getRequestHeaders().getFirst("X-FromMsId");
+    } else if (headers.getRequestHeaders().getFirst("X-FromAppId") != null) {
       fromAppId = headers.getRequestHeaders().getFirst("X-FromAppId");
     }
-
+    return fromAppId;
+  }
+  
+  public static String getTransactionId(HttpHeaders headers) {
+    String transId = null;
     if ((headers.getRequestHeaders().getFirst("X-TransactionId") == null)
-        || headers.getRequestHeaders().getFirst("X-TransactionId").isEmpty()) {
+      || headers.getRequestHeaders().getFirst("X-TransactionId").isEmpty()) {
       transId = java.util.UUID.randomUUID().toString();
     } else {
       transId = headers.getRequestHeaders().getFirst("X-TransactionId");
     }
-
-    MdcContext.initialize(transId, CrudServiceConstants.CRD_SERVICE_NAME, "", fromAppId, fromIp);
+    return transId;
   }
 
   /**

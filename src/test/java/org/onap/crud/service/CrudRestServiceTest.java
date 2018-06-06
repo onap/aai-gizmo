@@ -34,7 +34,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
+import org.onap.crud.dao.TestDao;
 import org.onap.crud.exception.CrudException;
+import org.onap.crud.service.util.TestHeaders;
+import org.onap.crud.service.util.TestRequest;
+import org.onap.crud.service.util.TestUriInfo;
 import org.onap.schema.RelationshipSchemaLoader;
 
 
@@ -231,6 +235,16 @@ public class CrudRestServiceTest {
     mockService.validateRequestHeader(testHeaders);
   }
 
+  @Test
+  public void testRequestHeaderWithMsId() throws CrudException {
+    thrown.expect(CrudException.class);
+    thrown.expectMessage("Invalid request, Missing X-FromAppId header");
+
+    TestHeaders testHeaders = new TestHeaders();
+    testHeaders.clearRequestHeader("X-TransactionId", "X-FromAppId");
+    mockService.validateRequestHeader(testHeaders);
+  }
+  
   @Test
   public void testEmptyRequestHeader() throws CrudException {
     thrown.expect(CrudException.class);

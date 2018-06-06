@@ -18,7 +18,7 @@
  * limitations under the License.
  * ============LICENSE_END=========================================================
  */
-package org.onap.crud.service;
+package org.onap.crud.service.util;
 
 import java.util.Date;
 import java.util.List;
@@ -37,8 +37,9 @@ public class TestHeaders implements HttpHeaders {
 
   public TestHeaders() {
     headers = new MultivaluedHashMap<String, String>();
-    headers.add("X-FromAppId", "test-app");
-    headers.add("X-TransactionId", "65f7e29c-57fd-45b2-bfd5-19e25c59110e");
+    headers.add("X-FromMsId", "sending-service");
+    headers.add("X-FromAppId", "source-of-truth");
+    headers.add("X-TransactionId", "1234567890");
   }
 
   @Override

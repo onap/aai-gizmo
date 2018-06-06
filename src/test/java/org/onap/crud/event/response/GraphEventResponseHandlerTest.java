@@ -24,7 +24,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
 import org.onap.crud.event.envelope.GraphEventEnvelope;
-import org.onap.crud.test.util.TestUtil;
+import org.onap.crud.util.TestUtil;
 import com.google.gson.Gson;
 
 public class GraphEventResponseHandlerTest {

@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.onap.crud.entity.Vertex;
 import org.onap.crud.event.GraphEvent.GraphEventOperation;
 import org.onap.crud.event.envelope.GraphEventEnvelope;
-import org.onap.crud.test.util.TestUtil;
+import org.onap.crud.util.TestUtil;
 import org.skyscreamer.jsonassert.Customization;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;

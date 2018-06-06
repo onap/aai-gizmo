@@ -18,7 +18,7 @@
  * limitations under the License.
  * ============LICENSE_END=========================================================
  */
-package org.onap.crud.service;
+package org.onap.crud.service.util;
 
 import java.io.BufferedReader;
 import java.io.IOException;

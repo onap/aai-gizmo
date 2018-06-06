@@ -18,7 +18,7 @@
  * limitations under the License.
  * ============LICENSE_END=========================================================
  */
-package org.onap.crud.test.util;
+package org.onap.crud.util;
 
 import java.io.File;
 import java.io.IOException;
