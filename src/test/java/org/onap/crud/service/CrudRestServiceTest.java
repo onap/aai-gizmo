@@ -26,9 +26,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -78,9 +81,10 @@ public class CrudRestServiceTest {
 
   @Before
   public void init() throws Exception {
-      ClassLoader classLoader = getClass().getClassLoader();
-      File dir = new File(classLoader.getResource("model").getFile());
-      System.setProperty("CONFIG_HOME", dir.getParent());
+      Path resourcePath = Paths.get(ClassLoader.getSystemResource("model").toURI());
+      Path parentPath = resourcePath.getParent();
+
+      System.setProperty("CONFIG_HOME", parentPath.toString());
       RelationshipSchemaLoader.resetVersionContextMap();
       
       CrudGraphDataService service = new CrudGraphDataService(new TestDao());
@@ -100,7 +104,8 @@ public class CrudRestServiceTest {
         "services/inventory/v11", new TestHeaders(), null, new TestRequest());
     assertTrue(response.getStatus() == 200);
     
-    response = mockService.deleteEdge("", "v11", "tosca.relationships.HostedOn", "872dd5df-0be9-4167-95e9-2cf4b21165ed", 
+        response = mockService.deleteEdge("", "v11", "tosca.relationships.HostedOn",
+                "872dd5df-0be9-4167-95e9-2cf4b21165ed",
         "services/inventory/v11", new TestHeaders(), null, new TestRequest());
     assertTrue(response.getStatus() == 200);
   }
@@ -109,6 +114,13 @@ public class CrudRestServiceTest {
   public void testAddVertex() throws CrudException {
     Response response;
     
+	// Cannot find OXM version
+    response = mockService.addVertex(postVertexPayload, "v8", "services/inventory/v8",
+            new TestHeaders(), null, new TestRequest());
+    System.out.println("Response: " + response.getStatus() + "\n" + response.getEntity().toString());
+    assertTrue(response.getStatus() == 500);
+    Assert.assertNull(response.getEntityTag());
+	
     response = mockService.addVertex(postMissingPropVertexPayload, "v11", "services/inventory/v11", 
         new TestHeaders(), null, new TestRequest());
     System.out.println("Response: " + response.getStatus() + "\n" + response.getEntity().toString());
@@ -149,6 +161,13 @@ public class CrudRestServiceTest {
   public void testUpdateVertex() throws CrudException {
     Response response;
 
+	// Cannot find OXM version
+    response = mockService.updateVertex(putVertexPayload, "v8", "pserver", "test-uuid", "services/inventory/v8",
+            new TestHeaders(), null, new TestRequest());
+    System.out.println("Response: " + response.getStatus() + "\n" + response.getEntity().toString());
+    assertTrue(response.getStatus() == 500);
+    Assert.assertNull(response.getEntityTag());
+	
     // Test ID mismatch
     response = mockService.updateVertex(putVertexPayload, "v11", "pserver", "bad-id", 
         "services/inventory/v11", new TestHeaders(), null, new TestRequest());
@@ -156,8 +175,8 @@ public class CrudRestServiceTest {
     assertTrue(response.getStatus() == 400);  
     
     // Success case
-    response = mockService.updateVertex(putVertexPayload, "v11", "pserver", "test-uuid", 
-        "services/inventory/v11", new TestHeaders(), null, new TestRequest());
+    response = mockService.updateVertex(putVertexPayload, "v11", "pserver", "test-uuid", "services/inventory/v11",
+                new TestHeaders(), null, new TestRequest());
     System.out.println("Response: " + response.getStatus() + "\n" + response.getEntity().toString());
     assertTrue(response.getStatus() == 200);  
     
@@ -255,6 +274,32 @@ public class CrudRestServiceTest {
     mockService.validateRequestHeader(testHeaders);
   }
 
+  @Test
+    public void testGetMultiOxm() throws CrudException {
+        Response response;
+
+        response = mockService.getVertex("", "v13", "pserver", "872dd5df-0be9-4167-95e9-2cf4b21165ed",
+                "services/inventory/v11", new TestHeaders(), new TestUriInfo(), new TestRequest());
+        System.out.println("Response: " + response.getStatus() + "\n" + response.getEntity().toString());
+        assertTrue(response.getStatus() == 200);
+
+        response =
+                mockService.getEdge("", "v11", "tosca.relationships.HostedOn", "872dd5df-0be9-4167-95e9-2cf4b21165ed",
+                        "services/inventory/v11", new TestHeaders(), new TestUriInfo(), new TestRequest());
+        System.out.println("Response: " + response.getStatus() + "\n" + response.getEntity().toString());
+        assertTrue(response.getStatus() == 200);
+
+        response = mockService.getVertices("", "v13", "pserver", "services/inventory/v11", new TestHeaders(),
+                new TestUriInfo(), new TestRequest());
+        System.out.println("Response: " + response.getStatus() + "\n" + response.getEntity().toString());
+        assertTrue(response.getStatus() == 200);
+
+        response = mockService.getEdges("", "v11", "tosca.relationships.HostedOn", "services/inventory/v11",
+                new TestHeaders(), new TestUriInfo(), new TestRequest());
+        System.out.println("Response: " + response.getStatus() + "\n" + response.getEntity().toString());
+        assertTrue(response.getStatus() == 200);
+    }
+  
   @Test
   public void testBulk() throws CrudException, IOException {
     Response response;

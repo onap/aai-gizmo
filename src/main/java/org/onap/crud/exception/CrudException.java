@@ -30,6 +30,10 @@ public class CrudException extends Exception {
 
     public CrudException() {}
 
+    public CrudException(String message) {
+        super(message);
+    }
+
     public CrudException(String message, Status httpStatus) {
         super(message);
         this.setHttpStatus(httpStatus);

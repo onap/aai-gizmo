@@ -41,9 +41,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
 import javax.ws.rs.core.Response.Status;
-
 import org.apache.commons.io.IOUtils;
 import org.onap.aai.cl.eelf.LoggerFactory;
 import org.onap.crud.exception.CrudException;
@@ -125,8 +123,8 @@ public class RelationshipSchemaLoader {
         rulesFiles.add(file);
         existingFiles.add(filename(file));
       }
-      
-      // Get DBEdgeRules from the jar on the classpath.  Don't include any that conflict with files which 
+
+      // Get DBEdgeRules from the jar on the classpath.  Don't include any that conflict with files which
       // were dropped manually.
       Resource[] rawResourceList = rulesResolver.getResources("classpath*:/dbedgerules/DbEdgeRules*" + fileExt);
       List<Resource> prunedResourceList = new ArrayList<Resource>();
@@ -135,10 +133,10 @@ public class RelationshipSchemaLoader {
           prunedResourceList.add(resource);
         }
       }
-      
+
       rulesFiles.addAll(Arrays.stream(prunedResourceList.toArray(new Resource[prunedResourceList.size()]))
           .filter(r -> !myMatcher(rulesPattern, r.getFilename()).isEmpty()).collect(Collectors.toList()));
-      
+
       // This gets all the objects of type "File" from external directory (not
       // on the classpath)
       // 1. From an external directory (one not on the classpath) we get all the

@@ -194,6 +194,11 @@ limitations under the License.
             <artifactId>aai-schema</artifactId>
             <version>1.3.0-SNAPSHOT</version>
         </dependency>
+		<dependency>
+            <groupId>org.onap.aai.aai-common</groupId>
+            <artifactId>aai-schema-ingest</artifactId>
+            <version>1.2.2</version>
+        </dependency>
         <dependency>
             <groupId>org.onap.aai.aai-common</groupId>
             <artifactId>aai-utils</artifactId>
@@ -433,6 +438,31 @@ limitations under the License.
                         <goals>
                             <goal>repackage</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+			<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.onap.aai.aai-common</groupId>
+                                    <artifactId>aai-schema</artifactId>
+                                    <version>1.2.1</version>
+                                    <type>jar</type>
+                                    <includes>oxm/</includes>
+                                    <outputDirectory>${project.build.directory}/bundleconfig-local/etc</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

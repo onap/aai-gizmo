@@ -21,8 +21,8 @@
 package org.onap.crud.util;
 
 import org.onap.aai.db.props.AAIProperties;
-import org.onap.aaiutils.oxm.OxmModelLoader;
 import org.onap.crud.exception.CrudException;
+import org.onap.schema.OxmModelLoader;
 import org.onap.schema.RelationshipSchemaLoader;
 
 import com.google.gson.Gson;
@@ -41,6 +41,8 @@ import javax.ws.rs.core.Response.Status;
 public class CrudServiceUtil {
 
   private static Gson gson = new Gson();
+  
+  @SuppressWarnings({"unchecked", "rawtypes"})
   public static Object validateFieldType(String value, Class clazz) throws CrudException {
     try {
       if (clazz.isAssignableFrom(Integer.class)) {
@@ -88,7 +90,9 @@ public class CrudServiceUtil {
    * @param isAdd
    * @return
    */
-  public static JsonElement mergeHeaderInFoToPayload(JsonElement propertiesFromRequest,  HttpHeaders headers, boolean isAdd) {
+    @SuppressWarnings("unchecked")
+    public static JsonElement mergeHeaderInFoToPayload(JsonElement propertiesFromRequest, HttpHeaders headers,
+            boolean isAdd) {
     String sourceOfTruth = headers.getRequestHeaders().getFirst("X-FromAppId");  
     Set<Map.Entry<String, JsonElement>> properties = new HashSet<Map.Entry<String, JsonElement>>();
     properties.addAll(propertiesFromRequest.getAsJsonObject().entrySet());

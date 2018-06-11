@@ -120,7 +120,12 @@ public enum CrudServiceMsgs implements LogMessageEnum {
   /**
    * Arguments: {0} Opertaion {1} URI {2} = Exception
    */
-  EXCEPTION_DURING_METHOD_CALL;
+  EXCEPTION_DURING_METHOD_CALL,
+    
+  /**
+   * Schema Ingest properties file was not loaded properly
+   */
+  SCHEMA_INGEST_LOAD_ERROR;
 
   /**
    * Static initializer to ensure the resource bundles for this class are

@@ -20,27 +20,29 @@
  */
 package org.onap.schema;
 
-import com.google.common.base.CaseFormat;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
-
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import javax.ws.rs.core.Response.Status;
 import org.eclipse.persistence.dynamic.DynamicType;
 import org.eclipse.persistence.internal.helper.DatabaseField;
 import org.eclipse.persistence.jaxb.dynamic.DynamicJAXBContext;
 import org.eclipse.persistence.mappings.DatabaseMapping;
 import org.eclipse.persistence.oxm.XMLField;
-import org.onap.aaiutils.oxm.OxmModelLoader;
+import org.onap.aai.cl.api.Logger;
+import org.onap.aai.cl.eelf.LoggerFactory;
 import org.onap.crud.entity.Vertex;
 import org.onap.crud.exception.CrudException;
+import org.onap.crud.logging.CrudServiceMsgs;
 import org.onap.crud.util.CrudServiceConstants;
 import org.onap.crud.util.CrudServiceUtil;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import javax.ws.rs.core.Response.Status;
+import com.google.common.base.CaseFormat;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 
 public class OxmModelValidator {
+  private static Logger logger = LoggerFactory.getInstance().getLogger(OxmModelValidator.class.getName());
+	
   public enum Metadata {
     NODE_TYPE("aai-node-type"),
     URI("aai-uri"),
@@ -81,7 +83,8 @@ public class OxmModelValidator {
 
     Map<String, Object> result = new HashMap<String, Object>();
     if (jaxbContext == null) {
-      throw new CrudException("", Status.NOT_FOUND);
+      logger.error(CrudServiceMsgs.OXM_LOAD_ERROR, "Error loading oxm model: " + version);
+      throw new CrudException("Error loading oxm model: " + version, Status.NOT_FOUND);
     }
     final DynamicType modelObjectType = jaxbContext.getDynamicType(
         CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, CaseFormat.LOWER_HYPHEN.to(CaseFormat.UPPER_CAMEL, type)));
@@ -120,12 +123,15 @@ public class OxmModelValidator {
     DynamicJAXBContext jaxbContext = null;
     try {
       jaxbContext = OxmModelLoader.getContextForVersion(version);
+    } catch (CrudException ce) {
+      throw new CrudException(ce.getMessage(), ce.getHttpStatus());
     } catch (Exception e) {
       throw new CrudException(e);
     }
 
     if (jaxbContext == null) {
-      throw new CrudException("", Status.NOT_FOUND);
+      logger.error(CrudServiceMsgs.OXM_LOAD_ERROR, "Error loading oxm model: " + version);
+      throw new CrudException("Error loading oxm model: " + version, Status.NOT_FOUND);
     }
     // Determine if the Object part is a collection type in the model
     // definition
@@ -133,7 +139,8 @@ public class OxmModelValidator {
         CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, CaseFormat.LOWER_HYPHEN.to(CaseFormat.UPPER_CAMEL, type)));
 
     if (modelObjectType == null) {
-      throw new CrudException("", Status.NOT_FOUND);
+      logger.error(CrudServiceMsgs.INVALID_OXM_FILE, "Object of collection type not found: " + type);
+      throw new CrudException("Object of collection type not found: " + type, Status.NOT_FOUND);
     }
 
     if (modelObjectType.getDescriptor().getMappings().size() == 1
@@ -142,9 +149,9 @@ public class OxmModelValidator {
       childJavaObjectName = CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, childJavaObjectName);
       final DynamicType childObjectType = jaxbContext.getDynamicType(childJavaObjectName);
       if (childObjectType == null) {
-        // Should not happen as child object is defined in oxm model
-        // itself
-        throw new CrudException("", Status.NOT_FOUND);
+        // Should not happen as child object is defined in oxm model itself
+        logger.error(CrudServiceMsgs.INVALID_OXM_FILE, "Child Object Type for Java Object not found: " + childJavaObjectName);
+        throw new CrudException("Child Object Type for Java Object not found: " + childJavaObjectName, Status.NOT_FOUND);
       }
       return childObjectType.getDescriptor().getTableName();
     } else {
@@ -231,6 +238,8 @@ public class OxmModelValidator {
       }
 
       return modelVertexBuilder.build();
+    } catch (CrudException ce) {
+      throw new CrudException(ce.getMessage(), ce.getHttpStatus());
     } catch (Exception e) {
       throw new CrudException(e.getMessage(), Status.BAD_REQUEST);
     }

@@ -23,7 +23,8 @@ package org.onap.schema;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,10 +35,10 @@ import org.onap.crud.exception.CrudException;
 public class RelationshipSchemaLoaderTest {
 
     @Before
-    public void init() {
-        ClassLoader classLoader = getClass().getClassLoader();
-        File dir = new File(classLoader.getResource( "model").getFile());
-        System.setProperty("CONFIG_HOME", dir.getParent());
+    public void init() throws Exception {
+        Path resourcePath = Paths.get(ClassLoader.getSystemResource("model").toURI());
+        Path parentPath = resourcePath.getParent();
+        System.setProperty("CONFIG_HOME", parentPath.toString());
         RelationshipSchemaLoader.resetVersionContextMap();
     }
 
