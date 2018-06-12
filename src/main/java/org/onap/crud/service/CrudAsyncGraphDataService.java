@@ -202,6 +202,7 @@ public class CrudAsyncGraphDataService extends AbstractGraphDataService {
     public String addVertex(String version, String type, VertexPayload payload) throws CrudException {
         // Validate the incoming payload
         Vertex vertex = OxmModelValidator.validateIncomingUpsertPayload(null, version, type, payload.getProperties());
+        vertex.getProperties().put(org.onap.schema.OxmModelValidator.Metadata.NODE_TYPE.propertyName(), type);
         // Create graph request event
         GraphEvent event = GraphEvent.builder(GraphEventOperation.CREATE)
                 .vertex(GraphEventVertex.fromVertex(vertex, version)).build();
