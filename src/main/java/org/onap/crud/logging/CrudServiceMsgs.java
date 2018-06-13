@@ -46,6 +46,14 @@ public enum CrudServiceMsgs implements LogMessageEnum {
   LOADED_OXM_FILE,
 
   /**
+   * Successfully loaded Edge Properties Files: {0}
+   *
+   * <p>
+   * Arguments: {0} = oxm filename
+   */
+  LOADED_DB_RULE_FILE,
+
+  /**
    * Unable to load OXM schema: {0}
    *
    * <p>

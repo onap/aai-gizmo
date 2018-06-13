@@ -461,6 +461,15 @@ limitations under the License.
                                     <includes>oxm/</includes>
                                     <outputDirectory>${project.build.directory}/bundleconfig-local/etc</outputDirectory>
                                 </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.onap.aai.aai-common</groupId>
+                                    <artifactId>aai-core</artifactId>
+                                    <version>1.2.1</version>
+                                    <type>jar</type>
+                                    <includes>dbedgerules/</includes>
+                                    <excludes>**/*.ftlh</excludes>
+                                    <outputDirectory>${project.build.directory}/bundleconfig-local/etc</outputDirectory>
+                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>

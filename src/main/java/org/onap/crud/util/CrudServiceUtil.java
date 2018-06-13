@@ -23,7 +23,7 @@ package org.onap.crud.util;
 import org.onap.aai.db.props.AAIProperties;
 import org.onap.crud.exception.CrudException;
 import org.onap.schema.OxmModelLoader;
-import org.onap.schema.RelationshipSchemaLoader;
+import org.onap.schema.EdgeRulesLoader;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -77,10 +77,10 @@ public class CrudServiceUtil {
     // load the schemas
     try {
       OxmModelLoader.loadModels();
+      EdgeRulesLoader.loadModels ();
     } catch (Exception e) {
       throw new CrudException(e);
     }
-    RelationshipSchemaLoader.loadModels();
   }
   
   /**

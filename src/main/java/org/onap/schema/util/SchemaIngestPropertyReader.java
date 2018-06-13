@@ -46,10 +46,36 @@ public class SchemaIngestPropertyReader {
      * Gets the location of the OXM
      *
      * @return
-     * @throws SpikeException
-     * @throws IOException
+     * @throws CrudException
      */
     public String getNodeDir() throws CrudException {
+
+        return getProps ().getProperty("nodeDir");
+    }
+
+    /**
+     * Gets the location of the Edge Rules
+     *
+     * @return
+     * @throws CrudException
+     */
+    public String getEdgeDir() throws CrudException {
+
+        return getProps ().getProperty("edgeDir");
+    }
+
+    /**
+     * Gets the location of the Edge Properties
+     *
+     * @return
+     * @throws CrudException
+     */
+    public String getEdgePropsDir() throws CrudException {
+
+        return getProps ().getProperty("edgePropsDir");
+    }
+
+    private Properties getProps() throws CrudException {
 
         Properties prop = new Properties();
         try {
@@ -66,7 +92,7 @@ public class SchemaIngestPropertyReader {
             logger.error(CrudServiceMsgs.SCHEMA_INGEST_LOAD_ERROR, e.getMessage());
             throw new CrudException("Failed to load schemaIngest.properties", e);
         }
-        return prop.getProperty("nodeDir");
+        return prop;
     }
 
     private Properties loadFromFile(String filename) throws IOException {

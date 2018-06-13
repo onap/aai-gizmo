@@ -20,128 +20,86 @@
  */
 package org.onap.schema;
 
-import org.apache.commons.io.IOUtils;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import org.junit.Test;
+import org.onap.aai.edges.EdgeRule;
+import org.onap.aai.edges.exceptions.EdgeRuleNotFoundException;
 import org.onap.crud.exception.CrudException;
 
-import com.att.aft.dme2.internal.apache.commons.lang.ArrayUtils;
-
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Comparator;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
 public class RelationshipSchemaTest {
 
-    final static Pattern rulesFilePattern = Pattern.compile("DbEdgeRules(.*).json");
-    final static Pattern propsFilePattern = Pattern.compile("edge_properties_(.*).json");
-    final static Pattern versionPattern = Pattern.compile(".*(v\\d+).json");
-
-
     @Test
     public void shouldLoadAllTheVersionsInDirectory() throws Exception {
-        Map<String, RelationshipSchema> versionContextMap = new ConcurrentHashMap<>();
-        loadRelations(versionContextMap);
-        assertTrue(versionContextMap.keySet().size() >= 0);
+        RelationshipSchema rs = loadRelations();
+        assertTrue(!rs.lookupRelationType ("org.onap.some-relation"  ).isEmpty ());
     }
 
     @Test
     public void shouldContainValidTypes() throws Exception {
-        Map<String, RelationshipSchema> versionContextMap = new ConcurrentHashMap<>();
-        loadRelations(versionContextMap);
-        assertTrue(versionContextMap.get("v10").isValidType("groupsResourcesIn"));
-        assertTrue(versionContextMap.get("v10").isValidType("uses"));
-        assertFalse(versionContextMap.get("v10").isValidType("notValidType"));
+        RelationshipSchema rs = loadRelations();
+        assertTrue(rs.lookupRelationType ("org.onap.some-relation") != null);
+        assertTrue(rs.lookupRelationType("notValidType") == null);
     }
 
     @Test
     public void shouldLookUpByRelation() throws Exception {
-        Map<String, RelationshipSchema> versionContextMap = new ConcurrentHashMap<>();
-        loadRelations(versionContextMap);
-        assertNotNull(versionContextMap.get("v10").lookupRelation("availability-zone:complex:groupsResourcesIn"));
-        assertTrue(versionContextMap.get("v10")
-                .lookupRelation("availability-zone:complex:groupsResourcesIn").containsKey("prevent-delete"));
+        RelationshipSchema rs = loadRelations();
+        assertNotNull(rs.lookupRelation("service-instance:customer:org.onap.some-relation"));
     }
 
     @Test
     public void shouldLookUpByRelationType() throws Exception {
-        Map<String, RelationshipSchema> versionContextMap = new ConcurrentHashMap<>();
-        loadRelations(versionContextMap);
-        assertNotNull(versionContextMap.get("v10").lookupRelationType("groupsResourcesIn"));
-        assertTrue(versionContextMap.get("v10")
-                .lookupRelation("availability-zone:complex:groupsResourcesIn").containsKey("prevent-delete"));
+        RelationshipSchema rs = loadRelations();
+        assertNotNull(rs.lookupRelationType("org.onap.groupsResourcesIn"));
+        assertTrue(rs.lookupRelation("availability-zone:complex:org.onap.groupsResourcesIn").containsKey("prevent-delete"));
     }
 
-    private void loadRelations(Map<String, RelationshipSchema> map){
-        ClassLoader classLoader = getClass().getClassLoader();
-        File dir = new File(classLoader.getResource("model").getFile());
-        File[] allFiles = dir.listFiles((d, name) ->
-                (propsFilePattern.matcher(name).matches() || rulesFilePattern.matcher(name).matches()));
-        
-        // Special handling for the v12 file, as it is used for a special test
-        for (File f : allFiles) {
-          if (f.getName().equals("edge_properties_v11.json")) {
-            allFiles = (File[]) ArrayUtils.removeElement(allFiles, f);
-          }
-        }
-        
-        Arrays.stream(allFiles).sorted(Comparator.comparing(File::getName))
-                .collect(Collectors.groupingBy(f -> myMatcher(versionPattern, f.getName())))
-                .forEach((e, f) -> map.put(e, jsonFilesLoader(f)));
+    private RelationshipSchema loadRelations() throws CrudException, EdgeRuleNotFoundException, IOException {
+        String defaultEdgeProps = "{" +
+                "\"contains-other-v\": \"java.lang.String\"," +
+                "\"delete-other-v\": \"java.lang.String\"," +
+                "\"SVC-INFRA\": \"java.lang.String\"," +
+                "\"prevent-delete\": \"java.lang.String\"" +
+                "}";
 
-    }
+        Map<String, String> ruleOne = new HashMap<> (  );
+        Map<String, String> ruleTwo = new HashMap<> (  );
 
+        ruleOne.put("label", "org.onap.some-relation");
+        ruleOne.put("direction", "OUT");
+        ruleOne.put("contains-other-v", "NONE");
+        ruleOne.put("delete-other-v", "NONE");
+        ruleOne.put("prevent-delete", "NONE");
+        ruleOne.put("from", "service-instance");
+        ruleOne.put("to", "customer");
+        ruleOne.put("multiplicity", "MANY2MANY");
+        ruleOne.put("default", "true");
+        ruleOne.put("description", "");
 
-    private RelationshipSchema jsonFilesLoader (List<File> files) {
-        List<String> fileContents = new ArrayList<>();
-        RelationshipSchema rsSchema = null;
-        for (File f : files) {
-            fileContents.add(jsonToString(f));
-        }
+        ruleTwo.put("label", "org.onap.groupsResourcesIn");
+        ruleTwo.put("direction", "OUT");
+        ruleTwo.put("contains-other-v", "NONE");
+        ruleTwo.put("delete-other-v", "NONE");
+        ruleTwo.put("prevent-delete", "NONE");
+        ruleTwo.put("from", "availability-zone");
+        ruleTwo.put("to", "complex");
+        ruleTwo.put("multiplicity", "MANY2MANY");
+        ruleTwo.put("default", "true");
+        ruleTwo.put("description", "");
 
-        try {
-            if (fileContents.size() == 2) {
-                rsSchema = new RelationshipSchema(fileContents);
-            }
-        } catch (CrudException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        EdgeRule erOne = new EdgeRule ( ruleOne );
+        EdgeRule erTwo = new EdgeRule ( ruleTwo );
+        Multimap<String, EdgeRule> relationship = ArrayListMultimap.create();
+        relationship.put ( "customer|service-instane", erOne );
+        relationship.put ( "availability-zone|complex", erTwo );
+        return new RelationshipSchema ( relationship, defaultEdgeProps );
 
-        return rsSchema;
-    }
-
-    private String jsonToString (File file) {
-        InputStream inputStream = null;
-        String content = null;
-        HashMap<String,Object> result = null;
-
-        try {
-            inputStream = new FileInputStream(file);
-            content =  IOUtils.toString(inputStream, "UTF-8");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return content;
-    }
-
-    private String myMatcher (Pattern p, String s) {
-        Matcher m = p.matcher(s);
-        return m.matches() ? m.group(1) : "";
     }
 }

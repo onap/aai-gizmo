@@ -20,10 +20,9 @@
  */
 package org.onap.schema;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
+import com.google.common.collect.Multimap;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.onap.aai.edges.EdgeRule;
 import org.onap.crud.exception.CrudException;
 
 import java.io.IOException;
@@ -33,12 +32,8 @@ import javax.ws.rs.core.Response.Status;
 
 
 public class RelationshipSchema {
-  private static final Gson gson = new GsonBuilder().create();
 
-  public static final String SCHEMA_SOURCE_NODE_TYPE = "from";
-  public static final String SCHEMA_TARGET_NODE_TYPE = "to";
   public static final String SCHEMA_RELATIONSHIP_TYPE = "label";
-  public static final String SCHEMA_RULES_ARRAY = "rules";
 
 
   private Map<String, Map<String, Class<?>>> relations = new HashMap<>();
@@ -47,12 +42,7 @@ public class RelationshipSchema {
    */
   private Map<String, Map<String, Class<?>>> relationTypes  = new HashMap<>();
 
-
-  public RelationshipSchema(List<String> jsonStrings) throws CrudException, IOException {
-    String edgeRules = jsonStrings.get(0);
-    String props = jsonStrings.get(1);
-
-    HashMap<String, ArrayList<LinkedHashMap<String, String>>> rules = new ObjectMapper().readValue(edgeRules, HashMap.class);
+  public RelationshipSchema( Multimap<String, EdgeRule> rules, String props) throws CrudException, IOException {
     HashMap<String, String> properties = new ObjectMapper().readValue(props, HashMap.class);
     Map<String, Class<?>> edgeProps = properties.entrySet().stream().collect(Collectors.toMap(p -> p.getKey(), p -> {
       try {
@@ -63,13 +53,11 @@ public class RelationshipSchema {
       return null;
     }));
 
-    rules.get(SCHEMA_RULES_ARRAY).forEach(l -> {
-      relationTypes.put(l.get(SCHEMA_RELATIONSHIP_TYPE), edgeProps);
-      relations.put(buildRelation(l.get(SCHEMA_SOURCE_NODE_TYPE), l.get(SCHEMA_TARGET_NODE_TYPE), l.get(SCHEMA_RELATIONSHIP_TYPE)), edgeProps);
+    rules.entries ().forEach ( (kv) -> {
+      relationTypes.put(kv.getValue ().getLabel (), edgeProps);
+      relations.put (buildRelation ( kv.getValue ().getFrom (), kv.getValue ().getTo (), kv.getValue ().getLabel ()), edgeProps);
     });
   }
-
-
 
   public Map<String, Class<?>> lookupRelation(String key) {
     return this.relations.get(key);

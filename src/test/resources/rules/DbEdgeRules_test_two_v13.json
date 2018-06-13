@@ -1,0 +1,26 @@
+{
+	"rules": [
+		{
+			"from": “C”,
+			"to": “D”,
+			"label": “C-To-D”,
+			"direction": "OUT",
+			"multiplicity": "Many2Many",
+			"contains-other-v": "NONE",
+			"delete-other-v": "NONE",
+			"SVC-INFRA": "NONE",
+			"prevent-delete": "!${direction}"
+		},
+		{
+			"from": “D”,
+			"to": “E”,
+			"label": “D-To-E”,
+			"direction": "OUT",
+			"multiplicity": "Many2Many",
+			"contains-other-v": "NONE",
+			"delete-other-v": "NONE",
+			"SVC-INFRA": "NONE",
+			"prevent-delete": "!${direction}"
+		}
+			]
+}

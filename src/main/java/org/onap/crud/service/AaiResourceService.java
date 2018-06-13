@@ -56,7 +56,7 @@ import org.onap.crud.logging.CrudServiceMsgs;
 import org.onap.crud.logging.LoggingUtil;
 import org.onap.crud.service.CrudRestService.Action;
 import org.onap.crud.util.CrudServiceConstants;
-import org.onap.schema.RelationshipSchemaLoader;
+import org.onap.schema.EdgeRulesLoader;
 import org.onap.schema.RelationshipSchemaValidator;
 import org.slf4j.MDC;
 
@@ -161,11 +161,11 @@ public class AaiResourceService {
         payload = applyEdgeRulesToPayload(payload);
         
         if(logger.isDebugEnabled()) {
-          logger.debug("Creating AAI edge using version " + RelationshipSchemaLoader.getLatestSchemaVersion() );
+          logger.debug("Creating AAI edge using version " + EdgeRulesLoader.getLatestSchemaVersion() );
         }
         
         // Now, create our edge in the graph store.
-        String result = graphDataService.addEdge(RelationshipSchemaLoader.getLatestSchemaVersion(), type, payload);
+        String result = graphDataService.addEdge(EdgeRulesLoader.getLatestSchemaVersion(), type, payload);
         response = Response.status(Status.CREATED).entity(result).type(mediaType).build();
         
       } catch (CrudException e) {
@@ -229,7 +229,7 @@ public class AaiResourceService {
         payload = applyEdgeRulesToPayload(payload);
         
         // Now, create our edge in the graph store.
-        String result = graphDataService.addEdge(RelationshipSchemaLoader.getLatestSchemaVersion(), payload.getType(), payload);
+        String result = graphDataService.addEdge(EdgeRulesLoader.getLatestSchemaVersion(), payload.getType(), payload);
         response = Response.status(Status.CREATED).entity(result).type(mediaType).build();
       
       } catch (CrudException ce) {
@@ -304,10 +304,10 @@ public class AaiResourceService {
         String result;
         if (headers.getRequestHeaders().getFirst(HTTP_PATCH_METHOD_OVERRIDE) != null &&
             headers.getRequestHeaders().getFirst(HTTP_PATCH_METHOD_OVERRIDE).equalsIgnoreCase("PATCH")) {
-          result = graphDataService.patchEdge(RelationshipSchemaLoader.getLatestSchemaVersion(), id, type, payload);
+          result = graphDataService.patchEdge(EdgeRulesLoader.getLatestSchemaVersion(), id, type, payload);
         } else {
 
-          result = graphDataService.updateEdge(RelationshipSchemaLoader.getLatestSchemaVersion(), id, type, payload);
+          result = graphDataService.updateEdge(EdgeRulesLoader.getLatestSchemaVersion(), id, type, payload);
         }
 
         response = Response.status(Status.OK).entity(result).type(mediaType).build();

@@ -42,8 +42,7 @@ import org.onap.crud.exception.CrudException;
 import org.onap.crud.service.util.TestHeaders;
 import org.onap.crud.service.util.TestRequest;
 import org.onap.crud.service.util.TestUriInfo;
-import org.onap.schema.RelationshipSchemaLoader;
-
+import org.onap.schema.EdgeRulesLoader;
 
 
 public class CrudRestServiceTest {
@@ -85,8 +84,7 @@ public class CrudRestServiceTest {
       Path parentPath = resourcePath.getParent();
 
       System.setProperty("CONFIG_HOME", parentPath.toString());
-      RelationshipSchemaLoader.resetVersionContextMap();
-      
+    EdgeRulesLoader.resetSchemaVersionContext ();
       CrudGraphDataService service = new CrudGraphDataService(new TestDao());
       CrudRestService restService = new CrudRestService(service, null);
       mockService = Mockito.spy(restService);

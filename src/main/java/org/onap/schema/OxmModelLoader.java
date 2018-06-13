@@ -21,6 +21,8 @@
 package org.onap.schema;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
@@ -138,6 +140,38 @@ public class OxmModelLoader {
         }
 
         return latestVersionStr;
+    }
+
+    /**
+     * Retrieves the list of all Loaded OXM versions.
+     *
+     * @return - A List of Strings of all loaded OXM versions.
+     *
+     * @throws CrudException
+     */
+    public static List<String> getLoadedOXMVersions() throws CrudException {
+
+        // If we haven't already loaded in the available OXM models, then do so now.
+        if (versionContextMap == null || versionContextMap.isEmpty()) {
+            loadModels();
+        }
+
+        // If there are still no models available, then there's not much we can do...
+        if (versionContextMap.isEmpty()) {
+            logger.error(CrudServiceMsgs.OXM_LOAD_ERROR, "No available OXM schemas to get versions for.");
+            throw new CrudException("No available OXM schemas to get versions for.",
+                    Status.INTERNAL_SERVER_ERROR);
+        }
+
+        List<String> versions = new ArrayList<String> ();
+        for (String versionKey : versionContextMap.keySet()) {
+
+            Matcher matcher = versionPattern.matcher(versionKey.toUpperCase());
+            if (matcher.find()) {
+                versions.add ( "V" + matcher.group ( 1 ) );
+            }
+        }
+        return versions;
     }
 
     /**

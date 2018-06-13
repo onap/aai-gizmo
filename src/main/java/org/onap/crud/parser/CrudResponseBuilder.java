@@ -34,7 +34,7 @@ import org.onap.crud.exception.CrudException;
 import org.onap.crud.service.BulkPayload;
 import org.onap.crud.service.EdgePayload;
 import org.onap.crud.service.VertexPayload;
-import org.onap.schema.RelationshipSchemaLoader;
+import org.onap.schema.EdgeRulesLoader;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -120,7 +120,7 @@ public class CrudResponseBuilder {
         EdgePayload inEdge = new EdgePayload();
         inEdge.setId(e.getId().get());
         inEdge.setType(e.getType());
-        inEdge.setUrl(URL_BASE + "relationships/" + RelationshipSchemaLoader.getLatestSchemaVersion() + "/"
+        inEdge.setUrl(URL_BASE + "relationships/" + EdgeRulesLoader.getLatestSchemaVersion() + "/"
             + e.getType() + "/" + e.getId().get());
         inEdge.setSource(URL_BASE + version + "/" + e.getSource().getType() + "/" + e.getSource().getId().get());
 
@@ -129,7 +129,7 @@ public class CrudResponseBuilder {
         EdgePayload outEdge = new EdgePayload();
         outEdge.setId(e.getId().get());
         outEdge.setType(e.getType());
-        outEdge.setUrl(URL_BASE + "relationships/" + RelationshipSchemaLoader.getLatestSchemaVersion() + "/"
+        outEdge.setUrl(URL_BASE + "relationships/" + EdgeRulesLoader.getLatestSchemaVersion() + "/"
             + e.getType() + "/" + e.getId().get());
         outEdge.setTarget(URL_BASE + version + "/" + e.getTarget().getType() + "/" + e.getTarget().getId().get());
         outEdges.add(outEdge);

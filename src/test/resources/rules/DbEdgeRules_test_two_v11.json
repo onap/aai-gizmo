@@ -1,0 +1,26 @@
+{
+	"rules": [
+		{
+			"from": "U",
+			"to": "V",
+			"label": "org.onap.relationships.inventory.groupsResourcesIn",
+			"direction": "BOTH",
+			"multiplicity": "Many2Many",
+			"contains-other-v": "NONE",
+			"delete-other-v": "NONE",
+			"SVC-INFRA": "NONE",
+			"prevent-delete": "!${direction}"
+		},
+		{
+			"from": "Y",
+			"to": "X",
+			"label": "org.onap.relationships.inventory.groupsResourcesIn",
+			"direction": "OUT",
+			"multiplicity": "Many2Many",
+			"contains-other-v": "NONE",
+			"delete-other-v": "NONE",
+			"SVC-INFRA": "NONE",
+			"prevent-delete": "!${direction}"
+		}
+	]
+}

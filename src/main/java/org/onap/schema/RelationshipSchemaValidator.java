@@ -49,7 +49,7 @@ public class RelationshipSchemaValidator {
                                                             Map<String, String> filter)
       throws CrudException {
 
-    RelationshipSchema schema = RelationshipSchemaLoader.getSchemaForVersion(version);
+    RelationshipSchema schema = EdgeRulesLoader.getSchemaForVersion(version);
     if (schema == null) {
       throw new CrudException("", Status.NOT_FOUND);
     }
@@ -77,7 +77,7 @@ public class RelationshipSchemaValidator {
 
   public static void validateType(String version, String type) throws CrudException {
 
-    RelationshipSchema schema = RelationshipSchemaLoader.getSchemaForVersion(version);
+    RelationshipSchema schema = EdgeRulesLoader.getSchemaForVersion(version);
     if (!schema.isValidType(type)) {
       throw new CrudException("Invalid " + RelationshipSchema.SCHEMA_RELATIONSHIP_TYPE
           + ": " + type,
@@ -101,7 +101,7 @@ public class RelationshipSchemaValidator {
 
   public static Edge validateIncomingAddPayload(String version, String type, EdgePayload payload)
       throws CrudException {
-    RelationshipSchema schema = RelationshipSchemaLoader.getSchemaForVersion(version);
+    RelationshipSchema schema = EdgeRulesLoader.getSchemaForVersion(version);
 
     try {
 
@@ -151,7 +151,7 @@ public class RelationshipSchemaValidator {
 
   public static Edge validateIncomingPatchPayload(Edge edge, String version, EdgePayload payload)
       throws CrudException {
-    RelationshipSchema schema = RelationshipSchemaLoader.getSchemaForVersion(version);
+    RelationshipSchema schema = EdgeRulesLoader.getSchemaForVersion(version);
 
     try {
       if (payload.getSource() != null) {
@@ -243,7 +243,7 @@ public class RelationshipSchemaValidator {
 
   public static Edge validateIncomingUpdatePayload(Edge edge, String version, EdgePayload payload)
       throws CrudException {
-    RelationshipSchema schema = RelationshipSchemaLoader.getSchemaForVersion(version);
+    RelationshipSchema schema = EdgeRulesLoader.getSchemaForVersion(version);
 
     try {
 
@@ -328,7 +328,7 @@ public class RelationshipSchemaValidator {
         .get()).source(edge.getSource())
         .target(edge.getTarget());
 
-    RelationshipSchema schema = RelationshipSchemaLoader.getSchemaForVersion(version);
+    RelationshipSchema schema = EdgeRulesLoader.getSchemaForVersion(version);
 
     String key = edge.getSource().getType() + ":" + edge.getTarget().getType()
         + ":" + edge.getType();
