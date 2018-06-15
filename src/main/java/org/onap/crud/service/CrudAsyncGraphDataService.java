@@ -20,6 +20,8 @@
  */
 package org.onap.crud.service;
 
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Timer;
@@ -32,7 +34,9 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import javax.annotation.PreDestroy;
+import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.Response.Status;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.onap.aai.cl.api.LogFields;
 import org.onap.aai.cl.api.Logger;
 import org.onap.aai.cl.eelf.LoggerFactory;
@@ -40,6 +44,7 @@ import org.onap.aai.cl.mdc.MdcContext;
 import org.onap.aai.cl.mdc.MdcOverride;
 import org.onap.aai.event.api.EventConsumer;
 import org.onap.aai.event.api.EventPublisher;
+import org.onap.aai.restclient.client.OperationResult;
 import org.onap.crud.dao.GraphDao;
 import org.onap.crud.entity.Edge;
 import org.onap.crud.entity.Vertex;
@@ -53,6 +58,7 @@ import org.onap.crud.exception.CrudException;
 import org.onap.crud.logging.CrudServiceMsgs;
 import org.onap.crud.util.CrudProperties;
 import org.onap.crud.util.CrudServiceConstants;
+import org.onap.crud.util.etag.EtagGenerator;
 import org.onap.schema.OxmModelValidator;
 import org.onap.schema.RelationshipSchemaValidator;
 
@@ -71,6 +77,7 @@ public class CrudAsyncGraphDataService extends AbstractGraphDataService {
     private static Logger metricsLogger =
             LoggerFactory.getInstance().getMetricsLogger(CrudAsyncGraphDataService.class.getName());
     private static LogFields okFields = new LogFields();
+    private EtagGenerator etagGenerator;
 
     static {
         okFields.setField(Status.OK, Status.OK.toString());
@@ -83,12 +90,12 @@ public class CrudAsyncGraphDataService extends AbstractGraphDataService {
     }
 
     public CrudAsyncGraphDataService(GraphDao dao, EventPublisher asyncRequestPublisher,
-            EventConsumer asyncResponseConsumer) throws CrudException {
+            EventConsumer asyncResponseConsumer) throws CrudException, NoSuchAlgorithmException {
         this(dao, dao, asyncRequestPublisher, asyncResponseConsumer);
     }
 
     public CrudAsyncGraphDataService(GraphDao dao, GraphDao daoForGet, EventPublisher asyncRequestPublisher,
-            EventConsumer asyncResponseConsumer) throws CrudException {
+            EventConsumer asyncResponseConsumer) throws CrudException, NoSuchAlgorithmException {
 
         super();
         this.dao = dao;
@@ -116,6 +123,7 @@ public class CrudAsyncGraphDataService extends AbstractGraphDataService {
         timer.schedule(crudAsyncResponseConsumer, responsePollInterval, responsePollInterval);
 
         this.asyncRequestPublisher = asyncRequestPublisher;
+        this.etagGenerator = new EtagGenerator();
 
         logger.info(CrudServiceMsgs.ASYNC_DATA_SERVICE_INFO, "CrudAsyncGraphDataService initialized SUCCESSFULLY!");
     }
@@ -199,7 +207,8 @@ public class CrudAsyncGraphDataService extends AbstractGraphDataService {
     }
 
     @Override
-    public String addVertex(String version, String type, VertexPayload payload) throws CrudException {
+    public ImmutablePair<EntityTag, String> addVertex(String version, String type, VertexPayload payload)
+            throws CrudException {
         // Validate the incoming payload
         Vertex vertex = OxmModelValidator.validateIncomingUpsertPayload(null, version, type, payload.getProperties());
         vertex.getProperties().put(org.onap.schema.OxmModelValidator.Metadata.NODE_TYPE.propertyName(), type);
@@ -208,41 +217,81 @@ public class CrudAsyncGraphDataService extends AbstractGraphDataService {
                 .vertex(GraphEventVertex.fromVertex(vertex, version)).build();
 
         GraphEventEnvelope response = sendAndWait(event);
-        return responseHandler.handleVertexResponse(version, event, response);
+
+        EntityTag entityTag;
+        try {
+            entityTag = new EntityTag(etagGenerator.computeHashForVertex(response.getBody().getVertex()));
+        } catch (IOException e) {
+            throw new CrudException(e);
+        }
+        String responsePayload = responseHandler.handleVertexResponse(version, event, response);
+
+        return new ImmutablePair<EntityTag, String>(entityTag, responsePayload);
     }
 
     @Override
-    public String addEdge(String version, String type, EdgePayload payload) throws CrudException {
+    public ImmutablePair<EntityTag, String> addEdge(String version, String type, EdgePayload payload)
+            throws CrudException {
         Edge edge = RelationshipSchemaValidator.validateIncomingAddPayload(version, type, payload);
         // Create graph request event
         GraphEvent event =
                 GraphEvent.builder(GraphEventOperation.CREATE).edge(GraphEventEdge.fromEdge(edge, version)).build();
 
         GraphEventEnvelope response = sendAndWait(event);
-        return responseHandler.handleEdgeResponse(version, event, response);
+
+        EntityTag entityTag;
+        try {
+            entityTag = new EntityTag(etagGenerator.computeHashForEdge(response.getBody().getEdge()));
+        } catch (IOException e) {
+            throw new CrudException(e);
+        }
+        String responsePayload = responseHandler.handleEdgeResponse(version, event, response);
+
+        return new ImmutablePair<EntityTag, String>(entityTag, responsePayload);
     }
 
     @Override
-    public String updateVertex(String version, String id, String type, VertexPayload payload) throws CrudException {
+    public ImmutablePair<EntityTag, String> updateVertex(String version, String id, String type, VertexPayload payload)
+            throws CrudException {
         Vertex vertex = OxmModelValidator.validateIncomingUpsertPayload(id, version, type, payload.getProperties());
         GraphEvent event = GraphEvent.builder(GraphEventOperation.UPDATE)
                 .vertex(GraphEventVertex.fromVertex(vertex, version)).build();
 
         GraphEventEnvelope response = sendAndWait(event);
-        return responseHandler.handleVertexResponse(version, event, response);
+
+        EntityTag entityTag;
+        try {
+            entityTag = new EntityTag(etagGenerator.computeHashForVertex(response.getBody().getVertex()));
+        } catch (IOException e) {
+            throw new CrudException(e);
+        }
+        String responsePayload = responseHandler.handleVertexResponse(version, event, response);
+
+        return new ImmutablePair<EntityTag, String>(entityTag, responsePayload);
     }
 
     @Override
-    public String patchVertex(String version, String id, String type, VertexPayload payload) throws CrudException {
-        Vertex existingVertex = dao.getVertex(id, OxmModelValidator.resolveCollectionType(version, type), version,
+    public ImmutablePair<EntityTag, String> patchVertex(String version, String id, String type, VertexPayload payload)
+            throws CrudException {
+        OperationResult existingVertexOpResult = dao.getVertex(id, OxmModelValidator.resolveCollectionType(version, type), version,
                 new HashMap<String, String>());
+        Vertex existingVertex = Vertex.fromJson(existingVertexOpResult.getResult(), version);
         Vertex patchedVertex = OxmModelValidator.validateIncomingPatchPayload(id, version, type,
                 payload.getProperties(), existingVertex);
         GraphEvent event = GraphEvent.builder(GraphEventOperation.UPDATE)
                 .vertex(GraphEventVertex.fromVertex(patchedVertex, version)).build();
 
         GraphEventEnvelope response = sendAndWait(event);
-        return responseHandler.handleVertexResponse(version, event, response);
+
+        EntityTag entityTag;
+        try {
+            entityTag = new EntityTag(etagGenerator.computeHashForVertex(response.getBody().getVertex()));
+        } catch (IOException e) {
+            throw new CrudException(e);
+        }
+        String responsePayload = responseHandler.handleVertexResponse(version, event, response);
+
+        return new ImmutablePair<EntityTag, String>(entityTag, responsePayload);
     }
 
     @Override
@@ -266,25 +315,47 @@ public class CrudAsyncGraphDataService extends AbstractGraphDataService {
     }
 
     @Override
-    public String updateEdge(String version, String id, String type, EdgePayload payload) throws CrudException {
-        Edge edge = dao.getEdge(id, type, new HashMap<String, String>());
+    public ImmutablePair<EntityTag, String> updateEdge(String version, String id, String type, EdgePayload payload)
+            throws CrudException {
+        OperationResult operationResult = dao.getEdge(id, type, new HashMap<String, String>());
+        Edge edge = Edge.fromJson(operationResult.getResult());
         Edge validatedEdge = RelationshipSchemaValidator.validateIncomingUpdatePayload(edge, version, payload);
         GraphEvent event = GraphEvent.builder(GraphEventOperation.UPDATE)
                 .edge(GraphEventEdge.fromEdge(validatedEdge, version)).build();
 
         GraphEventEnvelope response = sendAndWait(event);
-        return responseHandler.handleEdgeResponse(version, event, response);
+
+        EntityTag entityTag;
+        try {
+            entityTag = new EntityTag(etagGenerator.computeHashForEdge(response.getBody().getEdge()));
+        } catch (IOException e) {
+            throw new CrudException(e);
+        }
+        String responsePayload = responseHandler.handleEdgeResponse(version, event, response);
+
+        return new ImmutablePair<EntityTag, String>(entityTag, responsePayload);
     }
 
     @Override
-    public String patchEdge(String version, String id, String type, EdgePayload payload) throws CrudException {
-        Edge edge = dao.getEdge(id, type, new HashMap<String, String>());
+    public ImmutablePair<EntityTag, String> patchEdge(String version, String id, String type, EdgePayload payload)
+            throws CrudException {
+        OperationResult operationResult = dao.getEdge(id, type, new HashMap<String, String>());
+        Edge edge = Edge.fromJson(operationResult.getResult());
         Edge patchedEdge = RelationshipSchemaValidator.validateIncomingPatchPayload(edge, version, payload);
         GraphEvent event = GraphEvent.builder(GraphEventOperation.UPDATE)
                 .edge(GraphEventEdge.fromEdge(patchedEdge, version)).build();
 
         GraphEventEnvelope response = sendAndWait(event);
-        return responseHandler.handleEdgeResponse(version, event, response);
+
+        EntityTag entityTag;
+        try {
+            entityTag = new EntityTag(etagGenerator.computeHashForEdge(response.getBody().getEdge()));
+        } catch (IOException e) {
+            throw new CrudException(e);
+        }
+        String responsePayload = responseHandler.handleEdgeResponse(version, event, response);
+
+        return new ImmutablePair<EntityTag, String>(entityTag, responsePayload);
     }
 
     @PreDestroy

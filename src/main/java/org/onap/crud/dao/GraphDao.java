@@ -23,9 +23,8 @@ package org.onap.crud.dao;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-
+import org.onap.aai.restclient.client.OperationResult;
 import org.onap.crud.entity.Edge;
-
 import org.onap.crud.entity.Vertex;
 import org.onap.crud.exception.CrudException;
 
@@ -33,7 +32,7 @@ public interface GraphDao {
 
   public Vertex getVertex(String id, String version) throws CrudException;
 
-  public Vertex getVertex(String id, String type, String version, Map<String, String> queryParams) throws CrudException;
+  public OperationResult getVertex(String id, String type, String version, Map<String, String> queryParams) throws CrudException;
 
   /**
    * Retrieve all of the edges which are incident to the vertex with the
@@ -42,7 +41,7 @@ public interface GraphDao {
    * @param id
    *          - The unique identifier of the vertex to retrieve the edges for.
    * @param queryParams
-   * 		  - query parameters to be passed         
+   * 		  - query parameters to be passed
    * @return - A collection of edges.
    * @throws CrudException
    */
@@ -56,10 +55,10 @@ public interface GraphDao {
    *          - The vertex type that we want to retrieve.
    * @param filter
    *          - The parameters to filter our results by.
-   * @return - A collection of vertices.
+   * @return - The {@link OperationResult} OperationResult
    * @throws CrudException
    */
-  public List<Vertex> getVertices(String type, Map<String, Object> filter, String version) throws CrudException;
+  public OperationResult getVertices(String type, Map<String, Object> filter, String version) throws CrudException;
 
   /**
    * Retrieve a collection of {@link Vertex} objects which match the supplied
@@ -71,10 +70,10 @@ public interface GraphDao {
    *          - The parameters to filter our results by.
    * @param properties
    *          - The properties to retrieve with the vertex
-   * @return - A collection of vertices.
+   * @return - The {@link OperationResult} OperationResult
    * @throws CrudException
    */
-  public List<Vertex> getVertices(String type, Map<String, Object> filter, HashSet<String> properties, String version) throws CrudException;
+  public OperationResult getVertices(String type, Map<String, Object> filter, HashSet<String> properties, String version) throws CrudException;
 
   /**
    * Retrieve an {@link Edge} from the graph database by specifying its unique
@@ -85,11 +84,11 @@ public interface GraphDao {
    * @param type
    *          - The type that we want to retrieve.
    * @param queryParams
-   * 		  - query parameters to be passed                
-   * @return - The Edge corresponding to the specified identifier.
+   * 		  - query parameters to be passed
+   * @return - The {@link OperationResult} OperationResult corresponding to the specified identifier.
    * @throws CrudException
    */
-  public Edge getEdge(String id, String type, Map<String, String> queryParams) throws CrudException;
+  public OperationResult getEdge(String id, String type, Map<String, String> queryParams) throws CrudException;
 
   /**
    * Retrieve a collection of {@link Edge} objects with a given type and which
@@ -99,10 +98,10 @@ public interface GraphDao {
    *          - The type of edges that we are interested in.
    * @param filter
    *          - The parameters that we want to filter our edges by.
-   * @return - A collection of edges which match the supplied filter parameters.
+   * @return - The {@link OperationResult} OperationResult
    * @throws CrudException
    */
-  public List<Edge> getEdges(String type, Map<String, Object> filter) throws CrudException;
+  public OperationResult getEdges(String type, Map<String, Object> filter) throws CrudException;
 
   /**
    * Insert a new {@link Vertex} into the graph data store.
@@ -111,10 +110,10 @@ public interface GraphDao {
    *          - The type label to assign to the vertex.
    * @param properties
    *          - The properties to associated with this vertex.
-   * @return - The {@link Vertex} object that was created.
+   * @return - The result of the Vertex creation.
    * @throws CrudException
    */
-  public Vertex addVertex(String type, Map<String, Object> properties, String version) throws CrudException;
+  public OperationResult addVertex(String type, Map<String, Object> properties, String version) throws CrudException;
 
   /**
    * Updates an existing {@link Vertex}.
@@ -123,10 +122,10 @@ public interface GraphDao {
    *          - The unique identifier of the vertex to be updated.
    * @param properties
    *          - The properties to associate with the vertex.
-   * @return - The udpated vertex.
+   * @return - The result of the update OperationResult.
    * @throws CrudException
    */
-  public Vertex updateVertex(String id, String type, Map<String, Object> properties, String version) throws CrudException;
+  public OperationResult updateVertex(String id, String type, Map<String, Object> properties, String version) throws CrudException;
 
   /**
    * Removes the specified vertex from the graph data base.
@@ -151,22 +150,20 @@ public interface GraphDao {
    *          - The target vertex for this edge.
    * @param properties
    *          - The properties map to associate with this edge.
-   * @return - The {@link Edge} object that was created.
+   * @return - The {@link OperationResult} OperationResult containing the Edge that was created.
    * @throws CrudException
    */
-  public Edge addEdge(String type, Vertex source, Vertex target, Map<String, Object> properties, String version) throws CrudException;
+  public OperationResult addEdge(String type, Vertex source, Vertex target, Map<String, Object> properties, String version) throws CrudException;
 
   /**
    * Updates an existing {@link Edge}.
    *
-   * @param id
-   *          - The unique identifier of the edge to be updated.
-   * @param properties
-   *          - The properties to associate with the edge.
-   * @return - The update edge.
+   * @param edge
+   *          - The edge to be updated.
+   * @return - The result of the update OperationResult.
    * @throws CrudException
    */
-  public Edge updateEdge(Edge edge) throws CrudException;
+  public OperationResult updateEdge(Edge edge) throws CrudException;
 
   /**
    * Remove the specified edge from the graph data base.

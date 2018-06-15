@@ -20,6 +20,15 @@
  */
 package org.onap.crud.util;
 
+import java.util.AbstractMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import javax.ws.rs.core.EntityTag;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response.Status;
 import org.onap.aai.db.props.AAIProperties;
 import org.onap.crud.exception.CrudException;
 import org.onap.schema.OxmModelLoader;
@@ -28,15 +37,6 @@ import org.onap.schema.EdgeRulesLoader;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
-
-import java.util.AbstractMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
-
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Response.Status;
 
 public class CrudServiceUtil {
 
@@ -54,13 +54,13 @@ public class CrudServiceUtil {
       } else if (clazz.isAssignableFrom(Double.class)) {
         return Double.parseDouble(value);
       } else if (clazz.isAssignableFrom(Boolean.class)) {
-		  
+
 		// If the value is an IN/OUT direction, this gets seen as a boolean, so
         // check for that first.
         if (value.equals("OUT") || value.equals("IN")) {
           return value;
         }
-		
+
         if (!value.equals("true") && !value.equals("false")) {
           throw new CrudException("Invalid propertry value: " + value, Status.BAD_REQUEST);
         }
@@ -82,7 +82,7 @@ public class CrudServiceUtil {
       throw new CrudException(e);
     }
   }
-  
+
   /**
    * This method will merge header property from app id in request payload if not already populated
    * @param propertiesFromRequest
@@ -104,12 +104,12 @@ public class CrudServiceUtil {
     
     if(!propertyKeys.contains(AAIProperties.LAST_MOD_SOURCE_OF_TRUTH)) {
         properties.add(new AbstractMap.SimpleEntry<String, JsonElement>(AAIProperties.LAST_MOD_SOURCE_OF_TRUTH,
-            (JsonElement)(new JsonPrimitive(sourceOfTruth))));
+            (new JsonPrimitive(sourceOfTruth))));
     }
    
     if(isAdd && !propertyKeys.contains(AAIProperties.SOURCE_OF_TRUTH)) {
         properties.add(new AbstractMap.SimpleEntry<String, JsonElement>(AAIProperties.SOURCE_OF_TRUTH,
-            (JsonElement)(new JsonPrimitive(sourceOfTruth))));
+            (new JsonPrimitive(sourceOfTruth))));
     }
 
     Object[] propArray = properties.toArray();
@@ -117,7 +117,7 @@ public class CrudServiceUtil {
     sb.append("{");
     boolean first=true;
     for(int i=0; i<propArray.length; i++) {
-      
+
       Map.Entry<String, JsonElement> entry = (Entry<String, JsonElement>) propArray[i];
       if(!first) {
         sb.append(",");
@@ -126,7 +126,17 @@ public class CrudServiceUtil {
       first=false;
     }
     sb.append("}");
-    
+
     return gson.fromJson(sb.toString(), JsonElement.class);
   }
+
+  public static EntityTag getETagFromHeader(MultivaluedMap<String, String> headers) {
+    EntityTag entityTag = null;
+    if (headers != null && headers.containsKey(CrudServiceConstants.CRD_HEADER_ETAG)) {
+      String value = headers.getFirst(CrudServiceConstants.CRD_HEADER_ETAG);
+      entityTag = new EntityTag(value.replace("\"", ""));
+    }
+    return entityTag;
+  }
+
 }

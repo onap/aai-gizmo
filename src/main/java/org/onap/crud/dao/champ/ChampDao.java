@@ -20,30 +20,6 @@
  */
 package org.onap.crud.dao.champ;
 
-import net.dongliu.gson.GsonJava8TypeAdapterFactory;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
-
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
-import org.apache.http.message.BasicNameValuePair;
-import org.eclipse.jetty.util.security.Password;
-import org.onap.aai.cl.mdc.MdcContext;
-import org.onap.aai.logging.LoggingContext;
-import org.onap.aai.cl.api.Logger;
-import org.onap.aai.cl.eelf.LoggerFactory;
-import org.onap.crud.dao.GraphDao;
-import org.onap.crud.entity.Edge;
-import org.onap.crud.entity.Vertex;
-import org.onap.crud.exception.CrudException;
-import org.onap.crud.util.CrudServiceConstants;
-import org.onap.aai.restclient.client.OperationResult;
-import org.onap.aai.restclient.client.RestClient;
-import org.onap.aai.restclient.enums.RestAuthenticationMode;
-import org.slf4j.MDC;
-
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -53,6 +29,27 @@ import java.util.List;
 import java.util.Map;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.message.BasicNameValuePair;
+import org.eclipse.jetty.util.security.Password;
+import org.onap.aai.cl.api.Logger;
+import org.onap.aai.cl.eelf.LoggerFactory;
+import org.onap.aai.cl.mdc.MdcContext;
+import org.onap.aai.logging.LoggingContext;
+import org.onap.aai.restclient.client.OperationResult;
+import org.onap.aai.restclient.client.RestClient;
+import org.onap.aai.restclient.enums.RestAuthenticationMode;
+import org.onap.crud.dao.GraphDao;
+import org.onap.crud.entity.Edge;
+import org.onap.crud.entity.Vertex;
+import org.onap.crud.exception.CrudException;
+import org.onap.crud.util.CrudServiceConstants;
+import org.slf4j.MDC;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+import net.dongliu.gson.GsonJava8TypeAdapterFactory;
 
 public class ChampDao implements GraphDao {
   protected RestClient client;
@@ -75,7 +72,7 @@ public class ChampDao implements GraphDao {
       .registerTypeAdapterFactory(new GsonJava8TypeAdapterFactory())
       .registerTypeAdapter(Vertex.class, new ChampVertexSerializer())
       .registerTypeAdapter(Edge.class, new ChampEdgeSerializer()).create();
-  
+
   public ChampDao() {
   }
 
@@ -112,12 +109,12 @@ public class ChampDao implements GraphDao {
     } else {
       // We didn't find a vertex with the supplied id, so just throw an
       // exception.
-      throw createErrorException(getResult, javax.ws.rs.core.Response.Status.NOT_FOUND, "No vertex with id " + id + " found in graph");    
+      throw createErrorException(getResult, javax.ws.rs.core.Response.Status.NOT_FOUND, "No vertex with id " + id + " found in graph");
     }
   }
 
   @Override
-  public Vertex getVertex(String id, String type, String version, Map<String, String> queryParams) throws CrudException {
+  public OperationResult getVertex(String id, String type, String version, Map<String, String> queryParams) throws CrudException {
     StringBuilder strBuild = new StringBuilder(baseObjectUrl);
     strBuild.append("/");
     strBuild.append(id);
@@ -138,11 +135,11 @@ public class ChampDao implements GraphDao {
         throw new CrudException("No vertex with id " + id + "and type " + type + " found in graph",
             javax.ws.rs.core.Response.Status.NOT_FOUND);
       }
-      return vert;
+      return getResult;
     } else {
       // We didn't find a vertex with the supplied id, so just throw an
       // exception.
-        throw createErrorException(getResult, javax.ws.rs.core.Response.Status.NOT_FOUND, "No vertex with id " + id + " found in graph");    
+        throw createErrorException(getResult, javax.ws.rs.core.Response.Status.NOT_FOUND, "No vertex with id " + id + " found in graph");
     }
   }
 
@@ -158,24 +155,24 @@ public class ChampDao implements GraphDao {
     }
 
     OperationResult getResult = client.get(strBuild.toString(), createHeader(), MediaType.APPLICATION_JSON_TYPE);
-  
+
     if (getResult.getResultCode() == 200) {
       return champGson.fromJson(getResult.getResult(), new TypeToken<List<Edge>>() {
       }.getType());
     } else {
       // We didn't find a vertex with the supplied id, so just throw an
       // exception.
-      throw createErrorException(getResult, javax.ws.rs.core.Response.Status.NOT_FOUND, "No vertex with id " + id + " found in graph");    
+      throw createErrorException(getResult, javax.ws.rs.core.Response.Status.NOT_FOUND, "No vertex with id " + id + " found in graph");
     }
   }
 
   @Override
-  public List<Vertex> getVertices(String type, Map<String, Object> filter, String version) throws CrudException {
+  public OperationResult getVertices(String type, Map<String, Object> filter, String version) throws CrudException {
     return getVertices(type, filter, new HashSet<String>(), version);
   }
 
   @Override
-  public List<Vertex> getVertices(String type, Map<String, Object> filter, HashSet<String> properties, String version) throws CrudException {
+  public OperationResult getVertices(String type, Map<String, Object> filter, HashSet<String> properties, String version) throws CrudException {
     filter.put(org.onap.schema.OxmModelValidator.Metadata.NODE_TYPE.propertyName(), type);
 
     List<NameValuePair> queryParams = convertToNameValuePair(filter);
@@ -186,16 +183,16 @@ public class ChampDao implements GraphDao {
     OperationResult getResult = client.get(url, createHeader(), MediaType.APPLICATION_JSON_TYPE);
 
     if (getResult.getResultCode() == 200) {
-      return Vertex.collectionFromJson(getResult.getResult(), version);
+      return getResult;
     } else {
       // We didn't find a vertex with the supplied id, so just throw an
       // exception.
-      throw createErrorException(getResult, javax.ws.rs.core.Response.Status.NOT_FOUND, "No vertices found in graph for given filters");    
+      throw createErrorException(getResult, javax.ws.rs.core.Response.Status.NOT_FOUND, "No vertices found in graph for given filters");
     }
   }
 
   @Override
-  public Edge getEdge(String id, String type, Map<String, String> queryParams) throws CrudException {
+  public OperationResult getEdge(String id, String type, Map<String, String> queryParams) throws CrudException {
     StringBuilder strBuild = new StringBuilder(baseRelationshipUrl);
     strBuild.append("/");
     strBuild.append(id);
@@ -205,7 +202,7 @@ public class ChampDao implements GraphDao {
         strBuild.append(URLEncodedUtils.format(convertToNameValuePair(queryParams), Charset.defaultCharset()));
     }
     OperationResult getResult = client.get(strBuild.toString(), createHeader(), MediaType.APPLICATION_JSON_TYPE);
-  
+
     if (getResult.getResultCode() == 200) {
       Edge edge = Edge.fromJson(getResult.getResult());
 
@@ -215,33 +212,32 @@ public class ChampDao implements GraphDao {
         throw new CrudException("No edge with id " + id + "and type " + type + " found in graph",
             javax.ws.rs.core.Response.Status.NOT_FOUND);
       }
-      return edge;
+      return getResult;
     } else {
       // We didn't find a edge with the supplied type, so just throw an
       // exception.
-      throw createErrorException(getResult, javax.ws.rs.core.Response.Status.NOT_FOUND, "No edge with id " + id + " found in graph");    
+      throw createErrorException(getResult, javax.ws.rs.core.Response.Status.NOT_FOUND, "No edge with id " + id + " found in graph");
     }
   }
 
   @Override
-  public List<Edge> getEdges(String type, Map<String, Object> filter) throws CrudException {
+  public OperationResult getEdges(String type, Map<String, Object> filter) throws CrudException {
     String url = baseRelationshipUrl + "/filter" + "?"
         + URLEncodedUtils.format(convertToNameValuePair(filter), Charset.defaultCharset());
 
     OperationResult getResult = client.get(url, createHeader(), MediaType.APPLICATION_JSON_TYPE);
 
     if (getResult.getResultCode() == 200) {
-      return champGson.fromJson(getResult.getResult(), new TypeToken<List<Edge>>() {
-      }.getType());
+        return getResult;
     } else {
       // We didn't find a vertex with the supplied id, so just throw an
       // exception.
-      throw createErrorException(getResult, javax.ws.rs.core.Response.Status.NOT_FOUND, "No edges found in graph  for given filters");    
+      throw createErrorException(getResult, javax.ws.rs.core.Response.Status.NOT_FOUND, "No edges found in graph  for given filters");
     }
   }
 
   @Override
-  public Vertex addVertex(String type, Map<String, Object> properties, String version) throws CrudException {
+  public OperationResult addVertex(String type, Map<String, Object> properties, String version) throws CrudException {
     String url = baseObjectUrl;
 
     // Add the aai_node_type so that AAI can read the data created by gizmo
@@ -256,7 +252,7 @@ public class ChampDao implements GraphDao {
         MediaType.APPLICATION_JSON_TYPE);
 
     if (getResult.getResultCode() == Response.Status.CREATED.getStatusCode()) {
-      return Vertex.fromJson(getResult.getResult(), version);
+      return getResult;
     } else {
       // We didn't create a vertex with the supplied type, so just throw an
       // exception.
@@ -265,7 +261,7 @@ public class ChampDao implements GraphDao {
   }
 
   @Override
-  public Vertex updateVertex(String id, String type, Map<String, Object> properties, String version) throws CrudException {
+  public OperationResult updateVertex(String id, String type, Map<String, Object> properties, String version) throws CrudException {
     String url = baseObjectUrl + "/" + id;
 
     // Add the aai_node_type so that AAI can read the data created by gizmo
@@ -282,7 +278,7 @@ public class ChampDao implements GraphDao {
         MediaType.APPLICATION_JSON_TYPE);
 
     if (getResult.getResultCode() == Response.Status.OK.getStatusCode()) {
-      return Vertex.fromJson(getResult.getResult(), version);
+      return getResult;
     } else {
       // We didn't create a vertex with the supplied type, so just throw an
       // exception.
@@ -303,12 +299,14 @@ public class ChampDao implements GraphDao {
   }
 
   @Override
-  public Edge addEdge(String type, Vertex source, Vertex target, Map<String, Object> properties, String version) throws CrudException {
+  public OperationResult addEdge(String type, Vertex source, Vertex target, Map<String, Object> properties, String version) throws CrudException {
     String url = baseRelationshipUrl;
 
     // Try requests to ensure source and target exist in Champ
-    Vertex dbSource = getVertex(source.getId().get(), source.getType(), version, new HashMap<String, String>());
-    Vertex dbTarget = getVertex(target.getId().get(), target.getType(), version, new HashMap<String, String>());
+    OperationResult dbSourceOpResult = getVertex(source.getId().get(), source.getType(), version, new HashMap<String, String>());
+    Vertex dbSource = Vertex.fromJson(dbSourceOpResult.getResult(), version);
+    OperationResult dbTargetOpResult = getVertex(target.getId().get(), target.getType(), version, new HashMap<String, String>());
+    Vertex dbTarget = Vertex.fromJson(dbTargetOpResult.getResult(), version);
 
     Edge.Builder insertEdgeBuilder = new Edge.Builder(type).source(dbSource).target(dbTarget);
     properties.forEach(insertEdgeBuilder::property);
@@ -319,7 +317,7 @@ public class ChampDao implements GraphDao {
         MediaType.APPLICATION_JSON_TYPE);
 
     if (getResult.getResultCode() == Response.Status.CREATED.getStatusCode()) {
-      return Edge.fromJson(getResult.getResult());
+      return getResult;
     } else {
       // We didn't create an edge with the supplied type, so just throw an
       // exception.
@@ -328,7 +326,7 @@ public class ChampDao implements GraphDao {
   }
 
   @Override
-  public Edge updateEdge(Edge edge) throws CrudException {
+  public OperationResult updateEdge(Edge edge) throws CrudException {
     if (!edge.getId().isPresent()) {
       throw new CrudException("Unable to identify edge: " + edge.toString(), Response.Status.BAD_REQUEST);
     }
@@ -339,7 +337,7 @@ public class ChampDao implements GraphDao {
         MediaType.APPLICATION_JSON_TYPE);
 
     if (getResult.getResultCode() == Response.Status.OK.getStatusCode()) {
-      return Edge.fromJson(getResult.getResult());
+      return getResult;
     } else {
       // We didn't create an edge with the supplied type, so just throw an
       // exception.
@@ -355,7 +353,7 @@ public class ChampDao implements GraphDao {
     if (getResult.getResultCode() != 200) {
       // We didn't find an edge with the supplied type, so just throw an
       // exception.
-      throw createErrorException(getResult, javax.ws.rs.core.Response.Status.NOT_FOUND, "No edge with id " + id + " found in graph");    
+      throw createErrorException(getResult, javax.ws.rs.core.Response.Status.NOT_FOUND, "No edge with id " + id + " found in graph");
     }
   }
 
@@ -524,7 +522,7 @@ public class ChampDao implements GraphDao {
     if (getResult.getResultCode() != 200) {
       // We didn't find an edge with the supplied type, so just throw an
       // exception.
-      throw createErrorException(getResult, javax.ws.rs.core.Response.Status.NOT_FOUND, "No edge with id " + id + " found in graph");    
+      throw createErrorException(getResult, javax.ws.rs.core.Response.Status.NOT_FOUND, "No edge with id " + id + " found in graph");
     }
   }
 
@@ -546,7 +544,7 @@ public class ChampDao implements GraphDao {
     } else {
       // We didn't find an edge with the supplied id, so just throw an
       // exception.
-      throw createErrorException(getResult, javax.ws.rs.core.Response.Status.NOT_FOUND, "No edge with id " + id + " found in graph");    
+      throw createErrorException(getResult, javax.ws.rs.core.Response.Status.NOT_FOUND, "No edge with id " + id + " found in graph");
     }
   }
 
@@ -567,7 +565,7 @@ public class ChampDao implements GraphDao {
     } else {
       // We didn't find a vertex with the supplied id, so just throw an
       // exception.
-      throw createErrorException(getResult, javax.ws.rs.core.Response.Status.NOT_FOUND, "No vertex with id " + id + " found in graph");    
+      throw createErrorException(getResult, javax.ws.rs.core.Response.Status.NOT_FOUND, "No vertex with id " + id + " found in graph");
     }
   }
 
@@ -588,15 +586,15 @@ public class ChampDao implements GraphDao {
 
     return nvpList;
   }
-  
+
   private Map<String, List<String>> createHeader() {
     Map<String, List<String>> headers = new HashMap<>();
     headers.put(HEADER_FROM_APP, Arrays.asList(FROM_APP_NAME));
     headers.put(HEADER_TRANS_ID, Arrays.asList(MDC.get(MdcContext.MDC_REQUEST_ID)));
     return headers;
   }
-  
-  private CrudException createErrorException(OperationResult result, javax.ws.rs.core.Response.Status defaultErrorCode , String defaultErrorMsg) 
+
+  private CrudException createErrorException(OperationResult result, javax.ws.rs.core.Response.Status defaultErrorCode , String defaultErrorMsg)
   {
       CrudException ce = null;
       if(result != null)

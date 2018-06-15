@@ -26,8 +26,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
@@ -37,8 +35,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
-import org.onap.crud.dao.TestDao;
 import org.onap.crud.exception.CrudException;
+import org.onap.crud.service.TestDao;
 import org.onap.crud.service.util.TestHeaders;
 import org.onap.crud.service.util.TestRequest;
 import org.onap.crud.service.util.TestUriInfo;
@@ -80,18 +78,18 @@ public class CrudRestServiceTest {
 
   @Before
   public void init() throws Exception {
-      Path resourcePath = Paths.get(ClassLoader.getSystemResource("model").toURI());
-      Path parentPath = resourcePath.getParent();
+    ClassLoader classLoader = getClass().getClassLoader();
+    File dir = new File(classLoader.getResource("model").getFile());
+    System.setProperty("CONFIG_HOME", dir.getParent());
+    EdgeRulesLoader.resetSchemaVersionContext();
 
-      System.setProperty("CONFIG_HOME", parentPath.toString());
-    EdgeRulesLoader.resetSchemaVersionContext ();
-      CrudGraphDataService service = new CrudGraphDataService(new TestDao());
-      CrudRestService restService = new CrudRestService(service, null);
-      mockService = Mockito.spy(restService);
-      
-      Mockito.doReturn(true).when(mockService).validateRequest(Mockito.any(HttpServletRequest.class), 
-          Mockito.anyString(), Mockito.anyString(), Mockito.any(CrudRestService.Action.class), Mockito.anyString(), 
-          Mockito.any(HttpHeaders.class));
+    CrudGraphDataService service = new CrudGraphDataService(new TestDao());
+    CrudRestService restService = new CrudRestService(service, null);
+    mockService = Mockito.spy(restService);
+
+    Mockito.doReturn(true).when(mockService).validateRequest(Mockito.any(HttpServletRequest.class),
+        Mockito.anyString(), Mockito.anyString(), Mockito.any(CrudRestService.Action.class), Mockito.anyString(),
+        Mockito.any(HttpHeaders.class));
   }
   
   @Test
@@ -123,21 +121,25 @@ public class CrudRestServiceTest {
         new TestHeaders(), null, new TestRequest());
     System.out.println("Response: " + response.getStatus() + "\n" + response.getEntity().toString());
     assertTrue(response.getStatus() == 400);
+	Assert.assertNull(response.getEntityTag());
     
     response = mockService.addVertex(postVertexPayload, "v11", "services/inventory/v11", 
         new TestHeaders(), null, new TestRequest());
     System.out.println("Response: " + response.getStatus() + "\n" + response.getEntity().toString());
     assertTrue(response.getStatus() == 201);
+	Assert.assertEquals(response.getEntityTag().getValue(), "test123");
     
     response = mockService.addVertex(postMissingPropVertexPayload, "v11", "pserver", "services/inventory/v11", 
         new TestHeaders(), null, new TestRequest());
     System.out.println("Response: " + response.getStatus() + "\n" + response.getEntity().toString());
-    assertTrue(response.getStatus() == 400); 
+    assertTrue(response.getStatus() == 400);
+	Assert.assertNull(response.getEntityTag());
     
     response = mockService.addVertex(postVertexPayload, "v11", "pserver", "services/inventory/v11", 
         new TestHeaders(), null, new TestRequest());
     System.out.println("Response: " + response.getStatus() + "\n" + response.getEntity().toString());
-    assertTrue(response.getStatus() == 201);   
+    assertTrue(response.getStatus() == 201);
+	Assert.assertEquals(response.getEntityTag().getValue(), "test123");
   }
   
   @Test
@@ -148,11 +150,13 @@ public class CrudRestServiceTest {
         new TestHeaders(), null, new TestRequest());
     System.out.println("Response: " + response.getStatus() + "\n" + response.getEntity().toString());
     assertTrue(response.getStatus() == 201);
+	Assert.assertEquals(response.getEntityTag().getValue(), "test123");
     
     response = mockService.addEdge(postEdgePayload, "v11", "tosca.relationships.HostedOn", "services/inventory/v11", 
         new TestHeaders(), null, new TestRequest());
     System.out.println("Response: " + response.getStatus() + "\n" + response.getEntity().toString());
-    assertTrue(response.getStatus() == 201);   
+    assertTrue(response.getStatus() == 201);
+	Assert.assertEquals(response.getEntityTag().getValue(), "test123");
   }
   
   @Test
@@ -170,19 +174,22 @@ public class CrudRestServiceTest {
     response = mockService.updateVertex(putVertexPayload, "v11", "pserver", "bad-id", 
         "services/inventory/v11", new TestHeaders(), null, new TestRequest());
     System.out.println("Response: " + response.getStatus() + "\n" + response.getEntity().toString());
-    assertTrue(response.getStatus() == 400);  
+    assertTrue(response.getStatus() == 400);
+    Assert.assertNull(response.getEntityTag());	
     
     // Success case
     response = mockService.updateVertex(putVertexPayload, "v11", "pserver", "test-uuid", "services/inventory/v11",
                 new TestHeaders(), null, new TestRequest());
     System.out.println("Response: " + response.getStatus() + "\n" + response.getEntity().toString());
     assertTrue(response.getStatus() == 200);  
+	Assert.assertEquals(response.getEntityTag().getValue(), "test123");
     
     // Patch
     response = mockService.patchVertex(putVertexPayload, "v11", "pserver", "test-uuid", 
         "services/inventory/v11", new TestHeaders(), null, new TestRequest());
     System.out.println("Response: " + response.getStatus() + "\n" + response.getEntity().toString());
     assertTrue(response.getStatus() == 200);  
+	Assert.assertEquals(response.getEntityTag().getValue(), "test123");
   }
   
   @Test
@@ -193,12 +200,14 @@ public class CrudRestServiceTest {
         "services/inventory/v11", new TestHeaders(), null, new TestRequest());
     System.out.println("Response: " + response.getStatus() + "\n" + response.getEntity().toString());
     assertTrue(response.getStatus() == 200);  
+	Assert.assertEquals(response.getEntityTag().getValue(), "test123");
     
     // Patch
     response = mockService.patchEdge(postEdgePayload, "v11", "tosca.relationships.HostedOn", "my-uuid", 
         "services/inventory/v11", new TestHeaders(), null, new TestRequest());
     System.out.println("Response: " + response.getStatus() + "\n" + response.getEntity().toString());
     assertTrue(response.getStatus() == 200);
+	Assert.assertEquals(response.getEntityTag().getValue(), "test123");
   }
   
   @Test

@@ -38,11 +38,13 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.cxf.jaxrs.ext.PATCH;
 import org.onap.aai.cl.api.Logger;
 import org.onap.aai.cl.eelf.LoggerFactory;
@@ -102,8 +104,8 @@ public class CrudRestService {
 
     try {
       if (validateRequest(req, uri, content, Action.GET, CrudServiceConstants.CRD_AUTH_POLICY_NAME, headers)) {
-          String result = graphDataService.getVertex(version, id, type, params);
-        response = Response.status(Status.OK).entity(result).type(mediaType).build();
+          ImmutablePair<EntityTag, String> result = graphDataService.getVertex(version, id, type, params);
+        response = Response.status(Status.OK).entity(result.getValue()).tag(result.getKey()).type(mediaType).build();
       } else {
         response = Response.status(Status.FORBIDDEN).entity(content).type(MediaType.APPLICATION_JSON).build();
       }
@@ -142,8 +144,8 @@ public class CrudRestService {
           properties = new HashSet<>();
         }
 
-        String result = graphDataService.getVertices(version, type, filter, properties);
-        response = Response.status(Status.OK).entity(result).type(mediaType).build();
+        ImmutablePair<EntityTag, String> result = graphDataService.getVertices(version, type, filter, properties);
+        response = Response.status(Status.OK).entity(result.getValue()).tag(result.getKey()).type(mediaType).build();
       } else {
         response = Response.status(Status.FORBIDDEN).entity(content).type(MediaType.APPLICATION_JSON).build();
       }
@@ -175,8 +177,8 @@ public class CrudRestService {
     try {
       if (validateRequest(req, uri, content, Action.GET, CrudServiceConstants.CRD_AUTH_POLICY_NAME, headers)) {
 
-        String result = graphDataService.getEdge(version, id, type, params);
-        response = Response.status(Status.OK).entity(result).type(mediaType).build();
+        ImmutablePair<EntityTag, String> result = graphDataService.getEdge(version, id, type, params);
+        response = Response.status(Status.OK).entity(result.getValue()).tag(result.getKey()).type(mediaType).build();
       } else {
         response = Response.status(Status.FORBIDDEN).entity(content).type(MediaType.APPLICATION_JSON).build();
       }
@@ -206,8 +208,8 @@ public class CrudRestService {
 
     try {
       if (validateRequest(req, uri, content, Action.GET, CrudServiceConstants.CRD_AUTH_POLICY_NAME, headers)) {
-        String result = graphDataService.getEdges(version, type, filter);
-        response = Response.status(Status.OK).entity(result).type(mediaType).build();
+          ImmutablePair<EntityTag, String> result = graphDataService.getEdges(version, type, filter);
+          response = Response.status(Status.OK).entity(result.getValue()).tag(result.getKey()).type(mediaType).build();
       } else {
         response = Response.status(Status.FORBIDDEN).entity(content).type(MediaType.APPLICATION_JSON).build();
       }
@@ -244,17 +246,16 @@ public class CrudRestService {
         if (payload.getId() != null && !payload.getId().equals(id)) {
           throw new CrudException("ID Mismatch", Status.BAD_REQUEST);
         }
-        String result;
-
+        ImmutablePair<EntityTag, String> result;
         if (headers.getRequestHeaders().getFirst(HTTP_PATCH_METHOD_OVERRIDE) != null
             && headers.getRequestHeaders().getFirst(HTTP_PATCH_METHOD_OVERRIDE).equalsIgnoreCase("PATCH")) {
           result = graphDataService.patchEdge(version, id, type, payload);
+          response = Response.status(Status.OK).entity(result.getValue()).type(mediaType).tag(result.getKey()).build();
         } else {
-
           result = graphDataService.updateEdge(version, id, type, payload);
+          response = Response.status(Status.OK).entity(result.getValue()).type(mediaType).tag(result.getKey()).build();
         }
-
-        response = Response.status(Status.OK).entity(result).type(mediaType).build();
+        
       } else {
         response = Response.status(Status.FORBIDDEN).entity(content).type(MediaType.APPLICATION_JSON).build();
       }
@@ -291,8 +292,8 @@ public class CrudRestService {
           throw new CrudException("ID Mismatch", Status.BAD_REQUEST);
         }
 
-        String result = graphDataService.patchEdge(version, id, type, payload);
-        response = Response.status(Status.OK).entity(result).type(mediaType).build();
+        ImmutablePair<EntityTag, String> result = graphDataService.patchEdge(version, id, type, payload);
+        response = Response.status(Status.OK).entity(result.getValue()).type(mediaType).tag(result.getKey()).build();
       } else {
         response = Response.status(Status.FORBIDDEN).entity(content).type(MediaType.APPLICATION_JSON).build();
       }
@@ -319,7 +320,6 @@ public class CrudRestService {
     logger.debug("Incoming request..." + content);
     Response response = null;
 
-
     try {
       if (validateRequest(req, uri, content, Action.PUT, CrudServiceConstants.CRD_AUTH_POLICY_NAME, headers)) {
         VertexPayload payload = VertexPayload.fromJson(content);
@@ -330,18 +330,18 @@ public class CrudRestService {
           throw new CrudException("ID Mismatch", Status.BAD_REQUEST);
         }
 
-        String result;
-
         payload.setProperties(CrudServiceUtil.mergeHeaderInFoToPayload(payload.getProperties(), headers, false));
 
+        ImmutablePair<EntityTag, String> result;
         if (headers.getRequestHeaders().getFirst(HTTP_PATCH_METHOD_OVERRIDE) != null
             && headers.getRequestHeaders().getFirst(HTTP_PATCH_METHOD_OVERRIDE).equalsIgnoreCase("PATCH")) {
           result = graphDataService.patchVertex(version, id, type, payload);
+          response = Response.status(Status.OK).entity(result.getValue()).type(mediaType).tag(result.getKey()).build();
         } else {
-
           result = graphDataService.updateVertex(version, id, type, payload);
+          response = Response.status(Status.OK).entity(result.getValue()).type(mediaType).tag(result.getKey()).build();
         }
-        response = Response.status(Status.OK).entity(result).type(mediaType).build();
+        
       } else {
         response = Response.status(Status.FORBIDDEN).entity(content).type(MediaType.APPLICATION_JSON).build();
       }
@@ -380,8 +380,8 @@ public class CrudRestService {
 
         payload.setProperties(CrudServiceUtil.mergeHeaderInFoToPayload(payload.getProperties(), headers, false));
 
-        String result = graphDataService.patchVertex(version, id, type, payload);
-        response = Response.status(Status.OK).entity(result).type(mediaType).build();
+        ImmutablePair<EntityTag, String> result = graphDataService.patchVertex(version, id, type, payload);
+        response = Response.status(Status.OK).entity(result.getValue()).type(mediaType).tag(result.getKey()).build();
       } else {
         response = Response.status(Status.FORBIDDEN).entity(content).type(MediaType.APPLICATION_JSON).build();
       }
@@ -425,8 +425,8 @@ public class CrudRestService {
 
         payload.setProperties(CrudServiceUtil.mergeHeaderInFoToPayload(payload.getProperties(), headers, true));
 
-        String result = graphDataService.addVertex(version, type, payload);
-        response = Response.status(Status.CREATED).entity(result).type(mediaType).build();
+        ImmutablePair<EntityTag, String> result = graphDataService.addVertex(version, type, payload);
+        response = Response.status(Status.CREATED).entity(result.getValue()).tag(result.getKey()).type(mediaType).build();
       } else {
         response = Response.status(Status.FORBIDDEN).entity(content).type(MediaType.APPLICATION_JSON).build();
       }
@@ -612,8 +612,8 @@ public class CrudRestService {
 
         payload.setProperties(CrudServiceUtil.mergeHeaderInFoToPayload(payload.getProperties(), headers, true));
 
-        String result = graphDataService.addVertex(version, payload.getType(), payload);
-        response = Response.status(Status.CREATED).entity(result).type(mediaType).build();
+        ImmutablePair<EntityTag, String> result = graphDataService.addVertex(version, payload.getType(), payload);
+        response = Response.status(Status.CREATED).entity(result.getValue()).tag(result.getKey()).type(mediaType).build();
       } else {
         response = Response.status(Status.FORBIDDEN).entity(content).type(MediaType.APPLICATION_JSON).build();
       }
@@ -654,8 +654,8 @@ public class CrudRestService {
         if (payload.getType() != null && !payload.getType().equals(type)) {
           throw new CrudException("Edge Type mismatch", Status.BAD_REQUEST);
         }
-        String result = graphDataService.addEdge(version, type, payload);
-        response = Response.status(Status.CREATED).entity(result).type(mediaType).build();
+        ImmutablePair<EntityTag, String> result = graphDataService.addEdge(version, type, payload);
+        response = Response.status(Status.CREATED).entity(result.getValue()).tag(result.getKey()).type(mediaType).build();
       } else {
         response = Response.status(Status.FORBIDDEN).entity(content).type(MediaType.APPLICATION_JSON).build();
       }
@@ -695,9 +695,8 @@ public class CrudRestService {
         if (payload.getType() == null || payload.getType().isEmpty()) {
           throw new CrudException("Missing Edge Type ", Status.BAD_REQUEST);
         }
-        String result = graphDataService.addEdge(version, payload.getType(), payload);
-
-        response = Response.status(Status.CREATED).entity(result).type(mediaType).build();
+        ImmutablePair<EntityTag, String> result = graphDataService.addEdge(version, payload.getType(), payload);
+        response = Response.status(Status.CREATED).entity(result.getValue()).tag(result.getKey()).type(mediaType).build();
       } else {
         response = Response.status(Status.FORBIDDEN).entity(content).type(MediaType.APPLICATION_JSON).build();
       }

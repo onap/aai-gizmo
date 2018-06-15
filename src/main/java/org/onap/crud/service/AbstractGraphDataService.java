@@ -25,11 +25,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-
+import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response.Status;
-
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.onap.aai.restclient.client.OperationResult;
 import org.onap.crud.dao.GraphDao;
+import org.onap.crud.dao.champ.ChampEdgeSerializer;
+import org.onap.crud.dao.champ.ChampVertexSerializer;
 import org.onap.crud.entity.Edge;
 import org.onap.crud.entity.Vertex;
 import org.onap.crud.exception.CrudException;
@@ -37,50 +40,65 @@ import org.onap.crud.parser.CrudResponseBuilder;
 import org.onap.crud.util.CrudServiceUtil;
 import org.onap.schema.OxmModelValidator;
 import org.onap.schema.RelationshipSchemaValidator;
-
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
+import com.google.gson.reflect.TypeToken;
+import net.dongliu.gson.GsonJava8TypeAdapterFactory;
 
 public abstract class AbstractGraphDataService {
   protected GraphDao daoForGet;
   protected GraphDao dao;
-  
+
   public AbstractGraphDataService() throws CrudException {
     CrudServiceUtil.loadModels();
   }
 
-  public String getEdge(String version, String id, String type, Map<String, String> queryParams) throws CrudException {
+  public ImmutablePair<EntityTag, String> getEdge(String version, String id, String type, Map<String, String> queryParams) throws CrudException {
     RelationshipSchemaValidator.validateType(version, type);
-    Edge edge = daoForGet.getEdge(id, type, queryParams);
+    OperationResult operationResult = daoForGet.getEdge(id, type, queryParams);
+    EntityTag entityTag = CrudServiceUtil.getETagFromHeader(operationResult.getHeaders());
+    Edge edge = Edge.fromJson(operationResult.getResult());
+    return new ImmutablePair<>(entityTag, CrudResponseBuilder.buildGetEdgeResponse(RelationshipSchemaValidator.validateOutgoingPayload(version, edge), version));
+  }
 
-    return CrudResponseBuilder.buildGetEdgeResponse(RelationshipSchemaValidator.validateOutgoingPayload(version, edge), version);
-  }
-  
-  public String getEdges(String version, String type, Map<String, String> filter) throws CrudException {
+  public ImmutablePair<EntityTag, String> getEdges(String version, String type, Map<String, String> filter) throws CrudException {
+     Gson champGson = new GsonBuilder()
+              .registerTypeAdapterFactory(new GsonJava8TypeAdapterFactory())
+              .registerTypeAdapter(Vertex.class, new ChampVertexSerializer())
+              .registerTypeAdapter(Edge.class, new ChampEdgeSerializer()).create();
     RelationshipSchemaValidator.validateType(version, type);
-    List<Edge> items = daoForGet.getEdges(type, RelationshipSchemaValidator.resolveCollectionfilter(version, type, filter));
-    return CrudResponseBuilder.buildGetEdgesResponse(items, version);
+    OperationResult operationResult = daoForGet.getEdges(type, RelationshipSchemaValidator.resolveCollectionfilter(version, type, filter));
+    List<Edge> items = champGson.fromJson(operationResult.getResult(), new TypeToken<List<Edge>>() {
+    }.getType());
+    EntityTag entityTag = CrudServiceUtil.getETagFromHeader(operationResult.getHeaders());
+    return new ImmutablePair<>(entityTag, CrudResponseBuilder.buildGetEdgesResponse(items, version));
   }
-  
-  public String getVertex(String version, String id, String type, Map<String, String> queryParams) throws CrudException {
+
+  public ImmutablePair<EntityTag, String> getVertex(String version, String id, String type, Map<String, String> queryParams) throws CrudException {
     type = OxmModelValidator.resolveCollectionType(version, type);
-    Vertex vertex = daoForGet.getVertex(id, type, version, queryParams);
+    OperationResult vertexOpResult = daoForGet.getVertex(id, type, version, queryParams);
+    Vertex vertex = Vertex.fromJson(vertexOpResult.getResult(), version);
     List<Edge> edges = daoForGet.getVertexEdges(id, queryParams);
-    return CrudResponseBuilder.buildGetVertexResponse(OxmModelValidator.validateOutgoingPayload(version, vertex), edges,
-        version);
+    EntityTag entityTag = CrudServiceUtil.getETagFromHeader(vertexOpResult.getHeaders());
+    return new ImmutablePair<>(entityTag, CrudResponseBuilder.buildGetVertexResponse(OxmModelValidator.validateOutgoingPayload(version, vertex), edges,
+        version));
   }
 
-  public String getVertices(String version, String type, Map<String, String> filter, HashSet<String> properties) throws CrudException {
+  public ImmutablePair<EntityTag, String> getVertices(String version, String type, Map<String, String> filter, HashSet<String> properties) throws CrudException {
     type = OxmModelValidator.resolveCollectionType(version, type);
-    List<Vertex> items = daoForGet.getVertices(type, OxmModelValidator.resolveCollectionfilter(version, type, filter), properties, version);
-    return CrudResponseBuilder.buildGetVerticesResponse(items, version);
+    OperationResult operationResult = daoForGet.getVertices(type, OxmModelValidator.resolveCollectionfilter(version, type, filter), properties, version);
+    List<Vertex> vertices = Vertex.collectionFromJson(operationResult.getResult(), version);
+    EntityTag entityTag = CrudServiceUtil.getETagFromHeader(operationResult.getHeaders());
+    return new ImmutablePair<>(entityTag, CrudResponseBuilder.buildGetVerticesResponse(vertices, version));
   }
-  
+
   public String addBulk(String version, BulkPayload payload, HttpHeaders headers) throws CrudException {
-    HashMap<String, Vertex> vertices = new HashMap<String, Vertex>();
-    HashMap<String, Edge> edges = new HashMap<String, Edge>();
-    
-    String txId = dao.openTransaction();   
-     
+    HashMap<String, Vertex> vertices = new HashMap<>();
+    HashMap<String, Edge> edges = new HashMap<>();
+
+    String txId = dao.openTransaction();
+
     try {
       // Step 1. Handle edge deletes (must happen before vertex deletes)
       for (JsonElement v : payload.getRelationships()) {
@@ -98,8 +116,8 @@ public abstract class AbstractGraphDataService {
           RelationshipSchemaValidator.validateType(version, edgePayload.getType());
           deleteBulkEdge(edgePayload.getId(), version, edgePayload.getType(), txId);
         }
-      } 
-      
+      }
+
       // Step 2: Handle vertex deletes
       for (JsonElement v : payload.getObjects()) {
         List<Map.Entry<String, JsonElement>> entries = new ArrayList<Map.Entry<String, JsonElement>>(
@@ -118,7 +136,7 @@ public abstract class AbstractGraphDataService {
           deleteBulkVertex(vertexPayload.getId(), version, type, txId);
         }
       }
-      
+
       // Step 3: Handle vertex add/modify (must happen before edge adds)
       for (JsonElement v : payload.getObjects()) {
         List<Map.Entry<String, JsonElement>> entries = new ArrayList<Map.Entry<String, JsonElement>>(
@@ -130,21 +148,21 @@ public abstract class AbstractGraphDataService {
         Map.Entry<String, JsonElement> opr = entries.get(0);
         Map.Entry<String, JsonElement> item = entries.get(1);
         VertexPayload vertexPayload = VertexPayload.fromJson(item.getValue().getAsJsonObject().toString());
-        
+
         // Add vertex
         if (opr.getValue().getAsString().equalsIgnoreCase("add")) {
-          vertexPayload.setProperties(CrudServiceUtil.mergeHeaderInFoToPayload(vertexPayload.getProperties(), 
-              headers, true));  
+          vertexPayload.setProperties(CrudServiceUtil.mergeHeaderInFoToPayload(vertexPayload.getProperties(),
+              headers, true));
           Vertex validatedVertex = OxmModelValidator.validateIncomingUpsertPayload(null, version, vertexPayload.getType(),
               vertexPayload.getProperties());
           Vertex persistedVertex = addBulkVertex(validatedVertex, version, txId);
           Vertex outgoingVertex = OxmModelValidator.validateOutgoingPayload(version, persistedVertex);
           vertices.put(item.getKey(), outgoingVertex);
         }
-        
-        // Update vertex 
+
+        // Update vertex
         else if (opr.getValue().getAsString().equalsIgnoreCase("modify")) {
-          vertexPayload.setProperties(CrudServiceUtil.mergeHeaderInFoToPayload(vertexPayload.getProperties(), 
+          vertexPayload.setProperties(CrudServiceUtil.mergeHeaderInFoToPayload(vertexPayload.getProperties(),
               headers, false));
           Vertex validatedVertex = OxmModelValidator.validateIncomingUpsertPayload(vertexPayload.getId(), version,
               vertexPayload.getType(), vertexPayload.getProperties());
@@ -152,18 +170,19 @@ public abstract class AbstractGraphDataService {
           Vertex outgoingVertex = OxmModelValidator.validateOutgoingPayload(version, persistedVertex);
           vertices.put(item.getKey(), outgoingVertex);
         }
-        
-        // Patch vertex 
+
+        // Patch vertex
         else if (opr.getValue().getAsString().equalsIgnoreCase("patch")) {
           if ( (vertexPayload.getId() == null) || (vertexPayload.getType() == null) ) {
             throw new CrudException("id and type must be specified for patch request", Status.BAD_REQUEST);
           }
-          
-          vertexPayload.setProperties(CrudServiceUtil.mergeHeaderInFoToPayload(vertexPayload.getProperties(), 
+
+          vertexPayload.setProperties(CrudServiceUtil.mergeHeaderInFoToPayload(vertexPayload.getProperties(),
               headers, false));
-          
-          Vertex existingVertex = dao.getVertex(vertexPayload.getId(), OxmModelValidator.resolveCollectionType(version, vertexPayload.getType()), version, new HashMap<String, String>());
-          Vertex validatedVertex = OxmModelValidator.validateIncomingPatchPayload(vertexPayload.getId(), 
+
+          OperationResult existingVertexOpResult = dao.getVertex(vertexPayload.getId(), OxmModelValidator.resolveCollectionType(version, vertexPayload.getType()), version, new HashMap<String, String>());
+          Vertex existingVertex = Vertex.fromJson(existingVertexOpResult.getResult(), version);
+          Vertex validatedVertex = OxmModelValidator.validateIncomingPatchPayload(vertexPayload.getId(),
               version, vertexPayload.getType(), vertexPayload.getProperties(), existingVertex);
           Vertex persistedVertex = updateBulkVertex(validatedVertex, vertexPayload.getId(), version, txId);
           Vertex outgoingVertex = OxmModelValidator.validateOutgoingPayload(version, persistedVertex);
@@ -171,7 +190,7 @@ public abstract class AbstractGraphDataService {
         }
       }
 
-      // Step 4: Handle edge add/modify 
+      // Step 4: Handle edge add/modify
       for (JsonElement v : payload.getRelationships()) {
         List<Map.Entry<String, JsonElement>> entries = new ArrayList<Map.Entry<String, JsonElement>>(
             v.getAsJsonObject().entrySet());
@@ -185,7 +204,7 @@ public abstract class AbstractGraphDataService {
 
         // Add/Update edge
         if (opr.getValue().getAsString().equalsIgnoreCase("add")
-            || opr.getValue().getAsString().equalsIgnoreCase("modify") 
+            || opr.getValue().getAsString().equalsIgnoreCase("modify")
             || opr.getValue().getAsString().equalsIgnoreCase("patch")) {
           Edge validatedEdge;
           Edge persistedEdge;
@@ -224,13 +243,13 @@ public abstract class AbstractGraphDataService {
             Edge patchedEdge = RelationshipSchemaValidator.validateIncomingPatchPayload(existingEdge, version, edgePayload);
             persistedEdge = updateBulkEdge(patchedEdge, version, txId);
           }
-          
+
 
           Edge outgoingEdge = RelationshipSchemaValidator.validateOutgoingPayload(version, persistedEdge);
           edges.put(item.getKey(), outgoingEdge);
-        } 
-      } 
-      
+        }
+      }
+
       // commit transaction
       dao.commitTransaction(txId);
     } catch (CrudException ex) {
@@ -244,26 +263,32 @@ public abstract class AbstractGraphDataService {
         dao.rollbackTransaction(txId);
       }
     }
-    
+
     return CrudResponseBuilder.buildUpsertBulkResponse(vertices, edges, version, payload);
   }
 
 
-  public abstract String addVertex(String version, String type, VertexPayload payload) throws CrudException;
-  public abstract String updateVertex(String version, String id, String type, VertexPayload payload) throws CrudException;
-  public abstract String patchVertex(String version, String id, String type, VertexPayload payload) throws CrudException;
+  public abstract ImmutablePair<EntityTag, String> addVertex(String version, String type, VertexPayload payload)
+            throws CrudException;
+  public abstract ImmutablePair<EntityTag, String> updateVertex(String version, String id, String type,
+            VertexPayload payload) throws CrudException;
+  public abstract ImmutablePair<EntityTag, String> patchVertex(String version, String id, String type,
+            VertexPayload payload) throws CrudException;
   public abstract String deleteVertex(String version, String id, String type) throws CrudException;
-  public abstract String addEdge(String version, String type, EdgePayload payload) throws CrudException;
+  public abstract ImmutablePair<EntityTag, String> addEdge(String version, String type, EdgePayload payload)
+            throws CrudException;
   public abstract String deleteEdge(String version, String id, String type) throws CrudException;
-  public abstract String updateEdge(String version, String id, String type, EdgePayload payload) throws CrudException;
-  public abstract String patchEdge(String version, String id, String type, EdgePayload payload) throws CrudException;
-  
+  public abstract ImmutablePair<EntityTag, String> updateEdge(String version, String id, String type,
+            EdgePayload payload) throws CrudException;
+  public abstract ImmutablePair<EntityTag, String> patchEdge(String version, String id, String type,
+            EdgePayload payload) throws CrudException;
+
   protected abstract Vertex addBulkVertex(Vertex vertex, String version, String dbTransId) throws CrudException;
   protected abstract Vertex updateBulkVertex(Vertex vertex, String id, String version, String dbTransId) throws CrudException;
   protected abstract void deleteBulkVertex(String id, String version, String type, String dbTransId) throws CrudException;
-  
+
   protected abstract Edge addBulkEdge(Edge edge, String version, String dbTransId) throws CrudException;
   protected abstract Edge updateBulkEdge(Edge edge, String version, String dbTransId) throws CrudException;
   protected abstract void deleteBulkEdge(String id, String version, String type, String dbTransId) throws CrudException;
-  
+
 }

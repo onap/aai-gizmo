@@ -173,7 +173,7 @@ public class GraphEventHeader {
                   .append(requestId, rhs.requestId)
                   .append(timestamp, rhs.timestamp)
                   .append(sourceName, rhs.sourceName)
-                  .append(eventType, rhs.sourceName)
+                  .append(eventType, rhs.eventType)
                   .append(validationEntityType, rhs.validationEntityType)
                   .append(validationTopEntityType, rhs.validationTopEntityType)
                   .append(entityLink, rhs.entityLink)

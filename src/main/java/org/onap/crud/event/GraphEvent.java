@@ -20,13 +20,12 @@
  */
 package org.onap.crud.event;
 
+import java.util.Objects;
+import javax.ws.rs.core.Response.Status;
+import org.onap.crud.exception.CrudException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
-
-import org.onap.crud.exception.CrudException;
-
-import javax.ws.rs.core.Response.Status;
 
 public class GraphEvent {
 
@@ -171,8 +170,13 @@ public class GraphEvent {
 
   @Override
   public String toString() {
-
     return toJson();
+  }
+  
+  @Override
+  public int hashCode() {
+    return Objects.hash(this.dbTransactionId, this.timestamp, this.edge, this.vertex, this.operation,
+              this.result);
   }
 
   public String getObjectKey() {

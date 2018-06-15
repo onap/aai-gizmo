@@ -20,15 +20,13 @@
  */
 package org.onap.crud.service;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-
-import org.onap.crud.exception.CrudException;
-
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.core.Response.Status;
+import org.onap.crud.exception.CrudException;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
 
 public class VertexPayload {
 

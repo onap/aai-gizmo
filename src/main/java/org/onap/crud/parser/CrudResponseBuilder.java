@@ -24,10 +24,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
-import javax.ws.rs.core.Response.Status;
-
 import org.onap.crud.entity.Edge;
 import org.onap.crud.entity.Vertex;
 import org.onap.crud.exception.CrudException;
