@@ -132,7 +132,7 @@ public class ChampDao implements GraphDao {
       if (!vert.getType().equalsIgnoreCase(type)) {
         // We didn't find a vertex with the supplied type, so just throw an
         // exception.
-        throw new CrudException("No vertex with id " + id + "and type " + type + " found in graph",
+        throw new CrudException("No vertex with id " + id + " and type " + type + " found in graph",
             javax.ws.rs.core.Response.Status.NOT_FOUND);
       }
       return getResult;
@@ -579,10 +579,10 @@ public class ChampDao implements GraphDao {
   }
 
   // https://stackoverflow.com/questions/26942330/convert-mapstring-string-to-listnamevaluepair-is-this-the-most-efficient
-  private List<NameValuePair> convertToNameValuePair(String key, HashSet<String> values) {
+  private List<NameValuePair> convertToNameValuePair(String k, HashSet<String> values) {
     List<NameValuePair> nvpList = new ArrayList<>(values.size());
 
-    values.forEach((value) -> nvpList.add(new BasicNameValuePair(key, value)));
+    values.forEach((v) -> nvpList.add(new BasicNameValuePair(k, v)));
 
     return nvpList;
   }
