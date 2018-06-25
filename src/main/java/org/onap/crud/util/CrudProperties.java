@@ -53,21 +53,11 @@ public class CrudProperties {
 
   public static void put(String key, String value) {
     properties.setProperty(key, value);
-    FileOutputStream fileOut = null;
-    try {
-      fileOut = new FileOutputStream(new File(CrudServiceConstants.CRD_CONFIG_FILE));
+    try (FileOutputStream fileOut = new FileOutputStream(new File(CrudServiceConstants.CRD_CONFIG_FILE))) {
       properties.store(fileOut, "Added property: " + key);
     } catch (Exception e) {
       e.printStackTrace();
-    } finally {
-
-      try {
-        fileOut.close();
-      } catch (IOException ex) {
-        ex.printStackTrace();
-      }
     }
-
   }
 
 
