@@ -22,6 +22,7 @@ package org.onap.crud.service;
 
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -783,7 +784,9 @@ public class CrudRestService {
         X500Principal subjectDn = clientCert.getSubjectX500Principal();
         authUser = subjectDn.toString();
       }
-      isValid = this.auth.validateRequest(authUser.toLowerCase(), action.toString() + ":" + authPolicyFunctionName);
+      if(null != authUser) {
+        isValid = this.auth.validateRequest(authUser.toLowerCase(), action.toString() + ":" + authPolicyFunctionName);
+      }
     } catch (Exception e) {
       logResult(action, uri, e);
       return false;
@@ -816,7 +819,7 @@ public class CrudRestService {
 
   void logResult(Action op, String uri, Exception e) {
 
-    logger.error(CrudServiceMsgs.EXCEPTION_DURING_METHOD_CALL, op.toString(), uri, e.getStackTrace().toString());
+    logger.error(CrudServiceMsgs.EXCEPTION_DURING_METHOD_CALL, op.toString(), uri, Arrays.toString(e.getStackTrace()));
 
     // Clear the MDC context so that no other transaction inadvertently
     // uses our transaction id.
