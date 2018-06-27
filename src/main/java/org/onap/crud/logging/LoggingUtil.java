@@ -79,8 +79,8 @@ public class LoggingUtil {
     auditLogger.info(CrudServiceMsgs.PROCESS_REST_REQUEST,
         new LogFields().setField(LogLine.DefinedFields.RESPONSE_CODE, response.getStatus())
             .setField(LogLine.DefinedFields.RESPONSE_DESCRIPTION, respStatusString),
-        (req != null) ? req.getMethod() : "Unknown", (req != null) ? req.getRequestURL().toString() : "Unknown",
-        (req != null) ? req.getRemoteHost() : "Unknown", Integer.toString(response.getStatus()) + " payload: "
+        req.getMethod(), req.getRequestURL().toString(),
+        req.getRemoteHost(), Integer.toString(response.getStatus()) + " payload: "
             + (response.getEntity() == null ? "" : response.getEntity().toString()));
     MDC.clear();
   }
