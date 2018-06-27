@@ -155,6 +155,17 @@
 			"prevent-delete": "${direction}"
 		},
 		{
+			"from": "cloud-region",
+			"to": "zone",
+			"label": "isMemberOf",
+			"direction": "OUT",
+			"multiplicity": "Many2One",
+			"contains-other-v": "NONE",
+			"delete-other-v": "NONE",
+			"SVC-INFRA": "NONE",
+			"prevent-delete": "NONE"
+		},
+		{
 			"from": "complex",
 			"to": "ctag-pool",
 			"label": "hasCtagPool",
@@ -596,6 +607,17 @@
 		},
 		{
 			"from": "model",
+			"to": "model-ver",
+			"label": "has",
+			"direction": "OUT",
+			"multiplicity": "One2Many",
+			"contains-other-v": "${direction}",
+			"delete-other-v": "NONE",
+			"SVC-INFRA": "NONE",
+			"prevent-delete": "NONE"
+		},
+		{
+			"from": "model-ver",
 			"to": "model-element",
 			"label": "startsWith",
 			"direction": "OUT",
@@ -607,7 +629,7 @@
 		},
 		{
 			"from": "model-element",
-			"to": "model",
+			"to": "model-ver",
 			"label": "isA",
 			"direction": "OUT",
 			"multiplicity": "Many2One",
@@ -617,7 +639,7 @@
 			"prevent-delete": "!${direction}"
 		},
 		{
-			"from": "model",
+			"from": "model-ver",
 			"to": "metadatum",
 			"label": "hasMetaData",
 			"direction": "OUT",
@@ -760,6 +782,17 @@
 			"prevent-delete": "NONE"
 		},
 		{
+			"from": "instance-group",
+			"to": "model",
+			"label": "targets",
+			"direction": "OUT",
+			"multiplicity": "Many2Many",
+			"contains-other-v": "NONE",
+			"delete-other-v": "NONE",
+			"SVC-INFRA": "NONE",
+			"prevent-delete": "!${direction}"
+		},
+		{
 			"from": "newvce",
 			"to": "l-interface",
 			"label": "hasLInterface",
@@ -892,6 +925,17 @@
 			"prevent-delete": "NONE"
 		},
 		{
+			"from": "pserver",
+			"to": "zone",
+			"label": "isMemberOf",
+			"direction": "OUT",
+			"multiplicity": "Many2One",
+			"contains-other-v": "NONE",
+			"delete-other-v": "NONE",
+			"SVC-INFRA": "NONE",
+			"prevent-delete": "NONE"
+		},
+		{
 			"from": "pnf",
 			"to": "p-interface",
 			"label": "hasPinterface",
@@ -925,11 +969,44 @@
 			"prevent-delete": "!${direction}"
 		},
 		{
+			"from": "pnf",
+			"to": "instance-group",
+			"label": "isMemberOf",
+			"direction": "OUT",
+			"multiplicity": "Many2Many",
+			"contains-other-v": "NONE",
+			"delete-other-v": "NONE",
+			"SVC-INFRA": "NONE",
+			"prevent-delete": "NONE"
+		},
+		{
+			"from": "pnf",
+			"to": "zone",
+			"label": "isMemberOf",
+			"direction": "OUT",
+			"multiplicity": "Many2One",
+			"contains-other-v": "NONE",
+			"delete-other-v": "NONE",
+			"SVC-INFRA": "NONE",
+			"prevent-delete": "NONE"
+		},
+		{
 			"from": "service-instance",
 			"to": "cvlan-tag",
 			"label": "hasIPAGFacingVLAN",
 			"direction": "OUT",
 			"multiplicity": "Many2Many",
+			"contains-other-v": "NONE",
+			"delete-other-v": "NONE",
+			"SVC-INFRA": "NONE",
+			"prevent-delete": "NONE"
+		},
+		{
+			"from": "service-instance",
+			"to": "pnf",
+			"label": "uses",
+			"direction": "OUT",
+			"multiplicity": "One2Many",
 			"contains-other-v": "NONE",
 			"delete-other-v": "NONE",
 			"SVC-INFRA": "NONE",
@@ -1183,6 +1260,17 @@
 			"label": "runsOnPserver",
 			"direction": "OUT",
 			"multiplicity": "Many2One",
+			"contains-other-v": "NONE",
+			"delete-other-v": "NONE",
+			"SVC-INFRA": "${direction}",
+			"prevent-delete": "!${direction}"
+		},
+		{
+			"from": "vserver",
+			"to": "pserver",
+			"label": "tosca.relationships.HostedOn",
+			"direction": "OUT",
+			"multiplicity": "Many2Many",
 			"contains-other-v": "NONE",
 			"delete-other-v": "NONE",
 			"SVC-INFRA": "${direction}",
@@ -1468,10 +1556,197 @@
 			"to": "logical-link",
 			"label": "usesLogicalLink",
 			"direction": "OUT",
-			"multiplicity": "One2One",
+			"multiplicity": "Many2Many",
 			"contains-other-v": "NONE",
 			"delete-other-v": "${direction}",
 			"SVC-INFRA": "${direction}",
+			"prevent-delete": "NONE"
+		},
+		{
+			"from": "service-instance",
+			"to": "ctag-assignment",
+			"label": "uses",
+			"direction": "OUT",
+			"multiplicity": "One2Many",
+			"contains-other-v": "NONE",
+			"delete-other-v": "NONE",
+			"SVC-INFRA": "NONE",
+			"prevent-delete": "NONE"
+		},
+		{
+			"from": "allotted-resource",
+			"to": "generic-vnf",
+			"label": "isPartOf",
+			"direction": "OUT",
+			"multiplicity": "Many2Many",
+			"contains-other-v": "NONE",
+			"delete-other-v": "NONE",
+			"SVC-INFRA": "NONE",
+			"prevent-delete": "NONE"
+		},
+		{
+			"from": "allotted-resource",
+			"to": "l3-network",
+			"label": "isPartOf",
+			"direction": "OUT",
+			"multiplicity": "Many2Many",
+			"contains-other-v": "NONE",
+			"delete-other-v": "NONE",
+			"SVC-INFRA": "NONE",
+			"prevent-delete": "NONE"
+		},
+		{
+			"from": "allotted-resource",
+			"to": "instance-group",
+			"label": "isMemberOf",
+			"direction": "OUT",
+			"multiplicity": "Many2Many",
+			"contains-other-v": "NONE",
+			"delete-other-v": "NONE",
+			"SVC-INFRA": "NONE",
+			"prevent-delete": "NONE"
+		},
+		{
+			"from": "allotted-resource",
+			"to": "vlan",
+			"label": "isPartOf",
+			"direction": "OUT",
+			"multiplicity": "Many2Many",
+			"contains-other-v": "NONE",
+			"delete-other-v": "NONE",
+			"SVC-INFRA": "NONE",
+			"prevent-delete": "NONE"
+		},
+		{
+			"from": "generic-vnf",
+			"to": "instance-group",
+			"label": "isMemberOf",
+			"direction": "OUT",
+			"multiplicity": "Many2Many",
+			"contains-other-v": "NONE",
+			"delete-other-v": "NONE",
+			"SVC-INFRA": "NONE",
+			"prevent-delete": "NONE"
+		},
+		{
+			"from": "service-instance",
+			"to": "instance-group",
+			"label": "isMemberOf",
+			"direction": "OUT",
+			"multiplicity": "Many2Many",
+			"contains-other-v": "NONE",
+			"delete-other-v": "NONE",
+			"SVC-INFRA": "NONE",
+			"prevent-delete": "NONE"
+		},
+		{
+			"from": "allotted-resource",
+			"to": "tunnel-xconnect",
+			"label": "has",
+			"direction": "OUT",
+			"multiplicity": "One2One",
+			"contains-other-v": "${direction}",
+			"delete-other-v": "NONE",
+			"SVC-INFRA": "NONE",
+			"prevent-delete": "NONE"
+		},
+		{
+			"from": "logical-link",
+			"to": "cloud-region",
+			"label": "existsIn",
+			"direction": "OUT",
+			"multiplicity": "Many2Many",
+			"contains-other-v": "NONE",
+			"delete-other-v": "NONE",
+			"SVC-INFRA": "NONE",
+			"prevent-delete": "NONE"
+		},
+		{
+			"from": "logical-link",
+			"to": "vpn-binding",
+			"label": "uses",
+			"direction": "OUT",
+			"multiplicity": "Many2Many",
+			"contains-other-v": "NONE",
+			"delete-other-v": "NONE",
+			"SVC-INFRA": "NONE",
+			"prevent-delete": "!${direction}"
+		},
+		{
+			"from": "generic-vnf",
+			"to": "entitlement",
+			"label": "has",
+			"direction": "OUT",
+			"multiplicity": "One2Many",
+			"contains-other-v": "${direction}",
+			"delete-other-v": "NONE",
+			"SVC-INFRA": "NONE",
+			"prevent-delete": "NONE"
+		},
+		{
+			"from": "generic-vnf",
+			"to": "license",
+			"label": "has",
+			"direction": "OUT",
+			"multiplicity": "One2Many",
+			"contains-other-v": "${direction}",
+			"delete-other-v": "NONE",
+			"SVC-INFRA": "NONE",
+			"prevent-delete": "NONE"
+		},
+		{
+			"from": "vce",
+			"to": "entitlement",
+			"label": "has",
+			"direction": "OUT",
+			"multiplicity": "One2Many",
+			"contains-other-v": "${direction}",
+			"delete-other-v": "NONE",
+			"SVC-INFRA": "NONE",
+			"prevent-delete": "NONE"
+		},
+		{
+			"from": "vce",
+			"to": "license",
+			"label": "has",
+			"direction": "OUT",
+			"multiplicity": "One2Many",
+			"contains-other-v": "${direction}",
+			"delete-other-v": "NONE",
+			"SVC-INFRA": "NONE",
+			"prevent-delete": "NONE"
+		},
+		{
+			"from": "zone",
+			"to": "complex",
+			"label": "existsIn",
+			"direction": "OUT",
+			"multiplicity": "Many2One",
+			"contains-other-v": "NONE",
+			"delete-other-v": "NONE",
+			"SVC-INFRA": "NONE",
+			"prevent-delete": "!${direction}"
+		},
+		{
+			"from": "service-instance",
+			"to": "allotted-resource",
+			"label": "has",
+			"direction": "OUT",
+			"multiplicity": "Many2Many",
+			"contains-other-v": "${direction}",
+			"delete-other-v": "NONE",
+			"SVC-INFRA": "NONE",
+			"prevent-delete": "NONE"
+		},
+		{
+			"from": "service-instance",
+			"to": "allotted-resource",
+			"label": "uses",
+			"direction": "OUT",
+			"multiplicity": "Many2Many",
+			"contains-other-v": "NONE",
+			"delete-other-v": "NONE",
+			"SVC-INFRA": "NONE",
 			"prevent-delete": "NONE"
 		}
 	]

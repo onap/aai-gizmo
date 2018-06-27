@@ -18,63 +18,93 @@
  * limitations under the License.
  * ============LICENSE_END=========================================================
  */
-package org.onap.crud.service;
+package org.onap.crud.parser;
 
+import javax.ws.rs.core.Response.Status;
+import org.onap.crud.exception.CrudException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 
-import org.onap.crud.exception.CrudException;
+public class EdgePayload {
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.ws.rs.core.Response.Status;
-
-public class BulkPayload {
-  public enum OperationType {
-    CREATE, UPDATE, DELETE
-  }
-
-  private List<JsonElement> objects = new ArrayList<JsonElement>();
-  private List<JsonElement> relationships = new ArrayList<JsonElement>();
+  private String id;
+  private String type;
+  private String url;
+  private String source;
+  private String target;
+  private JsonElement properties;
 
   private static final Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+
+
+  @Override
+  public String toString() {
+    return "EdgePayload [id=" + id + ", type=" + type + ", url=" + url + ", source="
+        + source + ", target=" + target + ", properties=" + properties + "]";
+  }
 
   public String toJson() {
     return gson.toJson(this);
   }
 
-  public static BulkPayload fromJson(String payload) throws CrudException {
+  public static EdgePayload fromJson(String payload) throws CrudException {
     try {
       if (payload == null || payload.isEmpty()) {
         throw new CrudException("Invalid Json Payload", Status.BAD_REQUEST);
       }
-      return gson.fromJson(payload, BulkPayload.class);
+      return gson.fromJson(payload, EdgePayload.class);
     } catch (Exception ex) {
       throw new CrudException("Invalid Json Payload", Status.BAD_REQUEST);
     }
   }
 
-  public List<JsonElement> getObjects() {
-    return objects;
+  public String getId() {
+    return id;
   }
 
-  public void setObjects(List<JsonElement> objects) {
-    this.objects = objects;
+  public void setId(String id) {
+    this.id = id;
   }
 
-  public List<JsonElement> getRelationships() {
-    return relationships;
+  public String getType() {
+    return type;
   }
 
-  public void setRelationships(List<JsonElement> relationships) {
-    this.relationships = relationships;
+  public void setType(String type) {
+    this.type = type;
   }
 
-  @Override
-  public String toString() {
-    return "BulkPayload [objects=" + objects + ", relationships=" + relationships + "]";
+  public String getUrl() {
+    return url;
+  }
+
+  public void setUrl(String url) {
+    this.url = url;
+  }
+
+  public String getSource() {
+    return source;
+  }
+
+  public void setSource(String source) {
+    this.source = source;
+  }
+
+  public String getTarget() {
+    return target;
+  }
+
+  public void setTarget(String target) {
+    this.target = target;
+  }
+
+  public JsonElement getProperties() {
+    return properties;
+  }
+
+  public void setProperties(JsonElement properties) {
+    this.properties = properties;
   }
 
 }

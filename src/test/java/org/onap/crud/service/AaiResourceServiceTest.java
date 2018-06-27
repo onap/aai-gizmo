@@ -33,8 +33,7 @@ import org.onap.aai.serialization.db.EdgeRule;
 import org.onap.aai.serialization.db.EdgeRules;
 import org.onap.aai.serialization.db.EdgeType;
 import org.onap.crud.exception.CrudException;
-import org.onap.crud.service.EdgePayload;
-
+import org.onap.crud.parser.EdgePayload;
 import com.google.gson.JsonElement;
 
 public class AaiResourceServiceTest {

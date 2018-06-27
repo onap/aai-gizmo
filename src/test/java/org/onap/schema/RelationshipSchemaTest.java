@@ -20,18 +20,16 @@
  */
 package org.onap.schema;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
+import static org.junit.Assert.*;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Test;
 import org.onap.aai.edges.EdgeRule;
 import org.onap.aai.edges.exceptions.EdgeRuleNotFoundException;
 import org.onap.crud.exception.CrudException;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.junit.Assert.*;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 
 public class RelationshipSchemaTest {
 

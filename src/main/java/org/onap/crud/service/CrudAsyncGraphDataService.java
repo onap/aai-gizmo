@@ -56,11 +56,13 @@ import org.onap.crud.event.envelope.GraphEventEnvelope;
 import org.onap.crud.event.response.GraphEventResponseHandler;
 import org.onap.crud.exception.CrudException;
 import org.onap.crud.logging.CrudServiceMsgs;
+import org.onap.crud.parser.EdgePayload;
+import org.onap.crud.parser.VertexPayload;
 import org.onap.crud.util.CrudProperties;
 import org.onap.crud.util.CrudServiceConstants;
 import org.onap.crud.util.etag.EtagGenerator;
-import org.onap.schema.OxmModelValidator;
-import org.onap.schema.RelationshipSchemaValidator;
+import org.onap.schema.validation.OxmModelValidator;
+import org.onap.schema.validation.RelationshipSchemaValidator;
 
 public class CrudAsyncGraphDataService extends AbstractGraphDataService {
 
@@ -211,7 +213,7 @@ public class CrudAsyncGraphDataService extends AbstractGraphDataService {
             throws CrudException {
         // Validate the incoming payload
         Vertex vertex = OxmModelValidator.validateIncomingUpsertPayload(null, version, type, payload.getProperties());
-        vertex.getProperties().put(org.onap.schema.OxmModelValidator.Metadata.NODE_TYPE.propertyName(), type);
+        vertex.getProperties().put(OxmModelValidator.Metadata.NODE_TYPE.propertyName(), type);
         // Create graph request event
         GraphEvent event = GraphEvent.builder(GraphEventOperation.CREATE)
                 .vertex(GraphEventVertex.fromVertex(vertex, version)).build();
@@ -233,6 +235,7 @@ public class CrudAsyncGraphDataService extends AbstractGraphDataService {
     public ImmutablePair<EntityTag, String> addEdge(String version, String type, EdgePayload payload)
             throws CrudException {
         Edge edge = RelationshipSchemaValidator.validateIncomingAddPayload(version, type, payload);
+
         // Create graph request event
         GraphEvent event =
                 GraphEvent.builder(GraphEventOperation.CREATE).edge(GraphEventEdge.fromEdge(edge, version)).build();
@@ -320,6 +323,7 @@ public class CrudAsyncGraphDataService extends AbstractGraphDataService {
         OperationResult operationResult = dao.getEdge(id, type, new HashMap<String, String>());
         Edge edge = Edge.fromJson(operationResult.getResult());
         Edge validatedEdge = RelationshipSchemaValidator.validateIncomingUpdatePayload(edge, version, payload);
+
         GraphEvent event = GraphEvent.builder(GraphEventOperation.UPDATE)
                 .edge(GraphEventEdge.fromEdge(validatedEdge, version)).build();
 

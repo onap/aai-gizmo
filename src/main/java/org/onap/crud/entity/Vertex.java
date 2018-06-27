@@ -34,7 +34,7 @@ import org.json.JSONObject;
 import org.onap.crud.exception.CrudException;
 import org.onap.crud.util.CrudServiceUtil;
 import org.onap.schema.OxmModelLoader;
-import org.onap.schema.OxmModelValidator;
+import org.onap.schema.validation.OxmModelValidator;
 import com.google.common.base.CaseFormat;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

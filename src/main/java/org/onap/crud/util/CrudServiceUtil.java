@@ -31,9 +31,8 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response.Status;
 import org.onap.aai.db.props.AAIProperties;
 import org.onap.crud.exception.CrudException;
-import org.onap.schema.OxmModelLoader;
 import org.onap.schema.EdgeRulesLoader;
-
+import org.onap.schema.OxmModelLoader;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;

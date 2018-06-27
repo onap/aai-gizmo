@@ -20,22 +20,10 @@
  */
 package org.onap.schema;
 
-import com.google.common.collect.Multimap;
-import org.apache.commons.io.IOUtils;
-import org.onap.aai.cl.eelf.LoggerFactory;
-import org.onap.aai.edges.EdgeRule;
-import org.onap.aai.edges.exceptions.EdgeRuleNotFoundException;
-import org.onap.aai.edges.EdgeIngestor;
-import org.onap.aai.setup.ConfigTranslator;
-import org.onap.aai.setup.SchemaLocationsBean;
-import org.onap.aai.setup.Version;
-import org.onap.crud.exception.CrudException;
-import org.onap.crud.logging.CrudServiceMsgs;
-import org.onap.schema.util.SchemaIngestPropertyReader;
-import org.springframework.core.io.UrlResource;
-
-import javax.ws.rs.core.Response.Status;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -43,6 +31,19 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import javax.ws.rs.core.Response.Status;
+import org.apache.commons.io.IOUtils;
+import org.onap.aai.cl.eelf.LoggerFactory;
+import org.onap.aai.edges.EdgeIngestor;
+import org.onap.aai.edges.EdgeRule;
+import org.onap.aai.edges.exceptions.EdgeRuleNotFoundException;
+import org.onap.aai.setup.ConfigTranslator;
+import org.onap.aai.setup.SchemaLocationsBean;
+import org.onap.aai.setup.Version;
+import org.onap.crud.exception.CrudException;
+import org.onap.crud.logging.CrudServiceMsgs;
+import org.onap.schema.util.SchemaIngestPropertyReader;
+import com.google.common.collect.Multimap;
 
 public class EdgeRulesLoader {
 

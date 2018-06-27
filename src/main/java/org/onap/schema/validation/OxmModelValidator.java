@@ -18,7 +18,7 @@
  * limitations under the License.
  * ============LICENSE_END=========================================================
  */
-package org.onap.schema;
+package org.onap.schema.validation;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,13 +36,14 @@ import org.onap.crud.exception.CrudException;
 import org.onap.crud.logging.CrudServiceMsgs;
 import org.onap.crud.util.CrudServiceConstants;
 import org.onap.crud.util.CrudServiceUtil;
+import org.onap.schema.OxmModelLoader;
 import com.google.common.base.CaseFormat;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 
 public class OxmModelValidator {
   private static Logger logger = LoggerFactory.getInstance().getLogger(OxmModelValidator.class.getName());
-	
+
   public enum Metadata {
     NODE_TYPE("aai-node-type"),
     URI("aai-uri"),
@@ -162,7 +163,7 @@ public class OxmModelValidator {
 
   public static Vertex validateIncomingUpsertPayload(String id, String version, String type, JsonElement properties)
       throws CrudException {
-    
+
     try {
       type = resolveCollectionType(version, type);
       DynamicJAXBContext jaxbContext = OxmModelLoader.getContextForVersion(version);
@@ -319,7 +320,7 @@ public class OxmModelValidator {
     return null;
   }
 
-  public static Vertex validateOutgoingPayload(String version, Vertex vertex) { 
+  public static Vertex validateOutgoingPayload(String version, Vertex vertex) {
     Vertex.Builder modelVertexBuilder = new Vertex.Builder(vertex.getType()).id(vertex.getId().get());
 
     try {
@@ -340,7 +341,7 @@ public class OxmModelValidator {
           modelVertexBuilder.property(key, vertex.getProperties().get(key));
         }
       }
-      
+
       return modelVertexBuilder.build();
     } catch (Exception ex) {
       return vertex;

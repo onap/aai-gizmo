@@ -36,10 +36,14 @@ import org.onap.crud.dao.champ.ChampVertexSerializer;
 import org.onap.crud.entity.Edge;
 import org.onap.crud.entity.Vertex;
 import org.onap.crud.exception.CrudException;
+import org.onap.crud.parser.BulkPayload;
 import org.onap.crud.parser.CrudResponseBuilder;
+import org.onap.crud.parser.EdgePayload;
+import org.onap.crud.parser.VertexPayload;
+import org.onap.crud.parser.util.EdgePayloadUtil;
 import org.onap.crud.util.CrudServiceUtil;
-import org.onap.schema.OxmModelValidator;
-import org.onap.schema.RelationshipSchemaValidator;
+import org.onap.schema.validation.OxmModelValidator;
+import org.onap.schema.validation.RelationshipSchemaValidator;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -228,12 +232,31 @@ public abstract class AbstractGraphDataService {
               edgePayload
                   .setTarget("services/inventory/" + version + "/" + target.getType() + "/" + target.getId().get());
             }
-            validatedEdge = RelationshipSchemaValidator.validateIncomingAddPayload(version, edgePayload.getType(),
-                edgePayload);
+
+            List<Edge> sourceVertexEdges =
+                    EdgePayloadUtil.filterEdgesByRelatedVertexAndType(EdgePayloadUtil.getVertexNodeType(edgePayload.getSource()), edgePayload.getType(),
+                                 daoForGet.getVertexEdges(EdgePayloadUtil.getVertexNodeId(edgePayload.getSource()), null));
+
+            List<Edge> targetVertexEdges =
+                     EdgePayloadUtil.filterEdgesByRelatedVertexAndType(EdgePayloadUtil.getVertexNodeType(edgePayload.getTarget()), edgePayload.getType(),
+                                 daoForGet.getVertexEdges(EdgePayloadUtil.getVertexNodeId(edgePayload.getTarget()), null));
+
+            validatedEdge = RelationshipSchemaValidator.validateIncomingAddPayload(version, edgePayload.getType(), edgePayload, sourceVertexEdges,
+                    targetVertexEdges);
             persistedEdge = addBulkEdge(validatedEdge, version, txId);
           } else if (opr.getValue().getAsString().equalsIgnoreCase("modify")) {
             Edge edge = dao.getEdge(edgePayload.getId(), edgePayload.getType(), txId);
-            validatedEdge = RelationshipSchemaValidator.validateIncomingUpdatePayload(edge, version, edgePayload);
+
+            // load source and target vertex relationships for validation
+            List<Edge> sourceVertexEdges =
+                   EdgePayloadUtil.filterEdgesByRelatedVertexAndType(EdgePayloadUtil.getVertexNodeType(edgePayload.getSource()), edgePayload.getType(),
+                                daoForGet.getVertexEdges(EdgePayloadUtil.getVertexNodeId(edgePayload.getSource()), null));
+
+            List<Edge> targetVertexEdges =
+                    EdgePayloadUtil.filterEdgesByRelatedVertexAndType(EdgePayloadUtil.getVertexNodeType(edgePayload.getTarget()), edgePayload.getType(),
+                                daoForGet.getVertexEdges(EdgePayloadUtil.getVertexNodeId(edgePayload.getTarget()), null));
+
+            validatedEdge = RelationshipSchemaValidator.validateIncomingUpdatePayload(edge, version, edgePayload, edgePayload.getType(), sourceVertexEdges, targetVertexEdges);
             persistedEdge = updateBulkEdge(validatedEdge, version, txId);
           } else {
             if ( (edgePayload.getId() == null) || (edgePayload.getType() == null) ) {

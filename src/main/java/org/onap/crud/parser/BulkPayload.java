@@ -18,24 +18,26 @@
  * limitations under the License.
  * ============LICENSE_END=========================================================
  */
-package org.onap.crud.service;
+package org.onap.crud.parser;
 
-import java.util.ArrayList;
-import java.util.List;
-import javax.ws.rs.core.Response.Status;
-import org.onap.crud.exception.CrudException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 
-public class VertexPayload {
+import org.onap.crud.exception.CrudException;
 
-  private String id;
-  private String type;
-  private String url;
-  private JsonElement properties;
-  private List<EdgePayload> in = new ArrayList<EdgePayload>();
-  private List<EdgePayload> out = new ArrayList<EdgePayload>();
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.ws.rs.core.Response.Status;
+
+public class BulkPayload {
+  public enum OperationType {
+    CREATE, UPDATE, DELETE
+  }
+
+  private List<JsonElement> objects = new ArrayList<JsonElement>();
+  private List<JsonElement> relationships = new ArrayList<JsonElement>();
 
   private static final Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 
@@ -43,70 +45,36 @@ public class VertexPayload {
     return gson.toJson(this);
   }
 
-  public static VertexPayload fromJson(String payload) throws CrudException {
+  public static BulkPayload fromJson(String payload) throws CrudException {
     try {
       if (payload == null || payload.isEmpty()) {
         throw new CrudException("Invalid Json Payload", Status.BAD_REQUEST);
       }
-      return gson.fromJson(payload, VertexPayload.class);
+      return gson.fromJson(payload, BulkPayload.class);
     } catch (Exception ex) {
       throw new CrudException("Invalid Json Payload", Status.BAD_REQUEST);
     }
   }
 
-  public String getId() {
-    return id;
+  public List<JsonElement> getObjects() {
+    return objects;
   }
 
-  public void setId(String id) {
-    this.id = id;
+  public void setObjects(List<JsonElement> objects) {
+    this.objects = objects;
   }
 
-  public String getType() {
-    return type;
+  public List<JsonElement> getRelationships() {
+    return relationships;
   }
 
-  public void setType(String type) {
-    this.type = type;
+  public void setRelationships(List<JsonElement> relationships) {
+    this.relationships = relationships;
   }
-
-  public String getUrl() {
-    return url;
-  }
-
-  public void setUrl(String url) {
-    this.url = url;
-  }
-
-  public JsonElement getProperties() {
-    return properties;
-  }
-
-  public void setProperties(JsonElement properties) {
-    this.properties = properties;
-  }
-
-  public List<EdgePayload> getIn() {
-    return in;
-  }
-
-  public void setIn(List<EdgePayload> in) {
-    this.in = in;
-  }
-
-  public List<EdgePayload> getOut() {
-    return out;
-  }
-
-  public void setOut(List<EdgePayload> out) {
-    this.out = out;
-  }
-
 
   @Override
   public String toString() {
-    return "VertexPayload [id=" + id + ", type=" + type + ", url=" + url + ", properties="
-        + properties + ", in=" + in + ", out=" + out + "]";
+    return "BulkPayload [objects=" + objects + ", relationships=" + relationships + "]";
   }
 
 }

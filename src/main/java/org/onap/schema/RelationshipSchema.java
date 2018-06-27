@@ -20,21 +20,25 @@
  */
 package org.onap.schema;
 
-import com.google.common.collect.Multimap;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+import javax.ws.rs.core.Response.Status;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.onap.aai.edges.EdgeRule;
 import org.onap.crud.exception.CrudException;
-
-import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
-import javax.ws.rs.core.Response.Status;
+import com.google.common.collect.Multimap;
 
 
 public class RelationshipSchema {
 
+  public static final String SCHEMA_SOURCE_NODE_TYPE = "from";
+  public static final String SCHEMA_TARGET_NODE_TYPE = "to";
   public static final String SCHEMA_RELATIONSHIP_TYPE = "label";
-
+  public static final String SCHEMA_MULTIPLICITY_TYPE = "multiplicity";
+  public static final String SCHEMA_RULES_ARRAY = "rules";
 
   private Map<String, Map<String, Class<?>>> relations = new HashMap<>();
   /**
@@ -42,8 +46,18 @@ public class RelationshipSchema {
    */
   private Map<String, Map<String, Class<?>>> relationTypes  = new HashMap<>();
 
-  public RelationshipSchema( Multimap<String, EdgeRule> rules, String props) throws CrudException, IOException {
+  private Map<String, EdgeRule> relationshipRules = new HashMap<>();
+
+  @SuppressWarnings("unchecked")
+  public RelationshipSchema(Multimap<String, EdgeRule> rules, String props) throws CrudException, IOException {
     HashMap<String, String> properties = new ObjectMapper().readValue(props, HashMap.class);
+
+    // hold the true values of the edge rules by key - convert to java 8
+    for (EdgeRule rule : rules.values()) {
+      String key = buildRelation(rule.getFrom(), rule.getTo(), rule.getLabel());
+      relationshipRules.put(key, rule);
+    }
+
     Map<String, Class<?>> edgeProps = properties.entrySet().stream().collect(Collectors.toMap(p -> p.getKey(), p -> {
       try {
         return resolveClass(p.getValue());
@@ -63,6 +77,27 @@ public class RelationshipSchema {
     return this.relations.get(key);
   }
 
+  /**
+   * Extract the multiplicity type from the Edge rules
+   *
+   * @param key
+   * @return
+   * @throws CrudException
+   */
+  public String lookupRelationMultiplicity(String key) throws CrudException {
+    EdgeRule edgeRule = relationshipRules.get(key);
+
+    if (edgeRule == null) {
+      throw new CrudException("Invalid source/target/relationship type: " + key, Status.BAD_REQUEST);
+    }
+
+    if (edgeRule.getMultiplicityRule() != null) {
+      return edgeRule.getMultiplicityRule().toString();
+    }
+
+    return null;
+  }
+
   public Map<String, Class<?>> lookupRelationType(String type) {
     return this.relationTypes.get(type);
   }
@@ -72,7 +107,7 @@ public class RelationshipSchema {
   }
 
 
-  private String buildRelation(String source, String target, String relation){
+  private String buildRelation(String source, String target, String relation) {
     return source + ":" + target + ":" + relation;
   }
 
@@ -89,5 +124,3 @@ public class RelationshipSchema {
     }
   }
 }
-
-

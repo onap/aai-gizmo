@@ -36,7 +36,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.onap.crud.exception.CrudException;
-import org.onap.crud.service.TestDao;
 import org.onap.crud.service.util.TestHeaders;
 import org.onap.crud.service.util.TestRequest;
 import org.onap.crud.service.util.TestUriInfo;
@@ -50,36 +49,36 @@ public class CrudRestServiceTest {
       "\"properties\": {" +
       "\"fqdn\": \"myhost.onap.com\"," +
       "\"hostname\": \"myhost\" } }";
-  
+
   private final String postVertexPayload = "{" +
       "\"type\": \"pserver\"," +
       "\"properties\": {" +
       "\"fqdn\": \"myhost.onap.com\"," +
       "\"hostname\": \"myhost\" } }";
-  
+
   private final String postMissingPropVertexPayload = "{" +
       "\"type\": \"pserver\"," +
       "\"properties\": {" +
       "\"fqdn\": \"myhost.onap.com\"," +
       "\"equip-type\": \"box\" } }";
- 
+
   private final String postEdgePayload = "{" +
       "\"type\": \"tosca.relationships.HostedOn\"," +
-      "\"source\": \"services/inventory/v12/vserver/50bdab41-ad1c-4d00-952c-a0aa5d827811\"," +
-      "\"target\": \"services/inventory/v12/pserver/1d326bc7-b985-492b-9604-0d5d1f06f908\"," +
+      "\"source\": \"services/inventory/v11/vserver/50bdab41-ad1c-4d00-952c-a0aa5d827811\"," +
+            "\"target\": \"services/inventory/v11/pserver/1d326bc7-b985-492b-9604-0d5d1f06f908\"," +
       "\"properties\": {" +
       "\"prevent-delete\": \"NONE\" } }";
 
-  
+
   private CrudRestService mockService;
-  
+
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
   @Before
   public void init() throws Exception {
     ClassLoader classLoader = getClass().getClassLoader();
-    File dir = new File(classLoader.getResource("model").getFile());
+    File dir = new File(classLoader.getResource("rules").getFile());
     System.setProperty("CONFIG_HOME", dir.getParent());
     EdgeRulesLoader.resetSchemaVersionContext();
 
@@ -91,150 +90,170 @@ public class CrudRestServiceTest {
         Mockito.anyString(), Mockito.anyString(), Mockito.any(CrudRestService.Action.class), Mockito.anyString(),
         Mockito.any(HttpHeaders.class));
   }
-  
+
   @Test
   public void testDelete() throws CrudException {
     Response response;
-    
-    response = mockService.deleteVertex("", "v11", "pserver", "872dd5df-0be9-4167-95e9-2cf4b21165ed", 
+
+    response = mockService.deleteVertex("", "v11", "pserver", "872dd5df-0be9-4167-95e9-2cf4b21165ed",
         "services/inventory/v11", new TestHeaders(), null, new TestRequest());
     assertTrue(response.getStatus() == 200);
-    
-        response = mockService.deleteEdge("", "v11", "tosca.relationships.HostedOn",
-                "872dd5df-0be9-4167-95e9-2cf4b21165ed",
+
+    response = mockService.deleteEdge("", "v11", "tosca.relationships.HostedOn", "872dd5df-0be9-4167-95e9-2cf4b21165ed",
         "services/inventory/v11", new TestHeaders(), null, new TestRequest());
     assertTrue(response.getStatus() == 200);
   }
-  
+
   @Test
   public void testAddVertex() throws CrudException {
     Response response;
-    
+
 	// Cannot find OXM version
-    response = mockService.addVertex(postVertexPayload, "v8", "services/inventory/v8",
+    response = mockService.addVertex(postVertexPayload, "v7", "services/inventory/v8",
             new TestHeaders(), null, new TestRequest());
     System.out.println("Response: " + response.getStatus() + "\n" + response.getEntity().toString());
     assertTrue(response.getStatus() == 500);
     Assert.assertNull(response.getEntityTag());
-	
-    response = mockService.addVertex(postMissingPropVertexPayload, "v11", "services/inventory/v11", 
+
+    response = mockService.addVertex(postMissingPropVertexPayload, "v11", "services/inventory/v11",
         new TestHeaders(), null, new TestRequest());
     System.out.println("Response: " + response.getStatus() + "\n" + response.getEntity().toString());
     assertTrue(response.getStatus() == 400);
 	Assert.assertNull(response.getEntityTag());
-    
-    response = mockService.addVertex(postVertexPayload, "v11", "services/inventory/v11", 
+
+    response = mockService.addVertex(postVertexPayload, "v11", "services/inventory/v11",
         new TestHeaders(), null, new TestRequest());
     System.out.println("Response: " + response.getStatus() + "\n" + response.getEntity().toString());
     assertTrue(response.getStatus() == 201);
 	Assert.assertEquals(response.getEntityTag().getValue(), "test123");
-    
-    response = mockService.addVertex(postMissingPropVertexPayload, "v11", "pserver", "services/inventory/v11", 
+
+    response = mockService.addVertex(postMissingPropVertexPayload, "v11", "pserver", "services/inventory/v11",
         new TestHeaders(), null, new TestRequest());
     System.out.println("Response: " + response.getStatus() + "\n" + response.getEntity().toString());
     assertTrue(response.getStatus() == 400);
 	Assert.assertNull(response.getEntityTag());
-    
-    response = mockService.addVertex(postVertexPayload, "v11", "pserver", "services/inventory/v11", 
+
+    response = mockService.addVertex(postVertexPayload, "v11", "pserver", "services/inventory/v11",
         new TestHeaders(), null, new TestRequest());
     System.out.println("Response: " + response.getStatus() + "\n" + response.getEntity().toString());
     assertTrue(response.getStatus() == 201);
 	Assert.assertEquals(response.getEntityTag().getValue(), "test123");
   }
-  
+
   @Test
   public void testAddEdge() throws CrudException {
     Response response;
-    
-    response = mockService.addEdge(postEdgePayload, "v11", "services/inventory/v11", 
+
+    response = mockService.addEdge(postEdgePayload, "v9", "services/inventory/v9",
         new TestHeaders(), null, new TestRequest());
     System.out.println("Response: " + response.getStatus() + "\n" + response.getEntity().toString());
     assertTrue(response.getStatus() == 201);
 	Assert.assertEquals(response.getEntityTag().getValue(), "test123");
-    
-    response = mockService.addEdge(postEdgePayload, "v11", "tosca.relationships.HostedOn", "services/inventory/v11", 
+
+    response = mockService.addEdge(postEdgePayload, "v9", "tosca.relationships.HostedOn", "services/inventory/v11",
         new TestHeaders(), null, new TestRequest());
     System.out.println("Response: " + response.getStatus() + "\n" + response.getEntity().toString());
     assertTrue(response.getStatus() == 201);
 	Assert.assertEquals(response.getEntityTag().getValue(), "test123");
   }
-  
+
+  @Test
+  public void testAddEdgeMultiplicityRules() throws CrudException {
+    Response response;
+
+    response = mockService.addEdge(postEdgePayload, "v10", "services/inventory/v10",
+        new TestHeaders(), null, new TestRequest());
+    Assert.assertEquals("MANY2ONE multiplicity rule broken for Edge:vserver:pserver:tosca.relationships.HostedOn",
+            response.getEntity().toString());
+    Assert.assertEquals(400, response.getStatus());
+
+    response = mockService.addEdge(postEdgePayload, "v9", "tosca.relationships.HostedOn", "services/inventory/v9",
+        new TestHeaders(), null, new TestRequest());
+    Assert.assertEquals(201, response.getStatus());
+
+    response = mockService.addEdge(postEdgePayload, "v8", "tosca.relationships.HostedOn", "services/inventory/v8",
+        new TestHeaders(), null, new TestRequest());
+    Assert.assertEquals("ONE2MANY multiplicity rule broken for Edge:vserver:pserver:tosca.relationships.HostedOn",
+            response.getEntity().toString());
+    Assert.assertEquals(400, response.getStatus());
+  }
+
   @Test
   public void testUpdateVertex() throws CrudException {
     Response response;
 
 	// Cannot find OXM version
-    response = mockService.updateVertex(putVertexPayload, "v8", "pserver", "test-uuid", "services/inventory/v8",
+    response = mockService.updateVertex(putVertexPayload, "v7", "pserver", "test-uuid", "services/inventory/v8",
             new TestHeaders(), null, new TestRequest());
     System.out.println("Response: " + response.getStatus() + "\n" + response.getEntity().toString());
     assertTrue(response.getStatus() == 500);
     Assert.assertNull(response.getEntityTag());
-	
+
     // Test ID mismatch
-    response = mockService.updateVertex(putVertexPayload, "v11", "pserver", "bad-id", 
+    response = mockService.updateVertex(putVertexPayload, "v11", "pserver", "bad-id",
         "services/inventory/v11", new TestHeaders(), null, new TestRequest());
     System.out.println("Response: " + response.getStatus() + "\n" + response.getEntity().toString());
     assertTrue(response.getStatus() == 400);
-    Assert.assertNull(response.getEntityTag());	
-    
+    Assert.assertNull(response.getEntityTag());
+
     // Success case
     response = mockService.updateVertex(putVertexPayload, "v11", "pserver", "test-uuid", "services/inventory/v11",
                 new TestHeaders(), null, new TestRequest());
     System.out.println("Response: " + response.getStatus() + "\n" + response.getEntity().toString());
-    assertTrue(response.getStatus() == 200);  
+    assertTrue(response.getStatus() == 200);
 	Assert.assertEquals(response.getEntityTag().getValue(), "test123");
-    
+
     // Patch
-    response = mockService.patchVertex(putVertexPayload, "v11", "pserver", "test-uuid", 
+    response = mockService.patchVertex(putVertexPayload, "v11", "pserver", "test-uuid",
         "services/inventory/v11", new TestHeaders(), null, new TestRequest());
     System.out.println("Response: " + response.getStatus() + "\n" + response.getEntity().toString());
-    assertTrue(response.getStatus() == 200);  
+    assertTrue(response.getStatus() == 200);
 	Assert.assertEquals(response.getEntityTag().getValue(), "test123");
   }
-  
+
   @Test
   public void testUpdateEdge() throws CrudException {
     Response response;
-    
-    response = mockService.updateEdge(postEdgePayload, "v11", "tosca.relationships.HostedOn", "my-uuid", 
-        "services/inventory/v11", new TestHeaders(), null, new TestRequest());
+
+    response = mockService.updateEdge(postEdgePayload, "v9", "tosca.relationships.HostedOn", "my-uuid",
+        "services/inventory/v9", new TestHeaders(), null, new TestRequest());
     System.out.println("Response: " + response.getStatus() + "\n" + response.getEntity().toString());
-    assertTrue(response.getStatus() == 200);  
+    assertTrue(response.getStatus() == 200);
 	Assert.assertEquals(response.getEntityTag().getValue(), "test123");
-    
+
     // Patch
-    response = mockService.patchEdge(postEdgePayload, "v11", "tosca.relationships.HostedOn", "my-uuid", 
-        "services/inventory/v11", new TestHeaders(), null, new TestRequest());
+    response = mockService.patchEdge(postEdgePayload, "v9", "tosca.relationships.HostedOn", "my-uuid",
+        "services/inventory/v9", new TestHeaders(), null, new TestRequest());
     System.out.println("Response: " + response.getStatus() + "\n" + response.getEntity().toString());
     assertTrue(response.getStatus() == 200);
 	Assert.assertEquals(response.getEntityTag().getValue(), "test123");
   }
-  
+
   @Test
   public void testGet() throws CrudException {
     Response response;
-    
-    response = mockService.getVertex("", "v11", "pserver", "872dd5df-0be9-4167-95e9-2cf4b21165ed", 
+
+    response = mockService.getVertex("", "v11", "pserver", "872dd5df-0be9-4167-95e9-2cf4b21165ed",
         "services/inventory/v11", new TestHeaders(), new TestUriInfo(), new TestRequest());
     System.out.println("Response: " + response.getStatus() + "\n" + response.getEntity().toString());
     assertTrue(response.getStatus() == 200);
-    
-    response = mockService.getEdge("", "v11", "tosca.relationships.HostedOn", "872dd5df-0be9-4167-95e9-2cf4b21165ed", 
+
+    response = mockService.getEdge("", "v11", "tosca.relationships.HostedOn", "872dd5df-0be9-4167-95e9-2cf4b21165ed",
         "services/inventory/v11", new TestHeaders(), new TestUriInfo(), new TestRequest());
     System.out.println("Response: " + response.getStatus() + "\n" + response.getEntity().toString());
     assertTrue(response.getStatus() == 200);
-    
-    response = mockService.getVertices("", "v11", "pserver", 
+
+    response = mockService.getVertices("", "v11", "pserver",
         "services/inventory/v11", new TestHeaders(), new TestUriInfo(), new TestRequest());
     System.out.println("Response: " + response.getStatus() + "\n" + response.getEntity().toString());
     assertTrue(response.getStatus() == 200);
-    
-    response = mockService.getEdges("", "v11", "tosca.relationships.HostedOn",  
+
+    response = mockService.getEdges("", "v11", "tosca.relationships.HostedOn",
         "services/inventory/v11", new TestHeaders(), new TestUriInfo(), new TestRequest());
     System.out.println("Response: " + response.getStatus() + "\n" + response.getEntity().toString());
     assertTrue(response.getStatus() == 200);
   }
-  
+
   @Test
   public void testValidRequestHeader() throws CrudException {
     TestHeaders testHeaders = new TestHeaders();
@@ -270,7 +289,7 @@ public class CrudRestServiceTest {
     testHeaders.clearRequestHeader("X-TransactionId", "X-FromAppId");
     mockService.validateRequestHeader(testHeaders);
   }
-  
+
   @Test
   public void testEmptyRequestHeader() throws CrudException {
     thrown.expect(CrudException.class);
@@ -306,21 +325,21 @@ public class CrudRestServiceTest {
         System.out.println("Response: " + response.getStatus() + "\n" + response.getEntity().toString());
         assertTrue(response.getStatus() == 200);
     }
-  
+
   @Test
   public void testBulk() throws CrudException, IOException {
     Response response;
-    
+
     File bulkFile = new File("src/test/resources/payloads/bulk.json");
-    String payloadStr = readFileToString(bulkFile); 
+    String payloadStr = readFileToString(bulkFile);
     System.out.println(payloadStr);
-    
-    response = mockService.addBulk(payloadStr, "v11", "", 
-        "services/inventory/v11", new TestHeaders(), null, new TestRequest());
+
+    response = mockService.addBulk(payloadStr, "v9", "",
+        "services/inventory/v9", new TestHeaders(), null, new TestRequest());
     System.out.println("Bulk Response: " + response.getStatus() + "\n" + response.getEntity().toString());
-    assertTrue(response.getStatus() == 200);  
+    assertTrue(response.getStatus() == 200);
   }
-  
+
   public static String readFileToString(File aFile) throws IOException {
 
     BufferedReader br = new BufferedReader(new FileReader(aFile));

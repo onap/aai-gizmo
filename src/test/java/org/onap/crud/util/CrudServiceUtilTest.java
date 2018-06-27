@@ -22,7 +22,7 @@ package org.onap.crud.util;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.onap.crud.service.VertexPayload;
+import org.onap.crud.parser.VertexPayload;
 import org.onap.crud.service.util.TestHeaders;
 import com.google.gson.JsonElement;
 

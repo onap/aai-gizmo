@@ -25,7 +25,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import org.junit.Test;
-
+import org.onap.crud.parser.BulkPayload;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

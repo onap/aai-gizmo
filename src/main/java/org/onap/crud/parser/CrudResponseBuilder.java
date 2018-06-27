@@ -27,11 +27,7 @@ import java.util.Map;
 import org.onap.crud.entity.Edge;
 import org.onap.crud.entity.Vertex;
 import org.onap.crud.exception.CrudException;
-import org.onap.crud.service.BulkPayload;
-import org.onap.crud.service.EdgePayload;
-import org.onap.crud.service.VertexPayload;
 import org.onap.schema.EdgeRulesLoader;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;

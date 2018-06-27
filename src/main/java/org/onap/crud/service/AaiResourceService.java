@@ -54,10 +54,11 @@ import org.onap.aaiauth.auth.Auth;
 import org.onap.crud.exception.CrudException;
 import org.onap.crud.logging.CrudServiceMsgs;
 import org.onap.crud.logging.LoggingUtil;
+import org.onap.crud.parser.EdgePayload;
+import org.onap.crud.parser.util.EdgePayloadUtil;
 import org.onap.crud.service.CrudRestService.Action;
 import org.onap.crud.util.CrudServiceConstants;
 import org.onap.schema.EdgeRulesLoader;
-import org.onap.schema.RelationshipSchemaValidator;
 import org.slf4j.MDC;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -397,16 +398,15 @@ public class AaiResourceService {
   public EdgePayload applyEdgeRulesToPayload(EdgePayload payload) throws CrudException {
 
     // Extract the types for both the source and target vertices.
-    String srcType = RelationshipSchemaValidator.vertexTypeFromUri(payload.getSource());
-    String tgtType = RelationshipSchemaValidator.vertexTypeFromUri(payload.getTarget());
+    String srcType = EdgePayloadUtil.getVertexNodeType(payload.getSource());
+    String tgtType = EdgePayloadUtil.getVertexNodeType(payload.getTarget());
 
-      // Now, get the default properties for this edge based on the edge rules definition...
-      Map<EdgeProperty, String> props = getEdgeRuleProperties(srcType, tgtType);
+    // Now, get the default properties for this edge based on the edge rules definition...
+    Map<EdgeProperty, String> props = getEdgeRuleProperties(srcType, tgtType);
 
-      // ...and merge them with any custom properties provided in the request.
-      JsonElement mergedProperties = mergeProperties(payload.getProperties(), props);
-      payload.setProperties(mergedProperties);
-
+    // ...and merge them with any custom properties provided in the request.
+    JsonElement mergedProperties = mergeProperties(payload.getProperties(), props);
+    payload.setProperties(mergedProperties);
 
     if(logger.isDebugEnabled()) {
       logger.debug("Edge properties after applying rules for '" + srcType + " -> " + tgtType + "': " + mergedProperties);
@@ -430,6 +430,7 @@ public class AaiResourceService {
    *
    * @throws CrudException
    */
+  @SuppressWarnings("unchecked")
   public JsonElement mergeProperties(JsonElement propertiesFromRequest, Map<EdgeProperty, String> propertyDefaults) throws CrudException {
 
     // Convert the properties from the edge payload into something we can
