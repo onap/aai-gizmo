@@ -172,11 +172,28 @@ public class GraphEvent {
   public String toString() {
     return toJson();
   }
-  
+
+  @Override
+  public boolean equals(Object o){
+    if(o == this){
+      return true;
+    }
+
+    if( !(o instanceof GraphEvent)){
+      return false;
+    }
+
+    GraphEvent graphEvent = (GraphEvent) o;
+    return this.dbTransactionId.equals(
+        graphEvent.getDbTransactionId())
+        && this.timestamp == graphEvent.getTimestamp()
+        && this.operation.equals(graphEvent.getOperation()
+    );
+  }
+
   @Override
   public int hashCode() {
-    return Objects.hash(this.dbTransactionId, this.timestamp, this.edge, this.vertex, this.operation,
-              this.result);
+    return Objects.hash(this.dbTransactionId, this.timestamp, this.operation);
   }
 
   public String getObjectKey() {
