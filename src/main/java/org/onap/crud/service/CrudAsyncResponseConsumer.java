@@ -20,103 +20,60 @@
  */
 package org.onap.crud.service;
 
+import java.util.Objects;
 import java.util.TimerTask;
-
-import javax.naming.OperationNotSupportedException;
-
 import org.onap.aai.cl.api.Logger;
 import org.onap.aai.cl.eelf.LoggerFactory;
-import org.onap.crud.event.GraphEvent;
-import org.onap.crud.event.envelope.GraphEventEnvelope;
-import org.onap.crud.logging.CrudServiceMsgs;
-
 import org.onap.aai.event.api.EventConsumer;
+import org.onap.crud.logging.CrudServiceMsgs;
 
 public class CrudAsyncResponseConsumer extends TimerTask {
 
-  private static Logger logger = LoggerFactory.getInstance().getLogger(CrudAsyncResponseConsumer
-                                                                       .class.getName());
+    private static Logger logger = LoggerFactory.getInstance().getLogger(CrudAsyncResponseConsumer
+        .class.getName());
 
-  private static Logger auditLogger = LoggerFactory.getInstance()
-    .getAuditLogger(CrudAsyncResponseConsumer.class.getName());
+    private final EventConsumer asyncResponseConsumer;
+    private final GraphEventUpdater graphEventUpdater;
 
-  private EventConsumer asyncResponseConsumer;
 
- 
-  public CrudAsyncResponseConsumer(EventConsumer asyncResponseConsumer) {
-    this.asyncResponseConsumer = asyncResponseConsumer;
-    logger.info(CrudServiceMsgs.ASYNC_RESPONSE_CONSUMER_INFO,
-                "CrudAsyncResponseConsumer initialized SUCCESSFULLY! with event consumer "
+    public CrudAsyncResponseConsumer(EventConsumer asyncResponseConsumer, GraphEventUpdater graphEventUpdater) {
+        Objects.requireNonNull(asyncResponseConsumer);
+        Objects.requireNonNull(graphEventUpdater);
+        this.asyncResponseConsumer = asyncResponseConsumer;
+        this.graphEventUpdater = graphEventUpdater;
+        logger.info(CrudServiceMsgs.ASYNC_RESPONSE_CONSUMER_INFO,
+            "CrudAsyncResponseConsumer initialized SUCCESSFULLY! with event consumer "
                 + asyncResponseConsumer.getClass().getName());
-  }
-
-
-  @Override
-  public void run() {
-
-    logger.info(CrudServiceMsgs.ASYNC_RESPONSE_CONSUMER_INFO, "Listening for graph events");
-
-    if (asyncResponseConsumer == null) {
-      logger.error(CrudServiceMsgs.ASYNC_RESPONSE_CONSUMER_ERROR,
-                   "Unable to initialize CrudAsyncRequestProcessor");
     }
 
-    Iterable<String> events = null;
-    try {
-      events = asyncResponseConsumer.consume();
-    } catch (Exception e) {
-      logger.error(CrudServiceMsgs.ASYNC_RESPONSE_CONSUMER_ERROR, e.getMessage());
-      return;
-    }
 
-    if (events == null || !events.iterator().hasNext()) {
-      logger.info(CrudServiceMsgs.ASYNC_RESPONSE_CONSUMER_INFO, "No events recieved");
+    @Override
+    public void run() {
 
-    }
+        logger.info(CrudServiceMsgs.ASYNC_RESPONSE_CONSUMER_INFO, "Listening for graph events");
 
-    for (String event : events) {
-      try {
-
-        GraphEventEnvelope graphEventEnvelope = GraphEventEnvelope.fromJson(event);
-        GraphEvent graphEvent = graphEventEnvelope.getBody();
-        auditLogger.info(CrudServiceMsgs.ASYNC_RESPONSE_CONSUMER_INFO,
-                           "Event received of type: " + graphEvent.getObjectType() + " with key: "
-                           + graphEvent.getObjectKey() + " , transaction-id: "
-                           + graphEvent.getTransactionId() + " , operation: "
-                           + graphEvent.getOperation().toString());
-          logger.info(CrudServiceMsgs.ASYNC_RESPONSE_CONSUMER_INFO,
-                      "Event received of type: " + graphEvent.getObjectType() + " with key: "
-                      + graphEvent.getObjectKey() + " , transaction-id: "
-                      + graphEvent.getTransactionId() + " , operation: "
-                      + graphEvent.getOperation().toString());
-          logger.debug(CrudServiceMsgs.ASYNC_RESPONSE_CONSUMER_INFO,
-                       "Event received with payload:" + event);
-
-        if (CrudAsyncGraphEventCache.get(graphEvent.getTransactionId()) != null) {
-          CrudAsyncGraphEventCache.get(graphEvent.getTransactionId())
-            .populateGraphEventEnvelope(graphEventEnvelope);
-        } else {
-          logger.error(CrudServiceMsgs.ASYNC_DATA_SERVICE_ERROR,
-                       "Request timed out. Not sending response for transaction-id: "
-                       + graphEvent.getTransactionId());
+        try {
+            Iterable<String> events = asyncResponseConsumer.consume();
+            processEvents(events);
+            asyncResponseConsumer.commitOffsets();
+        } catch (Exception e) {
+            logger.error(CrudServiceMsgs.ASYNC_RESPONSE_CONSUMER_ERROR, e, e.getMessage());
         }
-
-      } catch (Exception e) {
-        logger.error(CrudServiceMsgs.ASYNC_RESPONSE_CONSUMER_ERROR, e.getMessage());
-      }
     }
 
-    try {
-      asyncResponseConsumer.commitOffsets();
-    }
-    catch(OperationNotSupportedException e) {
-        //Dmaap doesnt support commit with offset    
-        logger.debug(CrudServiceMsgs.ASYNC_RESPONSE_CONSUMER_ERROR, e.getMessage());
-    }
-    catch (Exception e) {
-      logger.error(CrudServiceMsgs.ASYNC_RESPONSE_CONSUMER_ERROR, e.getMessage());
+    private void processEvents(Iterable<String> events) {
+        if (areEventsAvailable(events)) {
+            for (String event : events) {
+                graphEventUpdater.update(event);
+            }
+            logger.info(CrudServiceMsgs.ASYNC_RESPONSE_CONSUMER_INFO, "No events recieved");
+        } else {
+            logger.info(CrudServiceMsgs.ASYNC_RESPONSE_CONSUMER_INFO, "No events recieved");
+        }
     }
 
-  }
+    private boolean areEventsAvailable(Iterable<String> events) {
+        return !(events == null || !events.iterator().hasNext());
+    }
 
 }

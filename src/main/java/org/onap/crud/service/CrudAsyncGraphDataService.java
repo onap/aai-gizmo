@@ -120,7 +120,9 @@ public class CrudAsyncGraphDataService extends AbstractGraphDataService {
         }
 
         // Start the Response Consumer timer
-        CrudAsyncResponseConsumer crudAsyncResponseConsumer = new CrudAsyncResponseConsumer(asyncResponseConsumer);
+        CrudAsyncResponseConsumer crudAsyncResponseConsumer = new CrudAsyncResponseConsumer(
+            asyncResponseConsumer, new GraphEventUpdater()
+        );
         timer = new Timer("crudAsyncResponseConsumer-1");
         timer.schedule(crudAsyncResponseConsumer, responsePollInterval, responsePollInterval);
 
