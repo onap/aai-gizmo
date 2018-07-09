@@ -22,6 +22,7 @@ package org.onap.crud.service;
 
 import java.security.cert.X509Certificate;
 import java.util.AbstractMap;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -506,7 +507,7 @@ public class AaiResourceService {
         authUser = subjectDn.toString();
       }
 
-      return this.auth.validateRequest(authUser.toLowerCase(), action.toString() + ":" + authPolicyFunctionName);
+      return this.auth.validateRequest(authUser!=null ? authUser.toLowerCase():"", action.toString() + ":" + authPolicyFunctionName);
 
     } catch (Exception e) {
       logResult(action, uri, e);
@@ -518,8 +519,7 @@ public class AaiResourceService {
 
     logger.error(CrudServiceMsgs.EXCEPTION_DURING_METHOD_CALL,
                  op.toString(),
-                 uri,
-                 e.getStackTrace().toString());
+                 uri, Arrays.toString(e.getStackTrace()));
 
     // Clear the MDC context so that no other transaction inadvertently
     // uses our transaction id.
