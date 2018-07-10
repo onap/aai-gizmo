@@ -20,7 +20,6 @@
  */
 package org.onap.schema.validation;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,9 +48,7 @@ public class MultiplicityValidatorTest {
 
     @Before
     public void init() {
-        ClassLoader classLoader = getClass().getClassLoader();
-        File dir = new File(classLoader.getResource("rules").getFile());
-        System.setProperty("CONFIG_HOME", dir.getParent());
+        System.setProperty("CONFIG_HOME", "src/test/resources");
         EdgeRulesLoader.resetSchemaVersionContext();
     }
 

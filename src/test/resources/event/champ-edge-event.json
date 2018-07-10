@@ -1,0 +1,30 @@
+{
+  "header": {
+    "request-id": "5cf7f973-c406-4507-ad71-72d7b3d26c36",
+    "timestamp": "20180316T092301Z",
+    "source-name": "CHAMP",
+    "event-type": "update-result"
+  },
+  "body": {
+    "operation": "CREATE",
+    "transaction-id": "6544a144-0c56-4f71-81d8-a6170efbb296",
+    "timestamp": 1521192181065,
+    "edge": {
+      "key": "test-key",
+      "type": "tosca.relationships.HostedOn",
+      "properties": {
+        "prevent-delete": "NONE"
+      },
+      "source": {
+        "key": "50bdab41-ad1c-4d00-952c-a0aa5d827811",
+        "type": "vserver"
+      },
+      "target": {
+        "key": "1d326bc7-b985-492b-9604-0d5d1f06f908",
+        "type": "pserver"
+      }
+    },
+    "result": "SUCCESS"
+  },
+  "policyViolations": []
+}

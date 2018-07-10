@@ -1,0 +1,12 @@
+{
+    "operation": "CREATE",
+    "transaction-id": "6544a144-0c56-4f71-81d8-a6170efbb296",
+    "timestamp": 1521192181065,
+    "vertex": {
+      "schema-version": "v13",
+      "type": "pserver",
+      "properties": {
+        "hostname":"hostname1"
+      }
+    }
+}

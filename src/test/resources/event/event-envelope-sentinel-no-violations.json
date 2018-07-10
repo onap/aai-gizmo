@@ -2,7 +2,7 @@
   "header": {
     "request-id": "5cf7f973-c406-4507-ad71-72d7b3d26c36",
     "timestamp": "20180316T092301Z",
-    "source-name": "SENTINE",
+    "source-name": "SENTINEL",
     "event-type": "update-result",
     "validation-entity-type": "pserver"
   },

@@ -77,12 +77,11 @@ public class CrudRestServiceTest {
 
   @Before
   public void init() throws Exception {
-    ClassLoader classLoader = getClass().getClassLoader();
-    File dir = new File(classLoader.getResource("rules").getFile());
-    System.setProperty("CONFIG_HOME", dir.getParent());
+    System.setProperty("CONFIG_HOME", "src/test/resources");
     EdgeRulesLoader.resetSchemaVersionContext();
 
-    CrudGraphDataService service = new CrudGraphDataService(new TestDao());
+    ChampDaoMockTest champDaoTest = new ChampDaoMockTest();
+    CrudGraphDataService service = new CrudGraphDataService(champDaoTest.getChampDao());
     CrudRestService restService = new CrudRestService(service, null);
     mockService = Mockito.spy(restService);
 

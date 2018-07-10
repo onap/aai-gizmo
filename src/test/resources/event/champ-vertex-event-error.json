@@ -2,7 +2,7 @@
   "header": {
     "request-id": "5cf7f973-c406-4507-ad71-72d7b3d26c36",
     "timestamp": "20180316T092301Z",
-    "source-name": "SENTINEL",
+    "source-name": "CHAMP",
     "event-type": "update-result",
     "validation-entity-type": "pserver"
   },
@@ -11,18 +11,16 @@
     "transaction-id": "6544a144-0c56-4f71-81d8-a6170efbb296",
     "timestamp": 1521192181065,
     "vertex": {
-      "key": "",
+      "key": "890c8b3f-892f-48e3-85cd-748ebf0426a5",
       "schema-version": "v13",
       "type": "pserver",
       "properties": {
-        
+        "hostname":"hostname1"
       }
-    }
+    },
+    "result": "FAILURE",
+    "error-message":"test error",
+    "httpErrorStatus":"INTERNAL_SERVER_ERROR"
   },
-  "policyViolations": [
-    {
-      "summary": "a summary",
-      "policyName": "a policy name"
-    }
-  ]
+  "policyViolations": []
 }

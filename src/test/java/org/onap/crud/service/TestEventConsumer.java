@@ -18,27 +18,41 @@
  * limitations under the License.
  * ============LICENSE_END=========================================================
  */
-package org.onap.crud.dao;
+package org.onap.crud.service;
 
-import org.eclipse.jetty.util.security.Password;
-import org.onap.aai.restclient.client.RestClient;
-import org.onap.aai.restclient.enums.RestAuthenticationMode;
-import org.onap.crud.dao.champ.ChampDao;
-import org.onap.crud.util.CrudServiceConstants;
+import org.onap.aai.event.api.EventConsumer;
+import org.onap.aai.event.api.MessageWithOffset;
 
-public class DataRouterDAO extends ChampDao {
-  public DataRouterDAO(String url, String certPassword) {
-    try {
-      client = new RestClient().authenticationMode(RestAuthenticationMode.SSL_CERT).validateServerHostname(false)
-          .validateServerCertChain(false).clientCertFile(CrudServiceConstants.CRD_DATAROUTER_AUTH_FILE)
-          .clientCertPassword(Password.deobfuscate(certPassword));
+public class TestEventConsumer implements EventConsumer {
 
-      baseObjectUrl = url + OBJECT_SUB_URL;
-      baseRelationshipUrl = url + RELATIONSHIP_SUB_URL;
-     } catch (Exception e) {
-      System.out.println("Error setting up datarouter configuration");
-      e.printStackTrace();
-      System.exit(1);
+    @Override
+    public void commitOffsets() throws Exception {
+        // TODO Auto-generated method stub
+
     }
-  }
+
+    @Override
+    public void commitOffsets(long arg0) throws Exception {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public Iterable<String> consume() throws Exception {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Iterable<String> consumeAndCommit() throws Exception {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Iterable<MessageWithOffset> consumeWithOffsets() throws Exception {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

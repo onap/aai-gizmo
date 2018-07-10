@@ -33,8 +33,6 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 import org.eclipse.jetty.util.security.Password;
-import org.onap.aai.cl.api.Logger;
-import org.onap.aai.cl.eelf.LoggerFactory;
 import org.onap.aai.cl.mdc.MdcContext;
 import org.onap.aai.logging.LoggingContext;
 import org.onap.aai.restclient.client.OperationResult;
@@ -63,8 +61,6 @@ public class ChampDao implements GraphDao {
   protected static final String OBJECT_SUB_URL = "objects";
   protected static final String RELATIONSHIP_SUB_URL = "relationships";
   protected static final String TRANSACTION_SUB_URL = "transaction";
-
-  private Logger logger = LoggerFactory.getInstance().getLogger(ChampDao.class.getName());
 
   // We use a custom vertex serializer for champ because it expects "key"
   // instead of "id"
@@ -209,7 +205,7 @@ public class ChampDao implements GraphDao {
       if (!edge.getType().equalsIgnoreCase(type)) {
         // We didn't find an edge with the supplied type, so just throw an
         // exception.
-        throw new CrudException("No edge with id " + id + "and type " + type + " found in graph",
+        throw new CrudException("No edge with id " + id + " and type " + type + " found in graph",
             javax.ws.rs.core.Response.Status.NOT_FOUND);
       }
       return getResult;
@@ -537,7 +533,7 @@ public class ChampDao implements GraphDao {
       if (!edge.getType().equalsIgnoreCase(type)) {
         // We didn't find an edge with the supplied type, so just throw an
         // exception.
-        throw new CrudException("No edge with id " + id + "and type " + type + " found in graph",
+        throw new CrudException("No edge with id " + id + " and type " + type + " found in graph",
             javax.ws.rs.core.Response.Status.NOT_FOUND);
       }
       return edge;
@@ -558,7 +554,7 @@ public class ChampDao implements GraphDao {
       if (!vert.getType().equalsIgnoreCase(type)) {
         // We didn't find a vertex with the supplied type, so just throw an
         // exception.
-        throw new CrudException("No vertex with id " + id + "and type " + type + " found in graph",
+        throw new CrudException("No vertex with id " + id + " and type " + type + " found in graph",
             javax.ws.rs.core.Response.Status.NOT_FOUND);
       }
       return vert;

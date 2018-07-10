@@ -42,12 +42,7 @@ public class GraphEventResponseHandler {
 
     public String handleVertexResponse(String version, GraphEvent event, GraphEventEnvelope response)
             throws CrudException {
-        handlePolicyViolations(event, response);
-        logResponse(event, response.getBody());
-
-        if (isErrorResponse(response.getBody())) {
-            throwOperationException(response);
-        }
+        validate(event, response);
 
         return CrudResponseBuilder.buildUpsertVertexResponse(
                 OxmModelValidator.validateOutgoingPayload(version, response.getBody().getVertex().toVertex()), version);
@@ -55,12 +50,7 @@ public class GraphEventResponseHandler {
 
     public String handleEdgeResponse(String version, GraphEvent event, GraphEventEnvelope response)
             throws CrudException {
-        handlePolicyViolations(event, response);
-        logResponse(event, response.getBody());
-
-        if (isErrorResponse(response.getBody())) {
-            throwOperationException(response);
-        }
+        validate(event, response);
 
         return CrudResponseBuilder.buildUpsertEdgeResponse(
                 RelationshipSchemaValidator.validateOutgoingPayload(version, response.getBody().getEdge().toEdge()),
@@ -68,28 +58,29 @@ public class GraphEventResponseHandler {
     }
 
     public String handleDeletionResponse(GraphEvent event, GraphEventEnvelope response) throws CrudException {
-        handlePolicyViolations(event, response);
-        logResponse(event, response.getBody());
-
-        if (isErrorResponse(response.getBody())) {
-            throwOperationException(response);
-        }
-
+        validate(event, response);
         return "";
     }
 
     public void handleBulkEventResponse(GraphEvent event, GraphEventEnvelope response) throws CrudException {
-        handlePolicyViolations(event, response);
-        logResponse(event, response.getBody());
-
-        if (isErrorResponse(response.getBody())) {
-            throwOperationException(response);
-        }
+        validate(event, response);
     }
 
     public boolean hasPolicyViolations(GraphEventEnvelope event) {
         return event.getPolicyViolations() != null && event.getPolicyViolations().isJsonArray()
                 && event.getPolicyViolations().getAsJsonArray().size() != 0;
+    }
+
+    private void validate(GraphEvent event, GraphEventEnvelope response) throws CrudException {
+        handlePolicyViolations(event, response);
+        logResponse(event, response.getBody());
+
+        if (isErrorResponse(response.getBody())) {
+            throw new CrudException(
+                    GraphEventResponseMessage.OPERATION_ERROR_EXCEPTION_MESSAGE
+                            .getMessage(response.getBody().getTransactionId(), response.getBody().getErrorMessage()),
+                    response.getBody().getHttpErrorStatus());
+        }
     }
 
     private void handlePolicyViolations(GraphEvent event, GraphEventEnvelope response) throws CrudException {
@@ -124,13 +115,6 @@ public class GraphEventResponseHandler {
                         event.getOperation().toString(),
                         response.getPolicyViolations().toString()));
         //@formatter:on
-    }
-
-    private void throwOperationException(GraphEventEnvelope response) throws CrudException {
-        throw new CrudException(
-                GraphEventResponseMessage.OPERATION_ERROR_EXCEPTION_MESSAGE
-                        .getMessage(response.getBody().getTransactionId(), response.getBody().getErrorMessage()),
-                response.getBody().getHttpErrorStatus());
     }
 
     private boolean isErrorResponse(GraphEvent response) {

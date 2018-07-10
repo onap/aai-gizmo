@@ -20,14 +20,33 @@
  */
 package org.onap.crud.event.response;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.onap.crud.event.GraphEvent;
+import org.onap.crud.event.GraphEvent.GraphEventOperation;
 import org.onap.crud.event.envelope.GraphEventEnvelope;
+import org.onap.crud.exception.CrudException;
 import org.onap.crud.util.TestUtil;
+import org.onap.schema.OxmModelLoader;
 import com.google.gson.Gson;
+import com.google.gson.JsonParser;
 
 public class GraphEventResponseHandlerTest {
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+
+    @BeforeClass
+    public static void setUpBeforeClass() throws Exception {
+        System.setProperty("CONFIG_HOME", "src/test/resources");
+        System.setProperty("AJSC_HOME", ".");
+        System.setProperty("BUNDLECONFIG_DIR", "src/test/resources/bundleconfig-local");
+
+        OxmModelLoader.loadModels();
+    }
 
     @Test
     public void testPolicyViolationsNotDetected() throws Exception {
@@ -36,7 +55,7 @@ public class GraphEventResponseHandlerTest {
         GraphEventEnvelope envelope = gson.fromJson(expectedEnvelope, GraphEventEnvelope.class);
 
         GraphEventResponseHandler graphEventResponseHandler = new GraphEventResponseHandler();
-        assertThat(graphEventResponseHandler.hasPolicyViolations(envelope), is(false));
+        assertThat(graphEventResponseHandler.hasPolicyViolations(envelope)).isFalse();
     }
 
     @Test
@@ -46,6 +65,79 @@ public class GraphEventResponseHandlerTest {
         GraphEventEnvelope envelope = gson.fromJson(expectedEnvelope, GraphEventEnvelope.class);
 
         GraphEventResponseHandler graphEventResponseHandler = new GraphEventResponseHandler();
-        assertThat(graphEventResponseHandler.hasPolicyViolations(envelope), is(true));
+        assertThat(graphEventResponseHandler.hasPolicyViolations(envelope)).isTrue();
+    }
+
+    @Test
+    public void testHandleVertexResponse() throws Exception {
+        String graphEvent = TestUtil.getFileAsString("event/graph-vertex-event.json");
+        String champResult = TestUtil.getFileAsString("event/champ-vertex-event.json");
+        Gson gson = new Gson();
+        GraphEvent event = gson.fromJson(graphEvent, GraphEvent.class);
+        GraphEventEnvelope result = gson.fromJson(champResult, GraphEventEnvelope.class);
+
+        GraphEventResponseHandler graphEventResponseHandler = new GraphEventResponseHandler();
+        String response = graphEventResponseHandler.handleVertexResponse("v13", event, result);
+
+        assertThat(new JsonParser().parse(response).getAsJsonObject().get("url").getAsString())
+                .isEqualTo("services/inventory/v13/pserver/890c8b3f-892f-48e3-85cd-748ebf0426a5");
+    }
+
+    @Test
+    public void testHandleVertexResponseWithError() throws Exception {
+        expectedException.expect(CrudException.class);
+        expectedException.expectMessage("test error");
+
+        String graphEvent = TestUtil.getFileAsString("event/graph-vertex-event.json");
+        String champResult = TestUtil.getFileAsString("event/champ-vertex-event-error.json");
+        Gson gson = new Gson();
+        GraphEvent event = gson.fromJson(graphEvent, GraphEvent.class);
+        GraphEventEnvelope result = gson.fromJson(champResult, GraphEventEnvelope.class);
+
+        GraphEventResponseHandler graphEventResponseHandler = new GraphEventResponseHandler();
+        graphEventResponseHandler.handleVertexResponse("v13", event, result);
+    }
+
+    @Test(expected = CrudException.class)
+    public void testHandleVertexResponseWithViolations() throws Exception {
+
+        String graphEvent = TestUtil.getFileAsString("event/graph-vertex-event.json");
+        String champResult = TestUtil.getFileAsString("event/champ-vertex-event-violations.json");
+        Gson gson = new Gson();
+        GraphEvent event = gson.fromJson(graphEvent, GraphEvent.class);
+        GraphEventEnvelope result = gson.fromJson(champResult, GraphEventEnvelope.class);
+
+        GraphEventResponseHandler graphEventResponseHandler = new GraphEventResponseHandler();
+        graphEventResponseHandler.handleVertexResponse("v13", event, result);
+    }
+
+    @Test
+    public void testHandleEdgeResponse() throws Exception {
+        String graphEvent = TestUtil.getFileAsString("event/graph-edge-event.json");
+        String champResult = TestUtil.getFileAsString("event/champ-edge-event.json");
+        Gson gson = new Gson();
+        GraphEvent event = gson.fromJson(graphEvent, GraphEvent.class);
+        GraphEventEnvelope result = gson.fromJson(champResult, GraphEventEnvelope.class);
+
+        GraphEventResponseHandler graphEventResponseHandler = new GraphEventResponseHandler();
+        String response = graphEventResponseHandler.handleEdgeResponse("v10", event, result);
+
+        String id = new JsonParser().parse(response).getAsJsonObject().get("id").getAsString();
+        assertThat(id).isEqualTo("test-key");
+    }
+
+    @Test
+    public void testHandleDeletionResponse() throws Exception {
+        GraphEventResponseHandler graphEventResponseHandler = new GraphEventResponseHandler();
+        GraphEvent event = GraphEvent.builder(GraphEventOperation.DELETE).build();
+        String response = graphEventResponseHandler.handleDeletionResponse(event, new GraphEventEnvelope(event));
+        assertThat(response).isEqualTo("");
+    }
+
+    @Test
+    public void testHandleBulkEventResponse() throws Exception {
+        GraphEventResponseHandler graphEventResponseHandler = new GraphEventResponseHandler();
+        GraphEvent event = GraphEvent.builder(GraphEventOperation.CREATE).build();
+        graphEventResponseHandler.handleBulkEventResponse(event, new GraphEventEnvelope(event));
     }
 }

@@ -1,0 +1,12 @@
+{
+  "type":"tosca.relationships.HostedOn",
+  "source":"services/inventory/v12/vserver/f5eb0ad4-1845-4945-b208-df11b0155e3b",
+  "target":"services/inventory/v11/pserver/46e61b9b-ea02-46ca-b07e-95c7fed60fdf",
+  "properties":{
+    "contains-other-v":"NONE",
+    "delete-other-v":"NONE",
+    "SVC-INFRA":"OUT",
+    "prevent-delete":"IN",
+    "multiplicity": "MANY2ONE"
+  }
+}

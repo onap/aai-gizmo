@@ -169,8 +169,9 @@ public class AaiResourceService {
         ImmutablePair<EntityTag, String> result = graphDataService.addEdge(EdgeRulesLoader.getLatestSchemaVersion(), type, payload);
         response = Response.status(Status.CREATED).entity(result.getValue()).tag(result.getKey()).type(mediaType).build();
 
-      } catch (CrudException e) {
-
+      } catch (CrudException ce) {
+          response = Response.status(ce.getHttpStatus()).entity(ce.getMessage()).build();
+      } catch (Exception e) {
         response = Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
       }
     }

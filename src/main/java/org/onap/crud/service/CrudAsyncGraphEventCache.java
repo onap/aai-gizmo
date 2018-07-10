@@ -20,17 +20,15 @@
  */
 package org.onap.crud.service;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-
 import java.util.concurrent.TimeUnit;
-
 import org.onap.aai.cl.api.Logger;
 import org.onap.aai.cl.eelf.LoggerFactory;
 import org.onap.crud.logging.CrudServiceMsgs;
 import org.onap.crud.service.CrudAsyncGraphDataService.CollectGraphResponse;
 import org.onap.crud.util.CrudProperties;
 import org.onap.crud.util.CrudServiceConstants;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 /**
  * Self expiring Cache to hold request transactionIds . Events are expired

@@ -1,0 +1,19 @@
+{
+  "operation": "CREATE",
+  "transaction-id": "6544a144-0c56-4f71-81d8-a6170efbb296",
+  "timestamp": 1521192181065,
+  "edge": {
+    "type": "tosca.relationships.HostedOn",
+    "properties": {
+      "prevent-delete": "NONE"
+    },
+    "source": {
+      "key": "50bdab41-ad1c-4d00-952c-a0aa5d827811",
+      "type": "vserver"
+    },
+    "target": {
+      "key": "1d326bc7-b985-492b-9604-0d5d1f06f908",
+      "type": "pserver"
+    }
+  }
+}
