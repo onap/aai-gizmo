@@ -26,6 +26,7 @@ import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+
 /**
  * Generates a sha 256 hash
  */
@@ -38,8 +39,9 @@ public class HashGenerator {
     }
 
     /**
-     * Generates a SHA 256 hash as a hexadecimal string for the inputs.
-     * Calls toString on the input objects to convert into a byte stream.
+     * Generates a SHA 256 hash as a hexadecimal string for the inputs. Calls toString on the input
+     * objects to convert into a byte stream.
+     * 
      * @param values
      * @return SHA 256 hash of the inputs as a hexadecimal string.
      * @throws IOException
@@ -48,13 +50,14 @@ public class HashGenerator {
         byte[] bytes = convertToBytes(values);
         byte[] digest = messageDigest.digest(bytes);
         StringBuilder result = new StringBuilder();
-        for (byte byt : digest) result.append(Integer.toString((byt & 0xff) + 0x100, 16).substring(1));
+        for (byte byt : digest) {
+            result.append(Integer.toString((byt & 0xff) + 0x100, 16).substring(1));
+        }
         return result.toString();
     }
 
     private byte[] convertToBytes(Object... values) throws IOException {
-        try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
-             ObjectOutput out = new ObjectOutputStream(bos)) {
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream(); ObjectOutput out = new ObjectOutputStream(bos)) {
             for (Object object : values) {
                 out.writeObject(object.toString());
             }

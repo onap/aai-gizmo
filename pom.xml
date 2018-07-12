@@ -385,12 +385,15 @@ limitations under the License.
                     <includes>
                         <include>src/main/java/**</include>
                         <include>src/test/java/**</include>
+                        <include>pom.xml</include>
                     </includes>
+                    <skipExistingHeaders>true</skipExistingHeaders>
                 </configuration>
                 <executions>
                     <execution>
                         <goals>
-                            <goal>format</goal>
+                            <!-- Set goal from "check" to "format" to auto update license headers -->
+                            <goal>check</goal>
                         </goals>
                         <phase>process-sources</phase>
                     </execution>

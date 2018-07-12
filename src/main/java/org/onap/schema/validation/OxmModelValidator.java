@@ -43,7 +43,8 @@ import com.google.gson.JsonNull;
 
 public class OxmModelValidator {
   private static Logger logger = LoggerFactory.getInstance().getLogger(OxmModelValidator.class.getName());
-
+  private static final String OXM_LOAD_ERROR = "Error loading oxm model";
+  
   public enum Metadata {
     NODE_TYPE("aai-node-type"),
     URI("aai-uri"),
@@ -84,8 +85,8 @@ public class OxmModelValidator {
 
     Map<String, Object> result = new HashMap<String, Object>();
     if (jaxbContext == null) {
-      logger.error(CrudServiceMsgs.OXM_LOAD_ERROR, "Error loading oxm model: " + version);
-      throw new CrudException("Error loading oxm model: " + version, Status.NOT_FOUND);
+      logger.error(CrudServiceMsgs.OXM_LOAD_ERROR, OXM_LOAD_ERROR + ": " + version);
+      throw new CrudException(OXM_LOAD_ERROR + ": " + version, Status.NOT_FOUND);
     }
     final DynamicType modelObjectType = jaxbContext.getDynamicType(
         CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, CaseFormat.LOWER_HYPHEN.to(CaseFormat.UPPER_CAMEL, type)));
@@ -131,8 +132,8 @@ public class OxmModelValidator {
     }
 
     if (jaxbContext == null) {
-      logger.error(CrudServiceMsgs.OXM_LOAD_ERROR, "Error loading oxm model: " + version);
-      throw new CrudException("Error loading oxm model: " + version, Status.NOT_FOUND);
+      logger.error(CrudServiceMsgs.OXM_LOAD_ERROR, OXM_LOAD_ERROR + ": " + version);
+      throw new CrudException(OXM_LOAD_ERROR + ": " + version, Status.NOT_FOUND);
     }
     // Determine if the Object part is a collection type in the model
     // definition

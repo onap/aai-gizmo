@@ -230,7 +230,7 @@ public class CrudAsyncGraphDataService extends AbstractGraphDataService {
         }
         String responsePayload = responseHandler.handleVertexResponse(version, event, response);
 
-        return new ImmutablePair<EntityTag, String>(entityTag, responsePayload);
+        return new ImmutablePair<>(entityTag, responsePayload);
     }
 
     @Override
@@ -252,7 +252,7 @@ public class CrudAsyncGraphDataService extends AbstractGraphDataService {
         }
         String responsePayload = responseHandler.handleEdgeResponse(version, event, response);
 
-        return new ImmutablePair<EntityTag, String>(entityTag, responsePayload);
+        return new ImmutablePair<>(entityTag, responsePayload);
     }
 
     @Override
@@ -272,7 +272,7 @@ public class CrudAsyncGraphDataService extends AbstractGraphDataService {
         }
         String responsePayload = responseHandler.handleVertexResponse(version, event, response);
 
-        return new ImmutablePair<EntityTag, String>(entityTag, responsePayload);
+        return new ImmutablePair<>(entityTag, responsePayload);
     }
 
     @Override
@@ -296,7 +296,7 @@ public class CrudAsyncGraphDataService extends AbstractGraphDataService {
         }
         String responsePayload = responseHandler.handleVertexResponse(version, event, response);
 
-        return new ImmutablePair<EntityTag, String>(entityTag, responsePayload);
+        return new ImmutablePair<>(entityTag, responsePayload);
     }
 
     @Override
@@ -339,7 +339,7 @@ public class CrudAsyncGraphDataService extends AbstractGraphDataService {
         }
         String responsePayload = responseHandler.handleEdgeResponse(version, event, response);
 
-        return new ImmutablePair<EntityTag, String>(entityTag, responsePayload);
+        return new ImmutablePair<>(entityTag, responsePayload);
     }
 
     @Override
@@ -361,7 +361,7 @@ public class CrudAsyncGraphDataService extends AbstractGraphDataService {
         }
         String responsePayload = responseHandler.handleEdgeResponse(version, event, response);
 
-        return new ImmutablePair<EntityTag, String>(entityTag, responsePayload);
+        return new ImmutablePair<>(entityTag, responsePayload);
     }
 
     @PreDestroy

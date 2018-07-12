@@ -68,7 +68,7 @@ public class CrudGraphDataService extends AbstractGraphDataService {
     String payload = CrudResponseBuilder
         .buildUpsertVertexResponse(OxmModelValidator.validateOutgoingPayload(version, addedVertex), version);
 
-    return new ImmutablePair<EntityTag, String>(entityTag, payload);
+    return new ImmutablePair<>(entityTag, payload);
   }
 
   @Override
@@ -95,7 +95,7 @@ public class CrudGraphDataService extends AbstractGraphDataService {
     String payload = CrudResponseBuilder
       .buildUpsertEdgeResponse(RelationshipSchemaValidator.validateOutgoingPayload(version, addedEdge), version);
 
-    return new ImmutablePair<EntityTag, String>(entityTag, payload);
+    return new ImmutablePair<>(entityTag, payload);
   }
 
   @Override
@@ -110,7 +110,7 @@ public class CrudGraphDataService extends AbstractGraphDataService {
     String payload = getUpdatedVertexPayload(version, updatedVertexResult);
     EntityTag entityTag = CrudServiceUtil.getETagFromHeader(updatedVertexResult.getHeaders());
 
-    return new ImmutablePair<EntityTag, String>(entityTag, payload);
+    return new ImmutablePair<>(entityTag, payload);
   }
 
   private String getUpdatedVertexPayload(String version, OperationResult updatedVertexResult) throws CrudException {
@@ -169,7 +169,7 @@ public class CrudGraphDataService extends AbstractGraphDataService {
     String payload = getUpdatedEdgePayload(version, updatedEdgeResult);
     EntityTag entityTag = CrudServiceUtil.getETagFromHeader(updatedEdgeResult.getHeaders());
 
-    return new ImmutablePair<EntityTag, String>(entityTag, payload);
+    return new ImmutablePair<>(entityTag, payload);
   }
 
   private String getUpdatedEdgePayload(String version, OperationResult updatedEdgeResult) throws CrudException {

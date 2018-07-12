@@ -22,9 +22,9 @@ package org.onap.crud.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response.Status;
@@ -89,7 +89,7 @@ public abstract class AbstractGraphDataService {
         version));
   }
 
-  public ImmutablePair<EntityTag, String> getVertices(String version, String type, Map<String, String> filter, HashSet<String> properties) throws CrudException {
+  public ImmutablePair<EntityTag, String> getVertices(String version, String type, Map<String, String> filter, Set<String> properties) throws CrudException {
     type = OxmModelValidator.resolveCollectionType(version, type);
     OperationResult operationResult = daoForGet.getVertices(type, OxmModelValidator.resolveCollectionfilter(version, type, filter), properties, version);
     List<Vertex> vertices = Vertex.collectionFromJson(operationResult.getResult(), version);

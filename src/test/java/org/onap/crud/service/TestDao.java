@@ -21,9 +21,9 @@
 package org.onap.crud.service;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import org.onap.aai.restclient.client.OperationResult;
@@ -98,7 +98,7 @@ public class TestDao implements GraphDao {
   }
 
   @Override
-  public OperationResult getVertices(String type, Map<String, Object> filter, HashSet<String> properties, String version)
+  public OperationResult getVertices(String type, Map<String, Object> filter, Set<String> properties, String version)
       throws CrudException {
     OperationResult operationResult = new OperationResult();
     operationResult.setResult(champVertices);

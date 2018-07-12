@@ -20,9 +20,9 @@
  */
 package org.onap.crud.dao;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.onap.aai.restclient.client.OperationResult;
 import org.onap.crud.entity.Edge;
 import org.onap.crud.entity.Vertex;
@@ -73,7 +73,7 @@ public interface GraphDao {
    * @return - The {@link OperationResult} OperationResult
    * @throws CrudException
    */
-  public OperationResult getVertices(String type, Map<String, Object> filter, HashSet<String> properties, String version) throws CrudException;
+  public OperationResult getVertices(String type, Map<String, Object> filter, Set<String> properties, String version) throws CrudException;
 
   /**
    * Retrieve an {@link Edge} from the graph database by specifying its unique

@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.http.NameValuePair;
@@ -168,7 +169,7 @@ public class ChampDao implements GraphDao {
   }
 
   @Override
-  public OperationResult getVertices(String type, Map<String, Object> filter, HashSet<String> properties, String version) throws CrudException {
+  public OperationResult getVertices(String type, Map<String, Object> filter, Set<String> properties, String version) throws CrudException {
     filter.put(org.onap.schema.validation.OxmModelValidator.Metadata.NODE_TYPE.propertyName(), type);
 
     List<NameValuePair> queryParams = convertToNameValuePair(filter);
@@ -575,7 +576,7 @@ public class ChampDao implements GraphDao {
   }
 
   // https://stackoverflow.com/questions/26942330/convert-mapstring-string-to-listnamevaluepair-is-this-the-most-efficient
-  private List<NameValuePair> convertToNameValuePair(String k, HashSet<String> values) {
+  private List<NameValuePair> convertToNameValuePair(String k, Set<String> values) {
     List<NameValuePair> nvpList = new ArrayList<>(values.size());
 
     values.forEach((v) -> nvpList.add(new BasicNameValuePair(k, v)));
