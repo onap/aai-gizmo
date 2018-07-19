@@ -23,7 +23,9 @@ package org.onap.schema;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.ws.rs.core.Response.Status;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -47,6 +49,10 @@ public class RelationshipSchema {
   private Map<String, Map<String, Class<?>>> relationTypes  = new HashMap<>();
 
   private Map<String, EdgeRule> relationshipRules = new HashMap<>();
+  
+  // A map storing the list of valid edge types for a source/target pair
+  private Map<String, Set<String>> edgeTypesForNodePair = new HashMap<>();
+  
 
   @SuppressWarnings("unchecked")
   public RelationshipSchema(Multimap<String, EdgeRule> rules, String props) throws CrudException, IOException {
@@ -56,6 +62,16 @@ public class RelationshipSchema {
     for (EdgeRule rule : rules.values()) {
       String key = buildRelation(rule.getFrom(), rule.getTo(), rule.getLabel());
       relationshipRules.put(key, rule);
+      
+      String nodePairKey = buildNodePairKey(rule.getFrom(), rule.getTo());
+      if (edgeTypesForNodePair.get(nodePairKey) == null) {
+        Set<String> typeSet = new HashSet<String>();
+        typeSet.add(rule.getLabel());
+        edgeTypesForNodePair.put(nodePairKey, typeSet);
+      }
+      else {
+        edgeTypesForNodePair.get(nodePairKey).add(rule.getLabel());
+      }
     }
 
     Map<String, Class<?>> edgeProps = properties.entrySet().stream().collect(Collectors.toMap(p -> p.getKey(), p -> {
@@ -106,9 +122,22 @@ public class RelationshipSchema {
     return relationTypes.containsKey(type);
   }
 
+  public Set<String> getValidRelationTypes(String source, String target) {
+    Set<String> typeList = edgeTypesForNodePair.get(buildNodePairKey(source, target));
 
+    if (typeList == null) {
+      return new HashSet<String>();
+    }
+    
+    return typeList;
+  }
+  
   private String buildRelation(String source, String target, String relation) {
     return source + ":" + target + ":" + relation;
+  }
+  
+  private String buildNodePairKey(String source, String target) {
+    return source + ":" + target;
   }
 
   private Class<?> resolveClass(String type) throws CrudException, ClassNotFoundException {

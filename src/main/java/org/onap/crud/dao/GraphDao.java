@@ -42,10 +42,12 @@ public interface GraphDao {
    *          - The unique identifier of the vertex to retrieve the edges for.
    * @param queryParams
    * 		  - query parameters to be passed
+   * @param txid
+   *      - a DB transaction ID to use (if null, no transactionId is used)
    * @return - A collection of edges.
    * @throws CrudException
    */
-  public List<Edge> getVertexEdges(String id, Map<String, String> queryParams) throws CrudException;
+  public List<Edge> getVertexEdges(String id, Map<String, String> queryParams, String txId) throws CrudException;
 
   /**
    * Retrieve a collection of {@link Vertex} objects which match the supplied
@@ -89,7 +91,7 @@ public interface GraphDao {
    * @throws CrudException
    */
   public OperationResult getEdge(String id, String type, Map<String, String> queryParams) throws CrudException;
-
+  
   /**
    * Retrieve a collection of {@link Edge} objects with a given type and which
    * match a set of supplied filter parameters.
@@ -172,7 +174,7 @@ public interface GraphDao {
    *          - The unique identifier of the edge to be deleted.
    * @throws CrudException
    */
-  public void deleteEdge(String id, String type) throws CrudException;
+  public void deleteEdge(String id) throws CrudException;
 
   public String openTransaction();
 
@@ -193,7 +195,9 @@ public interface GraphDao {
 
   public void deleteVertex(String id, String type, String txId) throws CrudException;
 
-  public void deleteEdge(String id, String type, String txId) throws CrudException;
+  public void deleteEdge(String id, String txId) throws CrudException;
 
-  public Edge getEdge(String id, String type, String txId) throws CrudException;
+  public Edge getEdge(String id, String txId) throws CrudException;
+  
+  public Edge getEdge(String id) throws CrudException;
 }

@@ -31,8 +31,12 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response.Status;
 import org.onap.aai.db.props.AAIProperties;
 import org.onap.crud.exception.CrudException;
+import org.onap.crud.parser.EdgePayload;
+import org.onap.crud.parser.util.EdgePayloadUtil;
 import org.onap.schema.EdgeRulesLoader;
 import org.onap.schema.OxmModelLoader;
+import org.onap.schema.RelationshipSchema;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
@@ -136,6 +140,27 @@ public class CrudServiceUtil {
       entityTag = new EntityTag(value.replace("\"", ""));
     }
     return entityTag;
+  }
+
+  public static String determineEdgeType(EdgePayload payload, String version) throws CrudException {
+    RelationshipSchema schema = EdgeRulesLoader.getSchemaForVersion(version);
+    
+    if (payload.getSource() == null || payload.getTarget() == null) {
+      throw new CrudException("Source/Target not specified", Status.BAD_REQUEST);
+    }
+    
+    Set<String> edgeTypes = schema.getValidRelationTypes(EdgePayloadUtil.getVertexNodeType(payload.getSource()), 
+        EdgePayloadUtil.getVertexNodeType(payload.getTarget()));
+    
+    if (edgeTypes.size() == 0) {
+      throw new CrudException("No valid relationship types from " + payload.getSource() + " to " + payload.getTarget(), Status.BAD_REQUEST);
+    }
+    
+    if (edgeTypes.size() > 1) {
+      throw new CrudException("Multiple possible relationship types from " + payload.getSource() + " to " + payload.getTarget(), Status.BAD_REQUEST);
+    }
+    
+    return edgeTypes.iterator().next();
   }
 
 }

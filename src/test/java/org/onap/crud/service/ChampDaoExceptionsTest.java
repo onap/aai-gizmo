@@ -229,7 +229,7 @@ public class ChampDaoExceptionsTest {
         buildChampDao();
 
         try {
-            champDao.getEdge(idNotExists, type, txId);
+            champDao.getEdge(idNotExists, txId);
         } catch (CrudException e) {
             assertEquals(404, e.getHttpStatus().getStatusCode());
             assertThat(e.getMessage(), containsString(failureCauseForGetEdge));
@@ -250,7 +250,7 @@ public class ChampDaoExceptionsTest {
 
         // Type not matches
         try {
-            champDao.getEdge(id, "", txId);
+            champDao.getEdge(id, txId);
         } catch (CrudException e) {
             assertEquals(404, e.getHttpStatus().getStatusCode());
             assertThat(e.getMessage(), containsString(failureCauseForGetEdgeTypeNotMatches));
@@ -332,7 +332,7 @@ public class ChampDaoExceptionsTest {
         buildChampDao();
 
         try {
-            champDao.getVertexEdges(idNotExists, queryParams);
+            champDao.getVertexEdges(idNotExists, queryParams, null);
         } catch (CrudException e) {
             assertEquals(404, e.getHttpStatus().getStatusCode());
             assertThat(e.getMessage(), containsString(failureCauseForGetVertexEdges));
@@ -509,13 +509,13 @@ public class ChampDaoExceptionsTest {
         buildChampDao();
 
         try {
-            champDao.deleteEdge(id, type);
+            champDao.deleteEdge(id);
         } catch (CrudException e) {
             assertEquals(400, e.getHttpStatus().getStatusCode());
             assertThat(e.getMessage(), containsString(failureCauseFordeleteEdge));
         }
         try {
-            champDao.deleteEdge(id, type, txId);
+            champDao.deleteEdge(id, txId);
         } catch (CrudException e) {
             assertEquals(400, e.getHttpStatus().getStatusCode());
             assertThat(e.getMessage(), containsString(failureCauseFordeleteEdge));

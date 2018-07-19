@@ -77,11 +77,11 @@ public class CrudGraphDataService extends AbstractGraphDataService {
     // load source and target vertex relationships for validation
     List<Edge> sourceVertexEdges =
              EdgePayloadUtil.filterEdgesByRelatedVertexAndType(EdgePayloadUtil.getVertexNodeType(payload.getSource()), type,
-                          daoForGet.getVertexEdges(EdgePayloadUtil.getVertexNodeId(payload.getSource()), null));
+                          daoForGet.getVertexEdges(EdgePayloadUtil.getVertexNodeId(payload.getSource()), null, null));
 
     List<Edge> targetVertexEdges =
               EdgePayloadUtil.filterEdgesByRelatedVertexAndType(EdgePayloadUtil.getVertexNodeType(payload.getTarget()), type,
-                          daoForGet.getVertexEdges(EdgePayloadUtil.getVertexNodeId(payload.getTarget()), null));
+                          daoForGet.getVertexEdges(EdgePayloadUtil.getVertexNodeId(payload.getTarget()), null, null));
 
     Edge edge = RelationshipSchemaValidator.validateIncomingAddPayload(version, type, payload, sourceVertexEdges, targetVertexEdges);
 
@@ -140,7 +140,7 @@ public class CrudGraphDataService extends AbstractGraphDataService {
   @Override
   public String deleteEdge(String version, String id, String type) throws CrudException {
     RelationshipSchemaValidator.validateType(version, type);
-    dao.deleteEdge(id, type);
+    dao.deleteEdge(id);
     return "";
   }
 
@@ -153,11 +153,11 @@ public class CrudGraphDataService extends AbstractGraphDataService {
     // load source and target vertex relationships for validation
     List<Edge> sourceVertexEdges =
              EdgePayloadUtil.filterEdgesByRelatedVertexAndType(EdgePayloadUtil.getVertexNodeType(payload.getSource()), type,
-                          daoForGet.getVertexEdges(EdgePayloadUtil.getVertexNodeId(payload.getSource()), null));
+                          daoForGet.getVertexEdges(EdgePayloadUtil.getVertexNodeId(payload.getSource()), null, null));
 
     List<Edge> targetVertexEdges =
               EdgePayloadUtil.filterEdgesByRelatedVertexAndType(EdgePayloadUtil.getVertexNodeType(payload.getTarget()), type,
-                          daoForGet.getVertexEdges(EdgePayloadUtil.getVertexNodeId(payload.getTarget()), null));
+                          daoForGet.getVertexEdges(EdgePayloadUtil.getVertexNodeId(payload.getTarget()), null, null));
 
     Edge validatedEdge = RelationshipSchemaValidator.validateIncomingUpdatePayload(edge, version, payload, type, sourceVertexEdges, targetVertexEdges);
 
@@ -213,7 +213,7 @@ public class CrudGraphDataService extends AbstractGraphDataService {
   }
 
   @Override
-  protected void deleteBulkEdge(String id, String version, String type, String dbTransId) throws CrudException {
-    dao.deleteEdge(id, type, dbTransId);
+  protected void deleteBulkEdge(String id, String version, String dbTransId) throws CrudException {
+    dao.deleteEdge(id, dbTransId);
   }
 }

@@ -269,11 +269,13 @@ public class ChampDaoMockTest {
         mockGetVertex("50bdab41-ad1c-4d00-952c-a0aa5d827811", "?transactionId=", "vserver");
         mockGetVertices(queryParamsVertices, "pserver");
         mockGetVertices(queryParamsVerticesV13, "pserver");
-        mockGetVertexEdges("872dd5df-0be9-4167-95e9-2cf4b21165ed", queryParamsVertex, "tosca.relationships.HostedOn");
-        mockGetVertexEdges("872dd5df-0be9-4167-95e9-2cf4b21165ed", queryParamsVertexV13,
+        mockGetVertexEdges("872dd5df-0be9-4167-95e9-2cf4b21165ed", queryParamsVertex, null, "tosca.relationships.HostedOn");
+        mockGetVertexEdges("872dd5df-0be9-4167-95e9-2cf4b21165ed", queryParamsVertexV13, null,
                 "tosca.relationships.HostedOn");
-        mockGetVertexEdges("50bdab41-ad1c-4d00-952c-a0aa5d827811", emptyQueryParams, "tosca.relationships.HostedOn");
-        mockGetVertexEdges("1d326bc7-b985-492b-9604-0d5d1f06f908", emptyQueryParams, "tosca.relationships.HostedOn");
+        mockGetVertexEdges("50bdab41-ad1c-4d00-952c-a0aa5d827811", emptyQueryParams, null, "tosca.relationships.HostedOn");
+        mockGetVertexEdges("1d326bc7-b985-492b-9604-0d5d1f06f908", emptyQueryParams, null, "tosca.relationships.HostedOn");
+        mockGetVertexEdges("50bdab41-ad1c-4d00-952c-a0aa5d827811", emptyQueryParams, "?transactionId=", "tosca.relationships.HostedOn");
+        mockGetVertexEdges("1d326bc7-b985-492b-9604-0d5d1f06f908", emptyQueryParams, "?transactionId=", "tosca.relationships.HostedOn");
         mockGetEdges("?", "tosca.relationships.HostedOn");
         mockGetEdge("50bdab41-ad1c-4d00-952c-a0aa5d827811", "?transactionId=", "tosca.relationships.HostedOn");
         mockGetEdge("872dd5df-0be9-4167-95e9-2cf4b21165ed", emptyQueryParams, "tosca.relationships.HostedOn");
@@ -372,17 +374,24 @@ public class ChampDaoMockTest {
                 .thenReturn(operationResult);
     }
 
-    public void mockGetVertexEdges(String id, Map<String, String> queryParams, String type) {
+    public void mockGetVertexEdges(String id, Map<String, String> queryParams, String txId, String type) {
         String edgeResponse = champEdge.replace("edgeType", type);
         OperationResult operationResult = new OperationResult();
         List<String> edgeResponselist = new ArrayList<>();
         edgeResponselist.add(edgeResponse);
         operationResult.setResult(edgeResponselist.toString());
         operationResult.setResultCode(200);
+        String baseUrl = BASE_OBJECT_URL + "/" + RELATIONSHIP_SUB_URL + "/" + id;
+        String url;
+        
+        if (txId != null) {
+            url = baseUrl + txId;
+        }
+        else {
+            url = appendQueryParams(baseUrl, queryParams).toString();
+        }
 
-        StringBuilder url = appendQueryParams(BASE_OBJECT_URL + "/" + RELATIONSHIP_SUB_URL + "/" + id, queryParams);
-
-        when(restClientMock.get(url.toString(), createHeaders(), MediaType.APPLICATION_JSON_TYPE))
+        when(restClientMock.get(url, createHeaders(), MediaType.APPLICATION_JSON_TYPE))
                 .thenReturn(operationResult);
     }
 

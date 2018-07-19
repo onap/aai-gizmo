@@ -335,7 +335,8 @@ public class CrudRestServiceTest {
 
     response = mockService.addBulk(payloadStr, "v9", "",
         "services/inventory/v9", new TestHeaders(), null, new TestRequest());
-    System.out.println("Bulk Response: " + response.getStatus() + "\n" + response.getEntity().toString());
+    System.out.println("Bulk Response: " + response);
+    System.out.println("Response Entity: " + response.getEntity().toString());
     assertTrue(response.getStatus() == 200);
   }
 

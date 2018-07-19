@@ -141,26 +141,39 @@ public class ChampDao implements GraphDao {
   }
 
   @Override
-  public List<Edge> getVertexEdges(String id, Map<String, String> queryParams) throws CrudException {
-    StringBuilder strBuild = new StringBuilder(baseObjectUrl);
-    strBuild.append("/relationships/");
-    strBuild.append(id);
-    if(queryParams != null && !queryParams.isEmpty())
-    {
-        strBuild.append("?");
-        strBuild.append(URLEncodedUtils.format(convertToNameValuePair(queryParams), Charset.defaultCharset()));
-    }
+  public List<Edge> getVertexEdges(String id, Map<String, String> queryParams, String txId) throws CrudException {
+      StringBuilder strBuild = new StringBuilder(baseObjectUrl);
+      strBuild.append("/relationships/");
+      strBuild.append(id);
 
-    OperationResult getResult = client.get(strBuild.toString(), createHeader(), MediaType.APPLICATION_JSON_TYPE);
+      Map<String,String> queryParamsCopy = null;
+      if (queryParams != null) {
+          queryParamsCopy = new HashMap<String,String>(queryParams);
+      }
+      else {
+          queryParamsCopy = new HashMap<String,String>();
+      }
 
-    if (getResult.getResultCode() == 200) {
-      return champGson.fromJson(getResult.getResult(), new TypeToken<List<Edge>>() {
-      }.getType());
-    } else {
-      // We didn't find a vertex with the supplied id, so just throw an
-      // exception.
-      throw createErrorException(getResult, javax.ws.rs.core.Response.Status.NOT_FOUND, "No vertex with id " + id + " found in graph");
-    }
+      if (txId != null) {
+          queryParamsCopy.put("transactionId", txId);
+      }
+
+      if (!queryParamsCopy.isEmpty())
+      {
+          strBuild.append("?");
+          strBuild.append(URLEncodedUtils.format(convertToNameValuePair(queryParamsCopy), Charset.defaultCharset()));
+      }
+
+      OperationResult getResult = client.get(strBuild.toString(), createHeader(), MediaType.APPLICATION_JSON_TYPE);
+
+      if (getResult.getResultCode() == 200) {
+          return champGson.fromJson(getResult.getResult(), new TypeToken<List<Edge>>() {
+          }.getType());
+      } else {
+          // We didn't find a vertex with the supplied id, so just throw an
+          // exception.
+          throw createErrorException(getResult, javax.ws.rs.core.Response.Status.NOT_FOUND, "No vertex with id " + id + " found in graph");
+      }
   }
 
   @Override
@@ -343,7 +356,7 @@ public class ChampDao implements GraphDao {
   }
 
   @Override
-  public void deleteEdge(String id, String type) throws CrudException {
+  public void deleteEdge(String id) throws CrudException {
     String url = baseRelationshipUrl + "/" + id;
     OperationResult getResult = client.delete(url, createHeader(), MediaType.APPLICATION_JSON_TYPE);
 
@@ -512,7 +525,7 @@ public class ChampDao implements GraphDao {
   }
 
   @Override
-  public void deleteEdge(String id, String type, String txId) throws CrudException {
+  public void deleteEdge(String id, String txId) throws CrudException {
     String url = baseRelationshipUrl + "/" + id + "?transactionId=" + txId;
     OperationResult getResult = client.delete(url, createHeader(), MediaType.APPLICATION_JSON_TYPE);
 
@@ -524,23 +537,30 @@ public class ChampDao implements GraphDao {
   }
 
   @Override
-  public Edge getEdge(String id, String type, String txId) throws CrudException {
+  public Edge getEdge(String id, String txId) throws CrudException {
     String url = baseRelationshipUrl + "/" + id + "?transactionId=" + txId;
     OperationResult getResult = client.get(url, createHeader(), MediaType.APPLICATION_JSON_TYPE);
 
     if (getResult.getResultCode() == 200) {
       Edge edge = Edge.fromJson(getResult.getResult());
-
-      if (!edge.getType().equalsIgnoreCase(type)) {
-        // We didn't find an edge with the supplied type, so just throw an
-        // exception.
-        throw new CrudException("No edge with id " + id + " and type " + type + " found in graph",
-            javax.ws.rs.core.Response.Status.NOT_FOUND);
-      }
       return edge;
     } else {
       // We didn't find an edge with the supplied id, so just throw an
       // exception.
+      throw createErrorException(getResult, javax.ws.rs.core.Response.Status.NOT_FOUND, "No edge with id " + id + " found in graph");
+    }
+  }
+  
+  @Override
+  public Edge getEdge(String id) throws CrudException {
+    String url = baseRelationshipUrl + "/" + id;
+    OperationResult getResult = client.get(url, createHeader(), MediaType.APPLICATION_JSON_TYPE);
+
+    if (getResult.getResultCode() == 200) {
+      Edge edge = Edge.fromJson(getResult.getResult());
+      return edge;
+    } else {
+      // We didn't find an edge with the supplied id, so just throw an exception.
       throw createErrorException(getResult, javax.ws.rs.core.Response.Status.NOT_FOUND, "No edge with id " + id + " found in graph");
     }
   }

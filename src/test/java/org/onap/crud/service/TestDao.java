@@ -84,7 +84,7 @@ public class TestDao implements GraphDao {
   }
 
   @Override
-  public List<Edge> getVertexEdges(String id, Map<String, String> queryParams) throws CrudException {
+  public List<Edge> getVertexEdges(String id, Map<String, String> queryParams, String txId) throws CrudException {
     List<Edge> list = new ArrayList<Edge>();
     list.add(Edge.fromJson(champEdge));
     return list;
@@ -159,7 +159,7 @@ public class TestDao implements GraphDao {
   }
 
   @Override
-  public void deleteEdge(String id, String type) throws CrudException {
+  public void deleteEdge(String id) throws CrudException {
     
   }
 
@@ -217,13 +217,13 @@ public class TestDao implements GraphDao {
   }
 
   @Override
-  public void deleteEdge(String id, String type, String txId) throws CrudException {
+  public void deleteEdge(String id, String txId) throws CrudException {
     // TODO Auto-generated method stub
     
   }
 
   @Override
-  public Edge getEdge(String id, String type, String txId) throws CrudException {
+  public Edge getEdge(String id, String txId) throws CrudException {
     return Edge.fromJson(champEdge);
   }
   
@@ -231,5 +231,11 @@ public class TestDao implements GraphDao {
     MultivaluedMap<String, String> headers = new MultivaluedHashMap<String, String>();
     headers.add("etag", "test123");
     return headers;
+  }
+
+  @Override
+  public Edge getEdge(String id) throws CrudException {
+    // TODO Auto-generated method stub
+    return null;
   }
 }

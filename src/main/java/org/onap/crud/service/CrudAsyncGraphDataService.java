@@ -414,7 +414,18 @@ public class CrudAsyncGraphDataService extends AbstractGraphDataService {
     }
 
     @Override
-    protected void deleteBulkEdge(String id, String version, String type, String dbTransId) throws CrudException {
+    protected void deleteBulkEdge(String id, String version, String dbTransId) throws CrudException {
+        // Get the edge type
+        String type = null;
+        try {
+            Edge edge = daoForGet.getEdge(id);
+            type = edge.getType();
+        }
+        catch (CrudException ex) {
+            // Likely the client is trying to delete an edge which isn't present.  Just swallow the exception
+            // and let the bulk request fail via the normal path.
+        }
+        
         GraphEvent event = GraphEvent.builder(GraphEventOperation.DELETE)
                 .edge(new GraphEventEdge(id, version, type, null, null, null)).build();
         event.setDbTransactionId(dbTransId);

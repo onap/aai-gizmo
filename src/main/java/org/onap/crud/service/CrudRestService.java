@@ -504,10 +504,6 @@ public class CrudRestService {
 
       EdgePayload edgePayload = EdgePayload.fromJson(item.getValue().getAsJsonObject().toString());
 
-      if (edgePayload.getType() == null) {
-        throw new CrudException("Edge Type cannot be null for: " + item.getKey(), Status.BAD_REQUEST);
-      }
-
       if (!opr.getKey().equalsIgnoreCase("operation")) {
         throw new CrudException("operation missing in item: " + item.getKey(), Status.BAD_REQUEST);
       }
@@ -697,8 +693,9 @@ public class CrudRestService {
         }
 
         if (payload.getType() == null || payload.getType().isEmpty()) {
-          throw new CrudException("Missing Edge Type ", Status.BAD_REQUEST);
+          payload.setType(CrudServiceUtil.determineEdgeType(payload, version));
         }
+        
         ImmutablePair<EntityTag, String> result = graphDataService.addEdge(version, payload.getType(), payload);
         response = Response.status(Status.CREATED).entity(result.getValue()).tag(result.getKey()).type(mediaType).build();
       } else {
