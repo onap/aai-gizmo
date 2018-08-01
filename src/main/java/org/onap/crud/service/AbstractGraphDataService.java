@@ -236,41 +236,26 @@ public abstract class AbstractGraphDataService {
             if (edgePayload.getType() == null || edgePayload.getType().isEmpty()) {
               edgePayload.setType(CrudServiceUtil.determineEdgeType(edgePayload, version));
             }
-            
-            // TODO:  Champ needs to support getting an object's relationships within the context of an existing transaction.
-            //        Currently it doesn't.  Disabling multiplicity check until this happens.
-            
-            List<Edge> sourceVertexEdges = new ArrayList<Edge>();
-            List<Edge> targetVertexEdges = new ArrayList<Edge>();
-            
-            /*
+
             List<Edge> sourceVertexEdges =
                     EdgePayloadUtil.filterEdgesByRelatedVertexAndType(EdgePayloadUtil.getVertexNodeType(edgePayload.getSource()), edgePayload.getType(),
                                  dao.getVertexEdges(EdgePayloadUtil.getVertexNodeId(edgePayload.getSource()), null, txId));
-            
+
             List<Edge> targetVertexEdges =
                      EdgePayloadUtil.filterEdgesByRelatedVertexAndType(EdgePayloadUtil.getVertexNodeType(edgePayload.getTarget()), edgePayload.getType(),
                                  dao.getVertexEdges(EdgePayloadUtil.getVertexNodeId(edgePayload.getTarget()), null, txId));
-            */
-            
+
             validatedEdge = RelationshipSchemaValidator.validateIncomingAddPayload(version, edgePayload.getType(), edgePayload, sourceVertexEdges,
                     targetVertexEdges);
             persistedEdge = addBulkEdge(validatedEdge, version, txId);
           } else if (opr.getValue().getAsString().equalsIgnoreCase("modify")) {
             Edge edge = dao.getEdge(edgePayload.getId(), txId);
-            
+
             // If the type isn't set, resolve it based on on the sourece and target vertex types
             if (edgePayload.getType() == null || edgePayload.getType().isEmpty()) {
               edgePayload.setType(edge.getType());
             }
 
-            // TODO:  Champ needs to support getting an object's relationships within the context of an existing transaction.
-            //        Currently it doesn't.  Disabling multiplicity check until this happens.
-            
-            List<Edge> sourceVertexEdges = new ArrayList<Edge>();
-            List<Edge> targetVertexEdges = new ArrayList<Edge>();
-            
-            /*
             // load source and target vertex relationships for validation
             List<Edge> sourceVertexEdges =
                    EdgePayloadUtil.filterEdgesByRelatedVertexAndType(EdgePayloadUtil.getVertexNodeType(edgePayload.getSource()), edgePayload.getType(),
@@ -279,8 +264,8 @@ public abstract class AbstractGraphDataService {
             List<Edge> targetVertexEdges =
                     EdgePayloadUtil.filterEdgesByRelatedVertexAndType(EdgePayloadUtil.getVertexNodeType(edgePayload.getTarget()), edgePayload.getType(),
                                 dao.getVertexEdges(EdgePayloadUtil.getVertexNodeId(edgePayload.getTarget()), null, txId));
-            */
-            
+
+
             validatedEdge = RelationshipSchemaValidator.validateIncomingUpdatePayload(edge, version, edgePayload, edgePayload.getType(), sourceVertexEdges, targetVertexEdges);
             persistedEdge = updateBulkEdge(validatedEdge, version, txId);
           } else {
@@ -288,12 +273,12 @@ public abstract class AbstractGraphDataService {
               throw new CrudException("id must be specified for patch request", Status.BAD_REQUEST);
             }
             Edge existingEdge = dao.getEdge(edgePayload.getId(), txId);
-            
+
             // If the type isn't set, resolve it based on on the sourece and target vertex types
             if (edgePayload.getType() == null || edgePayload.getType().isEmpty()) {
               edgePayload.setType(existingEdge.getType());
             }
-            
+
             Edge patchedEdge = RelationshipSchemaValidator.validateIncomingPatchPayload(existingEdge, version, edgePayload);
             persistedEdge = updateBulkEdge(patchedEdge, version, txId);
           }
