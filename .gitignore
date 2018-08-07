@@ -17,4 +17,5 @@ target/
 
 # Misc
 .checkstyle
+.vscode/
 
