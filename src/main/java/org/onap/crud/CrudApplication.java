@@ -22,11 +22,14 @@ package org.onap.crud;
 
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.PostConstruct;
 import org.eclipse.jetty.util.security.Password;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.ImportResource;
+import org.springframework.core.env.Environment;
 
 /**
  * Crud application class - SpringApplication.run
@@ -34,6 +37,9 @@ import org.springframework.context.annotation.ImportResource;
 @SpringBootApplication
 @ImportResource({"file:${SERVICE_BEANS}/*.xml"})
 public class CrudApplication extends SpringBootServletInitializer{// NOSONAR
+    @Autowired
+    private Environment env;
+    
     public static void main(String[] args) {// NOSONAR
         String keyStorePassword = System.getProperty("KEY_STORE_PASSWORD");
         if(keyStorePassword==null || keyStorePassword.isEmpty()){
@@ -42,5 +48,23 @@ public class CrudApplication extends SpringBootServletInitializer{// NOSONAR
         Map<String, Object> props = new HashMap<>();
         props.put("server.ssl.key-store-password", Password.deobfuscate(keyStorePassword));
         new CrudApplication().configure(new SpringApplicationBuilder(CrudApplication.class).properties(props)).run(args);
+    }
+    
+    /**
+     * Set required trust store system properties using values from application.properties
+     */
+    @PostConstruct
+    public void setSystemProperties() {
+        String trustStorePath = env.getProperty("server.ssl.key-store");
+        if (trustStorePath != null) {
+            String trustStorePassword = env.getProperty("server.ssl.key-store-password");
+
+            if (trustStorePassword != null) {
+                System.setProperty("javax.net.ssl.trustStore", trustStorePath);
+                System.setProperty("javax.net.ssl.trustStorePassword", trustStorePassword);
+            } else {
+                throw new IllegalArgumentException("Env property server.ssl.key-store-password not set");
+            }
+        }
     }
 }
