@@ -139,17 +139,6 @@ limitations under the License.
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>org.onap.aai.event-client</groupId>
-            <artifactId>event-client-kafka</artifactId>
-            <version>1.2.2</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-api</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
 
         <!-- ONAP COMMON LOGGING -->
         <dependency>
