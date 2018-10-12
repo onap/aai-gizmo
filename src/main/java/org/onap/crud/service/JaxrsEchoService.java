@@ -28,6 +28,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 import org.onap.aai.cl.api.Logger;
@@ -39,23 +40,29 @@ import org.springframework.stereotype.Component;
 @Path("/services/gizmo/v1/echo-service/")
 public class JaxrsEchoService {
 
-  private static Logger logger = LoggerFactory.getInstance()
-      .getLogger(JaxrsEchoService.class.getName());
-  private static Logger auditLogger = LoggerFactory.getInstance()
-      .getAuditLogger(JaxrsEchoService.class.getName());
+    private static Logger logger = LoggerFactory.getInstance().getLogger(JaxrsEchoService.class.getName());
+    private static Logger auditLogger = LoggerFactory.getInstance().getAuditLogger(JaxrsEchoService.class.getName());
 
-  @GET
-  @Path("echo/{input}")
-  @Produces("text/plain")
-  public String ping(@PathParam("input") String input,
-                     @Context HttpHeaders headers,
-                     @Context UriInfo info,
-                     @Context HttpServletRequest req) {
+    public static final String TRANSACTIONID_HEADER = "X-TransactionId";
 
-    LoggingUtil.initMdcContext(req, headers);
-    LoggingUtil.logRestRequest(logger, auditLogger, req, Response.status(Status.OK)
-        .entity("OK").build());
+    @GET
+    @Path("echo/{input}")
+    @Produces("text/plain")
+    public Response ping(@PathParam("input") String input, @Context HttpHeaders headers, @Context UriInfo info,
+            @Context HttpServletRequest req) {
 
-    return "Hello, " + input + ".";
-  }
+        LoggingUtil.initMdcContext(req, headers);
+
+        ResponseBuilder responseBuilder = Response.status(Status.OK).entity("Hello, " + input + ".");
+
+        String txId = headers.getHeaderString(TRANSACTIONID_HEADER);
+        if (txId != null) {
+            responseBuilder.header(TRANSACTIONID_HEADER, txId);
+        }
+
+        Response response = responseBuilder.build();
+        LoggingUtil.logRestRequest(logger, auditLogger, req, response);
+
+        return response;
+    }
 }
