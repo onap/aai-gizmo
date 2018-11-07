@@ -22,12 +22,18 @@ package org.onap.schema;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.ws.rs.core.Response.Status;
+
+import org.eclipse.persistence.dynamic.DynamicType;
+import org.eclipse.persistence.internal.oxm.mappings.Descriptor;
 import org.eclipse.persistence.jaxb.dynamic.DynamicJAXBContext;
 import org.onap.aai.cl.eelf.LoggerFactory;
 import org.onap.aai.nodes.NodeIngestor;
@@ -38,10 +44,14 @@ import org.onap.crud.exception.CrudException;
 import org.onap.crud.logging.CrudServiceMsgs;
 import org.onap.schema.util.SchemaIngestPropertyReader;
 
+import com.google.common.base.CaseFormat;
+
 public class OxmModelLoader {
 
     private static Map<String, DynamicJAXBContext> versionContextMap =
             new ConcurrentHashMap<>();
+    
+    private static Map<String, HashMap<String, DynamicType>> xmlElementLookup = new ConcurrentHashMap<String, HashMap<String, DynamicType>>();
 
     static final Pattern p = Pattern.compile("aai_oxm_(.*).xml");
     static final Pattern versionPattern = Pattern.compile("V(\\d*)");
@@ -82,6 +92,7 @@ public class OxmModelLoader {
 
     private static synchronized void loadModel(String oxmVersion, DynamicJAXBContext jaxbContext) {
         versionContextMap.put(oxmVersion, jaxbContext);
+        loadXmlLookupMap(oxmVersion, jaxbContext);
         logger.info(CrudServiceMsgs.LOADED_OXM_FILE, oxmVersion);
     }
 
@@ -192,4 +203,59 @@ public class OxmModelLoader {
     public static void setVersionContextMap(Map<String, DynamicJAXBContext> versionContextMap) {
         OxmModelLoader.versionContextMap = versionContextMap;
     }
+    
+   
+    public static void loadXmlLookupMap(String version, DynamicJAXBContext jaxbContext )  {
+      
+      @SuppressWarnings("rawtypes")
+      List<Descriptor> descriptorsList = jaxbContext.getXMLContext().getDescriptors();     
+      HashMap<String,DynamicType> types = new HashMap<String,DynamicType>();
+
+      for (@SuppressWarnings("rawtypes")
+      Descriptor desc : descriptorsList) {
+
+        DynamicType entity = jaxbContext.getDynamicType(desc.getAlias());
+        String entityName = desc.getDefaultRootElement();
+        types.put(entityName, entity);
+      }
+      xmlElementLookup.put(version, types);
+    }
+    
+    
+  public static DynamicType getDynamicTypeForVersion(String version, String type) throws CrudException {
+
+    DynamicType dynamicType;
+    // If we haven't already loaded in the available OXM models, then do so now.
+    if (versionContextMap == null || versionContextMap.isEmpty()) {
+      loadModels();
+    } else if (!versionContextMap.containsKey(version)) {
+      logger.error(CrudServiceMsgs.OXM_LOAD_ERROR, "Error loading oxm model: " + version);
+      throw new CrudException("Error loading oxm model: " + version, Status.INTERNAL_SERVER_ERROR);
+    }
+
+    // First try to match the Java-type based on hyphen to camel case translation
+    String javaTypeName = CaseFormat.LOWER_HYPHEN.to(CaseFormat.UPPER_CAMEL, type);
+    dynamicType = versionContextMap.get(version).getDynamicType(javaTypeName);
+
+    //Attempt to lookup in xml elements
+    if (xmlElementLookup.containsKey(version)) {
+      if (dynamicType == null) {
+        // Try to lookup by xml root element by exact match
+        dynamicType = xmlElementLookup.get(version).get(type);
+      }
+
+      if (dynamicType == null) {
+        // Try to lookup by xml root element by lowercase
+        dynamicType = xmlElementLookup.get(version).get(type.toLowerCase());
+      }
+
+      if (dynamicType == null) {
+        // Direct lookup as java-type name
+        dynamicType = versionContextMap.get(version).getDynamicType(type);
+      }
+    }
+
+    return dynamicType;
+
+  }
 }

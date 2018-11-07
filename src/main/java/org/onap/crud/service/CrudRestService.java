@@ -20,7 +20,6 @@
  */
 package org.onap.crud.service;
 
-import com.google.gson.JsonElement;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,6 +27,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+
 import javax.security.auth.x500.X500Principal;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -47,6 +47,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
+
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.cxf.jaxrs.ext.PATCH;
 import org.onap.aai.cl.api.Logger;
@@ -63,7 +64,16 @@ import org.onap.crud.util.CrudServiceConstants;
 import org.onap.crud.util.CrudServiceUtil;
 import org.slf4j.MDC;
 
-@Path("/services/inventory")
+import com.google.gson.JsonElement;
+
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
+@Path("/inventory")
 public class CrudRestService {
 
     private AbstractGraphDataService graphDataService;
@@ -93,13 +103,23 @@ public class CrudRestService {
     public void startup() {
 
     }
-
+    
+    @ApiOperation(value = "Get Vertex" , notes="For example : https://<host>:9520/services/inventory/v11/pserver/<id>")
+    @ApiResponses({    
+      @ApiResponse(code = 200, message = "Success"),
+      @ApiResponse(code = 403, message = "Forbidden"),    
+      @ApiResponse(code = 404, message = "Not Found"),
+      @ApiResponse(code = 500, message = "Internal Server Error") })
+    @ApiImplicitParams({
+      @ApiImplicitParam(name = "X-FromAppId", required = true, dataType = "string", paramType = "header"),
+      @ApiImplicitParam(name = "X-TransactionId",  required = true, dataType = "string", paramType = "header"),    
+    })
     @GET
     @Path("/{version}/{type}/{id}")
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
-    public Response getVertex(String content, @PathParam("version") String version, @PathParam("type") String type,
-            @PathParam("id") String id, @PathParam("uri") @Encoded String uri, @Context HttpHeaders headers,
+    public Response getVertex(@ApiParam(hidden=true) String content, @PathParam("version") @ApiParam(value="oxm model version",defaultValue="v13") String version, @PathParam("type") String type,
+            @PathParam("id") String id, @PathParam("uri") @Encoded @ApiParam(hidden=true) String uri, @Context HttpHeaders headers,
             @Context UriInfo uriInfo, @Context HttpServletRequest req) {
 
         LoggingUtil.initMdcContext(req, headers);
@@ -130,12 +150,22 @@ public class CrudRestService {
         return response;
     }
 
+    @ApiOperation(value = "Get Vertices" , notes="For example : https://<host>:9520/services/inventory/v11/pserver/")
+    @ApiResponses({    
+      @ApiResponse(code = 200, message = "Success"),
+      @ApiResponse(code = 403, message = "Forbidden"),    
+      @ApiResponse(code = 404, message = "Not Found"),
+      @ApiResponse(code = 500, message = "Internal Server Error") })
+    @ApiImplicitParams({
+      @ApiImplicitParam(name = "X-FromAppId", required = true, dataType = "string", paramType = "header"),    
+      @ApiImplicitParam(name = "X-TransactionId",  required = true, dataType = "string", paramType = "header"),    
+    })
     @GET
     @Path("/{version}/{type}/")
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
-    public Response getVertices(String content, @PathParam("version") String version, @PathParam("type") String type,
-            @PathParam("uri") @Encoded String uri, @Context HttpHeaders headers, @Context UriInfo uriInfo,
+    public Response getVertices(@ApiParam(hidden=true) String content, @PathParam("version") @ApiParam(value="oxm model version",defaultValue="v13") String version, @PathParam("type") String type,
+            @PathParam("uri") @Encoded @ApiParam(hidden=true) String uri, @Context HttpHeaders headers, @Context UriInfo uriInfo,
             @Context HttpServletRequest req) {
 
         LoggingUtil.initMdcContext(req, headers);
@@ -175,12 +205,22 @@ public class CrudRestService {
         return response;
     }
 
+    @ApiOperation(value = "Get Edge" , notes="For example : https://<host>:9520/services/inventory/relationships/v11/tosca.relationships.HostedOn/<id>")
+    @ApiResponses({    
+      @ApiResponse(code = 200, message = "Success"),
+      @ApiResponse(code = 403, message = "Forbidden"),    
+      @ApiResponse(code = 404, message = "Not Found"),
+      @ApiResponse(code = 500, message = "Internal Server Error") })
+    @ApiImplicitParams({
+      @ApiImplicitParam(name = "X-FromAppId", required = true, dataType = "string", paramType = "header"),
+      @ApiImplicitParam(name = "X-TransactionId",  required = true, dataType = "string", paramType = "header"),    
+    })
     @GET
     @Path("/relationships/{version}/{type}/{id}")
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
-    public Response getEdge(String content, @PathParam("version") String version, @PathParam("type") String type,
-            @PathParam("id") String id, @PathParam("uri") @Encoded String uri, @Context HttpHeaders headers,
+    public Response getEdge(@ApiParam(hidden=true) String content, @PathParam("version") @ApiParam(value="oxm model version",defaultValue="v13") String version, @PathParam("type") String type,
+            @PathParam("id") String id, @PathParam("uri") @Encoded @ApiParam(hidden=true) String uri, @Context HttpHeaders headers,
             @Context UriInfo uriInfo, @Context HttpServletRequest req) {
 
         LoggingUtil.initMdcContext(req, headers);
@@ -211,12 +251,22 @@ public class CrudRestService {
         return response;
     }
 
+    @ApiOperation(value = "Get Edges" , notes="For example : https://<host>:9520/services/inventory/relationships/v11/tosca.relationships.HostedOn/")
+    @ApiResponses({    
+      @ApiResponse(code = 200, message = "Success"),
+      @ApiResponse(code = 403, message = "Forbidden"),    
+      @ApiResponse(code = 404, message = "Not Found"),
+      @ApiResponse(code = 500, message = "Internal Server Error") })
+    @ApiImplicitParams({
+      @ApiImplicitParam(name = "X-FromAppId", required = true, dataType = "string", paramType = "header"),
+      @ApiImplicitParam(name = "X-TransactionId",  required = true, dataType = "string", paramType = "header"),    
+    })
     @GET
     @Path("/relationships/{version}/{type}/")
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
-    public Response getEdges(String content, @PathParam("version") String version, @PathParam("type") String type,
-            @PathParam("uri") @Encoded String uri, @Context HttpHeaders headers, @Context UriInfo uriInfo,
+    public Response getEdges(@ApiParam(hidden=true) String content, @PathParam("version") @ApiParam(value="oxm model version",defaultValue="v13") String version, @PathParam("type") String type,
+            @PathParam("uri") @Encoded @ApiParam(hidden=true) String uri, @Context HttpHeaders headers, @Context UriInfo uriInfo,
             @Context HttpServletRequest req) {
 
         LoggingUtil.initMdcContext(req, headers);
@@ -246,12 +296,29 @@ public class CrudRestService {
         return response;
     }
 
+    @ApiOperation(value = "Update Edge" , notes = "# Payload \n"
+        + "{  \r\n" + 
+        "   \"properties\":{  \r\n" + 
+        "        \"prop1\" : \"value\",\r\n" + 
+        "        \"prop2\" :\"value\",\r\n" +  
+        "    ..}\r\n" + 
+        " }")
+    @ApiResponses({    
+      @ApiResponse(code = 200, message = "Success"),
+      @ApiResponse(code = 403, message = "Forbidden"),    
+      @ApiResponse(code = 404, message = "Not Found"),
+      @ApiResponse(code = 400, message = "Bad Request"),
+      @ApiResponse(code = 500, message = "Internal Server Error") })
+    @ApiImplicitParams({
+      @ApiImplicitParam(name = "X-FromAppId", required = true, dataType = "string", paramType = "header"),
+      @ApiImplicitParam(name = "X-TransactionId",  required = true, dataType = "string", paramType = "header"),    
+    })
     @PUT
     @Path("/relationships/{version}/{type}/{id}")
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
-    public Response updateEdge(String content, @PathParam("version") String version, @PathParam("type") String type,
-            @PathParam("id") String id, @PathParam("uri") @Encoded String uri, @Context HttpHeaders headers,
+    public Response updateEdge(String content, @PathParam("version") @ApiParam(value="oxm model version",defaultValue="v13") String version, @PathParam("type") String type,
+            @PathParam("id") String id, @PathParam("uri") @Encoded @ApiParam(hidden=true) String uri, @Context HttpHeaders headers,
             @Context UriInfo uriInfo, @Context HttpServletRequest req) {
 
         LoggingUtil.initMdcContext(req, headers);
@@ -296,12 +363,29 @@ public class CrudRestService {
         return response;
     }
 
+    @ApiOperation(value = "Patch Edge" , notes = "# Payload \n"
+        + "{  \r\n" + 
+        "   \"properties\":{  \r\n" + 
+        "        \"prop1\" : \"value\",\r\n" + 
+        "        \"prop2\" :\"value\",\r\n" +  
+        "    ..}\r\n" + 
+        " }")
+    @ApiResponses({    
+      @ApiResponse(code = 200, message = "Success"),
+      @ApiResponse(code = 403, message = "Forbidden"), 
+      @ApiResponse(code = 400, message = "Bad Request"),
+      @ApiResponse(code = 404, message = "Not Found"),
+      @ApiResponse(code = 500, message = "Internal Server Error") })
+    @ApiImplicitParams({
+      @ApiImplicitParam(name = "X-FromAppId", required = true, dataType = "string", paramType = "header"),
+      @ApiImplicitParam(name = "X-TransactionId",  required = true, dataType = "string", paramType = "header"),    
+    })
     @PATCH
     @Path("/relationships/{version}/{type}/{id}")
     @Consumes({"application/merge-patch+json"})
     @Produces({MediaType.APPLICATION_JSON})
-    public Response patchEdge(String content, @PathParam("version") String version, @PathParam("type") String type,
-            @PathParam("id") String id, @PathParam("uri") @Encoded String uri, @Context HttpHeaders headers,
+    public Response patchEdge(String content, @PathParam("version") @ApiParam(value="oxm model version",defaultValue="v13") String version, @PathParam("type") String type,
+            @PathParam("id") String id, @PathParam("uri") @Encoded @ApiParam(hidden=true) String uri, @Context HttpHeaders headers,
             @Context UriInfo uriInfo, @Context HttpServletRequest req) {
 
         LoggingUtil.initMdcContext(req, headers);
@@ -338,12 +422,30 @@ public class CrudRestService {
         return response;
     }
 
+    @ApiOperation(value = "Update Vertex" , notes = "# Payload \n"
+        + "{\r\n" + 
+        "   \"type\" :\"vertex type from oxm like comcast.nodes.sdwan.vpn\",\r\n" + 
+        "    \"properties\": {\r\n" + 
+        "        \"prop1\" : \"value\",\r\n" + 
+        "        \"prop2\" :\"value\",\r\n" +          
+        "    ..}\r\n" + 
+        " }")
+    @ApiResponses({    
+      @ApiResponse(code = 200, message = "Success"),
+      @ApiResponse(code = 403, message = "Forbidden"), 
+      @ApiResponse(code = 400, message = "Bad Request"),
+      @ApiResponse(code = 404, message = "Not Found"),
+      @ApiResponse(code = 500, message = "Internal Server Error") })
+    @ApiImplicitParams({
+      @ApiImplicitParam(name = "X-FromAppId", required = true, dataType = "string", paramType = "header"),
+      @ApiImplicitParam(name = "X-TransactionId",  required = true, dataType = "string", paramType = "header"),    
+    })
     @PUT
     @Path("/{version}/{type}/{id}")
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
-    public Response updateVertex(String content, @PathParam("version") String version, @PathParam("type") String type,
-            @PathParam("id") String id, @PathParam("uri") @Encoded String uri, @Context HttpHeaders headers,
+    public Response updateVertex(String content, @PathParam("version") @ApiParam(value="oxm model version",defaultValue="v13") String version, @PathParam("type") String type,
+            @PathParam("id") String id, @PathParam("uri") @Encoded @ApiParam(hidden=true) String uri, @Context HttpHeaders headers,
             @Context UriInfo uriInfo, @Context HttpServletRequest req) {
 
         LoggingUtil.initMdcContext(req, headers);
@@ -392,12 +494,30 @@ public class CrudRestService {
         return response;
     }
 
+    @ApiOperation(value = "Patch Vertex" , notes = "# Payload \n"
+        + "{\r\n" + 
+        "   \"type\" :\"vertex type from oxm like comcast.nodes.sdwan.vpn\",\r\n" + 
+        "    \"properties\": {\r\n" + 
+        "        \"prop1\" : \"true\",\r\n" + 
+        "        \"prop2\" :\"name1\",\r\n" +         
+        "    ..}\r\n" + 
+        " }")
+    @ApiResponses({    
+      @ApiResponse(code = 200, message = "Success"),
+      @ApiResponse(code = 403, message = "Forbidden"), 
+      @ApiResponse(code = 400, message = "Bad Request"),
+      @ApiResponse(code = 404, message = "Not Found"),
+      @ApiResponse(code = 500, message = "Internal Server Error") })
+    @ApiImplicitParams({
+      @ApiImplicitParam(name = "X-FromAppId", required = true, dataType = "string", paramType = "header"),
+      @ApiImplicitParam(name = "X-TransactionId",  required = true, dataType = "string", paramType = "header"),    
+    })
     @PATCH
     @Path("/{version}/{type}/{id}")
     @Consumes({"application/merge-patch+json"})
     @Produces({MediaType.APPLICATION_JSON})
-    public Response patchVertex(String content, @PathParam("version") String version, @PathParam("type") String type,
-            @PathParam("id") String id, @PathParam("uri") @Encoded String uri, @Context HttpHeaders headers,
+    public Response patchVertex(String content, @PathParam("version") @ApiParam(value="oxm model version",defaultValue="v13") String version, @PathParam("type") String type,
+            @PathParam("id") String id, @PathParam("uri") @Encoded @ApiParam(hidden=true) String uri, @Context HttpHeaders headers,
             @Context UriInfo uriInfo, @Context HttpServletRequest req) {
 
         LoggingUtil.initMdcContext(req, headers);
@@ -437,12 +557,29 @@ public class CrudRestService {
         return response;
     }
 
+    @ApiOperation(value = "Create Vertex" , notes = "# Payload \n"
+        + "{\r\n" +      
+        "    \"properties\": {\r\n" + 
+        "        \"prop1\" : \"value\",\r\n" + 
+        "        \"prop2\" :\"value\",\r\n" +         
+        "    ..}\r\n" + 
+        " }")
+    @ApiResponses({    
+      @ApiResponse(code = 201, message = "Created"),
+      @ApiResponse(code = 403, message = "Forbidden"), 
+      @ApiResponse(code = 400, message = "Bad Request"),
+      @ApiResponse(code = 404, message = "Not Found"),
+      @ApiResponse(code = 500, message = "Internal Server Error") })
+    @ApiImplicitParams({
+      @ApiImplicitParam(name = "X-FromAppId", required = true, dataType = "string", paramType = "header"),
+      @ApiImplicitParam(name = "X-TransactionId",  required = true, dataType = "string", paramType = "header"),    
+    })
     @POST
     @Path("/{version}/{type}/")
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
-    public Response addVertex(String content, @PathParam("version") String version, @PathParam("type") String type,
-            @PathParam("uri") @Encoded String uri, @Context HttpHeaders headers, @Context UriInfo uriInfo,
+    public Response addVertex(String content, @PathParam("version") @ApiParam(value="oxm model version",defaultValue="v13") String version, @PathParam("type") String type,
+            @PathParam("uri") @Encoded @ApiParam(hidden=true) String uri, @Context HttpHeaders headers, @Context UriInfo uriInfo,
             @Context HttpServletRequest req) {
 
         LoggingUtil.initMdcContext(req, headers);
@@ -586,12 +723,23 @@ public class CrudRestService {
 
     }
 
+    @ApiOperation(value = "Bulk API" , notes="For example : https://<host>:9520/services/inventory/v11/bulk")
+    @ApiResponses({    
+      @ApiResponse(code = 200, message = "Success"),
+      @ApiResponse(code = 403, message = "Forbidden"), 
+      @ApiResponse(code = 400, message = "Bad Request"),
+      @ApiResponse(code = 404, message = "Not Found"),
+      @ApiResponse(code = 500, message = "Internal Server Error") })
+    @ApiImplicitParams({
+      @ApiImplicitParam(name = "X-FromAppId", required = true, dataType = "string", paramType = "header"),
+      @ApiImplicitParam(name = "X-TransactionId",  required = true, dataType = "string", paramType = "header"),    
+    })
     @POST
     @Path("/{version}/bulk/")
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
-    public Response addBulk(String content, @PathParam("version") String version, @PathParam("type") String type,
-            @PathParam("uri") @Encoded String uri, @Context HttpHeaders headers, @Context UriInfo uriInfo,
+    public Response addBulk(String content, @PathParam("version") @ApiParam(value="oxm model version",defaultValue="v13") String version, 
+            @PathParam("uri") @Encoded @ApiParam(hidden=true) String uri, @Context HttpHeaders headers, @Context UriInfo uriInfo,
             @Context HttpServletRequest req) {
 
         LoggingUtil.initMdcContext(req, headers);
@@ -627,12 +775,30 @@ public class CrudRestService {
         return response;
     }
 
+    @ApiOperation(value = "Create Vertex (typeless endpoint)" , nickname="addVertex-typeless",notes = "# Payload \n"
+        + "{\r\n" +  
+        "   \"type\" :\"vertex type from oxm like comcast.nodes.sdwan.vpn\",\r\n" +       
+        "    \"properties\": {\r\n" + 
+        "        \"prop1\" : \"value\",\r\n" + 
+        "        \"prop2\" :\"value\",\r\n" +          
+        "    ..}\r\n" + 
+        " }")
+    @ApiResponses({   
+      @ApiResponse(code = 201, message = "Created"),
+      @ApiResponse(code = 403, message = "Forbidden"), 
+      @ApiResponse(code = 400, message = "Bad Request"),
+      @ApiResponse(code = 404, message = "Not Found"),
+      @ApiResponse(code = 500, message = "Internal Server Error") })
+    @ApiImplicitParams({
+      @ApiImplicitParam(name = "X-FromAppId", required = true, dataType = "string", paramType = "header"),
+      @ApiImplicitParam(name = "X-TransactionId",  required = true, dataType = "string", paramType = "header"),    
+    })
     @POST
     @Path("/{version}/")
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
-    public Response addVertex(String content, @PathParam("version") String version,
-            @PathParam("uri") @Encoded String uri, @Context HttpHeaders headers, @Context UriInfo uriInfo,
+    public Response addVertex(String content, @PathParam("version") @ApiParam(value="oxm model version",defaultValue="v13") String version,
+            @PathParam("uri") @Encoded  @ApiParam(hidden=true) String uri, @Context HttpHeaders headers, @Context UriInfo uriInfo,
             @Context HttpServletRequest req) {
 
         LoggingUtil.initMdcContext(req, headers);
@@ -677,12 +843,32 @@ public class CrudRestService {
         return response;
     }
 
+    @ApiOperation(value = "Create Edge" , notes = "# Payload \n"
+        + "{  \r\n" + 
+        "   \"source\":\"source vertex like : services/inventory/v11/vserver/0\",\r\n" + 
+        "   \"target\":\"target vertex like : services/inventory/v11/pserver/7\",\r\n" + 
+        "   \"properties\":{  \r\n" + 
+        "        \"prop1\" : \"value\",\r\n" + 
+        "        \"prop2\" :\"value\",\r\n" +  
+        "    ..}\r\n" + 
+        " }")
+    @ApiResponses({   
+      @ApiResponse(code = 201, message = "Created"),
+      @ApiResponse(code = 403, message = "Forbidden"), 
+      @ApiResponse(code = 400, message = "Bad Request"),
+      @ApiResponse(code = 404, message = "Not Found"),
+      @ApiResponse(code = 500, message = "Internal Server Error") })
+   
+    @ApiImplicitParams({
+      @ApiImplicitParam(name = "X-FromAppId", required = true, dataType = "string", paramType = "header"),
+      @ApiImplicitParam(name = "X-TransactionId",  required = true, dataType = "string", paramType = "header"),       
+    })
     @POST
     @Path("/relationships/{version}/{type}/")
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
-    public Response addEdge(String content, @PathParam("version") String version, @PathParam("type") String type,
-            @PathParam("uri") @Encoded String uri, @Context HttpHeaders headers, @Context UriInfo uriInfo,
+    public Response addEdge(String content, @PathParam("version") @ApiParam(value="oxm model version",defaultValue="v13") String version, @PathParam("type") String type,
+            @PathParam("uri") @Encoded @ApiParam(hidden=true) String uri, @Context HttpHeaders headers, @Context UriInfo uriInfo,
             @Context HttpServletRequest req) {
 
         LoggingUtil.initMdcContext(req, headers);
@@ -722,11 +908,31 @@ public class CrudRestService {
         return response;
     }
 
+    @ApiOperation(value = "Create Edge (typeless endpoint)" , nickname="addEdge-typeless",notes = "# Payload \n"
+        + "{  \r\n" + 
+        "   \"type\":\"edge type like : tosca.relationships.HostedOn\",\r\n" +      
+        "   \"source\":\"source vertex like : services/inventory/v11/vserver/0\",\r\n" + 
+        "   \"target\":\"target vertex like : services/inventory/v11/pserver/7\",\r\n" + 
+        "   \"properties\":{  \r\n" + 
+        "        \"prop1\" : \"value\",\r\n" + 
+        "        \"prop2\" :\"value\",\r\n" +  
+        "    ..}\r\n" + 
+        " }")
+    @ApiResponses({  
+      @ApiResponse(code = 201, message = "Created"),
+      @ApiResponse(code = 403, message = "Forbidden"), 
+      @ApiResponse(code = 400, message = "Bad Request"),
+      @ApiResponse(code = 404, message = "Not Found"),
+      @ApiResponse(code = 500, message = "Internal Server Error") })
+    @ApiImplicitParams({
+      @ApiImplicitParam(name = "X-FromAppId", required = true, dataType = "string", paramType = "header"),
+      @ApiImplicitParam(name = "X-TransactionId",  required = true, dataType = "string", paramType = "header"),    
+    })
     @POST
     @Path("/relationships/{version}/")
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
-    public Response addEdge(String content, @PathParam("version") String version, @PathParam("uri") @Encoded String uri,
+    public Response addEdge(String content, @PathParam("version")  @ApiParam(value="oxm model version",defaultValue="v13") String version, @PathParam("uri") @Encoded @ApiParam(hidden=true) String uri,
             @Context HttpHeaders headers, @Context UriInfo uriInfo, @Context HttpServletRequest req) {
 
         LoggingUtil.initMdcContext(req, headers);
@@ -767,12 +973,23 @@ public class CrudRestService {
         return response;
     }
 
+    @ApiOperation(value = "Delete Vertex" , notes="For example : https://<host>:9520/services/inventory/v11/pserver/<id>")
+    @ApiResponses({  
+      @ApiResponse(code = 200, message = "Success"),
+      @ApiResponse(code = 403, message = "Forbidden"), 
+      @ApiResponse(code = 400, message = "Bad Request"),
+      @ApiResponse(code = 404, message = "Not Found"),
+      @ApiResponse(code = 500, message = "Internal Server Error") })
+    @ApiImplicitParams({
+      @ApiImplicitParam(name = "X-FromAppId", required = true, dataType = "string", paramType = "header"),
+      @ApiImplicitParam(name = "X-TransactionId",  required = true, dataType = "string", paramType = "header"),    
+    })
     @DELETE
     @Path("/{version}/{type}/{id}")
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
-    public Response deleteVertex(String content, @PathParam("version") String version, @PathParam("type") String type,
-            @PathParam("id") String id, @PathParam("uri") @Encoded String uri, @Context HttpHeaders headers,
+    public Response deleteVertex(@ApiParam(hidden=true) String content, @PathParam("version") @ApiParam(value="oxm model version",defaultValue="v13") String version, @PathParam("type") String type,
+            @PathParam("id") String id, @PathParam("uri") @Encoded @ApiParam(hidden=true)  String uri, @Context HttpHeaders headers,
             @Context UriInfo uriInfo, @Context HttpServletRequest req) {
 
         LoggingUtil.initMdcContext(req, headers);
@@ -800,12 +1017,23 @@ public class CrudRestService {
         return response;
     }
 
+    @ApiOperation(value = "Delete Edge" , notes="For example : https://<host>:9520/services/inventory/v11/pserver/<id>")
+    @ApiResponses({ 
+      @ApiResponse(code = 200, message = "Success"),
+      @ApiResponse(code = 403, message = "Forbidden"), 
+      @ApiResponse(code = 400, message = "Bad Request"),
+      @ApiResponse(code = 404, message = "Not Found"),
+      @ApiResponse(code = 500, message = "Internal Server Error") })
+    @ApiImplicitParams({
+      @ApiImplicitParam(name = "X-FromAppId", required = true, dataType = "string", paramType = "header"),
+      @ApiImplicitParam(name = "X-TransactionId",  required = true, dataType = "string", paramType = "header"),    
+    })
     @DELETE
     @Path("/relationships/{version}/{type}/{id}")
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
-    public Response deleteEdge(String content, @PathParam("version") String version, @PathParam("type") String type,
-            @PathParam("id") String id, @PathParam("uri") @Encoded String uri, @Context HttpHeaders headers,
+    public Response deleteEdge(@ApiParam(hidden=true) String content, @PathParam("version") @ApiParam(value="oxm model version",defaultValue="v13") String version, @PathParam("type") String type,
+            @PathParam("id") String id, @PathParam("uri") @Encoded @ApiParam(hidden=true) String uri, @Context HttpHeaders headers,
             @Context UriInfo uriInfo, @Context HttpServletRequest req) {
 
         LoggingUtil.initMdcContext(req, headers);

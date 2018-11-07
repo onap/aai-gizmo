@@ -113,9 +113,8 @@ public class Vertex {
 
       type = OxmModelValidator.resolveCollectionType(version, type);
       DynamicJAXBContext jaxbContext = OxmModelLoader.getContextForVersion(version);
-      String modelObjectClass = CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, CaseFormat.LOWER_HYPHEN.to(CaseFormat.UPPER_CAMEL, type));
-
-      final DynamicType modelObjectType = jaxbContext.getDynamicType(modelObjectClass);
+      
+      final DynamicType modelObjectType = OxmModelLoader.getDynamicTypeForVersion(version, type);
       final DynamicType reservedType = jaxbContext.getDynamicType("ReservedPropNames");
 
 

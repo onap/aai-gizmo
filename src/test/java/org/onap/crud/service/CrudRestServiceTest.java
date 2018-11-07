@@ -333,7 +333,7 @@ public class CrudRestServiceTest {
     String payloadStr = readFileToString(bulkFile);
     System.out.println(payloadStr);
 
-    response = mockService.addBulk(payloadStr, "v9", "",
+    response = mockService.addBulk(payloadStr, "v9", 
         "services/inventory/v9", new TestHeaders(), null, new TestRequest());
     System.out.println("Bulk Response: " + response);
     System.out.println("Response Entity: " + response.getEntity().toString());

@@ -88,8 +88,7 @@ public class OxmModelValidator {
       logger.error(CrudServiceMsgs.OXM_LOAD_ERROR, OXM_LOAD_ERROR + ": " + version);
       throw new CrudException(OXM_LOAD_ERROR + ": " + version, Status.NOT_FOUND);
     }
-    final DynamicType modelObjectType = jaxbContext.getDynamicType(
-        CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, CaseFormat.LOWER_HYPHEN.to(CaseFormat.UPPER_CAMEL, type)));
+    final DynamicType modelObjectType = OxmModelLoader.getDynamicTypeForVersion(version, type);
     final DynamicType reservedObjectType = jaxbContext.getDynamicType("ReservedPropNames");
 
     for (String key : filter.keySet()) {
@@ -137,8 +136,7 @@ public class OxmModelValidator {
     }
     // Determine if the Object part is a collection type in the model
     // definition
-    final DynamicType modelObjectType = jaxbContext.getDynamicType(
-        CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, CaseFormat.LOWER_HYPHEN.to(CaseFormat.UPPER_CAMEL, type)));
+    final DynamicType modelObjectType = OxmModelLoader.getDynamicTypeForVersion(version, type);
 
     if (modelObjectType == null) {
       logger.error(CrudServiceMsgs.INVALID_OXM_FILE, "Object of collection type not found: " + type);
@@ -168,10 +166,8 @@ public class OxmModelValidator {
     try {
       type = resolveCollectionType(version, type);
       DynamicJAXBContext jaxbContext = OxmModelLoader.getContextForVersion(version);
-      String modelObjectClass = CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL,
-          CaseFormat.LOWER_HYPHEN.to(CaseFormat.UPPER_CAMEL, type));
 
-      final DynamicType modelObjectType = jaxbContext.getDynamicType(modelObjectClass);
+      final DynamicType modelObjectType = OxmModelLoader.getDynamicTypeForVersion(version, type);
       final DynamicType reservedType = jaxbContext.getDynamicType("ReservedPropNames");
 
       Set<Map.Entry<String, JsonElement>> payloadEntriesSet = properties.getAsJsonObject().entrySet();
@@ -252,10 +248,8 @@ public class OxmModelValidator {
     try {
       type = resolveCollectionType(version, type);
       DynamicJAXBContext jaxbContext = OxmModelLoader.getContextForVersion(version);
-      String modelObjectClass = CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL,
-          CaseFormat.LOWER_HYPHEN.to(CaseFormat.UPPER_CAMEL, type));
-
-      final DynamicType modelObjectType = jaxbContext.getDynamicType(modelObjectClass);
+      
+      final DynamicType modelObjectType =  OxmModelLoader.getDynamicTypeForVersion(version, type);
       final DynamicType reservedType = jaxbContext.getDynamicType("ReservedPropNames");
 
       Set<Map.Entry<String, JsonElement>> payloadEntriesSet = properties.getAsJsonObject().entrySet();
@@ -326,11 +320,11 @@ public class OxmModelValidator {
 
     try {
       DynamicJAXBContext jaxbContext = OxmModelLoader.getContextForVersion(version);
-      String modelObjectClass = CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL,
-          CaseFormat.LOWER_HYPHEN.to(CaseFormat.UPPER_CAMEL,
-              vertex.getProperties().get(Metadata.NODE_TYPE.propertyName()) != null
-                  ? vertex.getProperties().get(Metadata.NODE_TYPE.propertyName()).toString() : vertex.getType()));
-      final DynamicType modelObjectType = jaxbContext.getDynamicType(modelObjectClass);
+
+      final DynamicType modelObjectType = OxmModelLoader.getDynamicTypeForVersion(version,
+          vertex.getProperties().get(Metadata.NODE_TYPE.propertyName()) != null
+              ? vertex.getProperties().get(Metadata.NODE_TYPE.propertyName()).toString()
+              : vertex.getType());
       final DynamicType reservedObjectType = jaxbContext.getDynamicType("ReservedPropNames");
 
       for (String key : vertex.getProperties().keySet()) {
