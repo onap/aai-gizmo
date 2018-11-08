@@ -37,6 +37,7 @@ limitations under the License.
     <properties>
         <docker.location>${basedir}/target</docker.location>
         <version.org.onap.aai.aai-common>1.2.4</version.org.onap.aai.aai-common>
+        <event.client.version>1.3.1</event.client.version>
     </properties>
 
     <dependencyManagement>
@@ -149,7 +150,7 @@ limitations under the License.
         <dependency>
             <groupId>org.onap.aai.event-client</groupId>
             <artifactId>event-client-dmaap</artifactId>
-            <version>1.3.0</version>
+           <version>${event.client.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
@@ -160,7 +161,19 @@ limitations under the License.
         <dependency>
             <groupId>org.onap.aai.event-client</groupId>
             <artifactId>event-client-kafka</artifactId>
-            <version>1.3.0</version>
+           <version>${event.client.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+           <groupId>org.onap.aai.event-client</groupId>
+           <artifactId>event-client-rabbitmq</artifactId>
+           <version>${event.client.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
