@@ -1,11 +1,11 @@
 # ASYNCHRONOUS MODE
 
-Gizmo has two modes, a Synchoronous (sync) mode and an Asynchronous (async) mode.
+Gizmo has two modes, a Synchronous (sync) mode and an Asynchronous (async) mode.
 
 In the Async mode, Gizmo uses the consumer/producer model where when a
 client makes a request, Gizmo will generate an event payload and
 publish it  on the async event stream. It will then wait for a
-response for that particular event on a different event stream. Once it recieves a
+response for that particular event on a different event stream. Once it receives a
 response, gizmo will send a response back to the client which made the
 original request.
 
