@@ -34,7 +34,12 @@ import org.onap.schema.OxmModelLoader;
 import com.google.gson.Gson;
 import com.google.gson.JsonParser;
 
-public class GraphEventResponseHandlerTest {
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.onap.crud.OXMModelLoaderSetup;
+
+@RunWith(MockitoJUnitRunner.Silent.class)
+public class GraphEventResponseHandlerTest extends OXMModelLoaderSetup {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();

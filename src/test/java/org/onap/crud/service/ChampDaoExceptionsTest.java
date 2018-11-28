@@ -43,8 +43,12 @@ import org.onap.crud.entity.Edge;
 import org.onap.crud.entity.Vertex;
 import org.onap.crud.exception.CrudException;
 import org.slf4j.MDC;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.onap.crud.OXMModelLoaderSetup;
 
-public class ChampDaoExceptionsTest {
+@RunWith(MockitoJUnitRunner.Silent.class)
+public class ChampDaoExceptionsTest extends OXMModelLoaderSetup {
     // @formatter:off
 		private final String champVertex = "{" +
 		    "\"key\": \"test-uuid\"," +

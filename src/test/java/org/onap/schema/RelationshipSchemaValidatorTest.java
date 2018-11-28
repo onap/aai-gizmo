@@ -30,7 +30,12 @@ import org.onap.crud.exception.CrudException;
 import org.onap.crud.parser.EdgePayload;
 import org.onap.schema.validation.RelationshipSchemaValidator;
 
-public class RelationshipSchemaValidatorTest {
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.onap.crud.OXMModelLoaderSetup;
+
+@RunWith(MockitoJUnitRunner.Silent.class)
+public class RelationshipSchemaValidatorTest extends OXMModelLoaderSetup{
     // @formatter:off
 	  private final String edgePayload = "{" +
 		      "\"type\": \"tosca.relationships.HostedOn\"," +

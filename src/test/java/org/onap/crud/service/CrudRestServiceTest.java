@@ -40,9 +40,12 @@ import org.onap.crud.service.util.TestHeaders;
 import org.onap.crud.service.util.TestRequest;
 import org.onap.crud.service.util.TestUriInfo;
 import org.onap.schema.EdgeRulesLoader;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.onap.crud.OXMModelLoaderSetup;
 
-
-public class CrudRestServiceTest {
+@RunWith(MockitoJUnitRunner.Silent.class)
+public class CrudRestServiceTest extends OXMModelLoaderSetup{
   private final String putVertexPayload = "{" +
       "\"id\": \"test-uuid\"," +
       "\"type\": \"pserver\"," +

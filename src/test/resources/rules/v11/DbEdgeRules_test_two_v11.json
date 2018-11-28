@@ -1,0 +1,38 @@
+{
+	"rules": [
+		{
+			"from": "U",
+			"to": "V",
+			"label": "org.onap.relationships.inventory.groupsResourcesIn",
+			"direction": "BOTH",
+			"multiplicity": "Many2Many",
+			"contains-other-v": "NONE",
+			"delete-other-v": "NONE",
+			"SVC-INFRA": "NONE",
+			"prevent-delete": "!${direction}"
+		},
+		{
+			"from": "Y",
+			"to": "X",
+			"label": "org.onap.relationships.inventory.groupsResourcesIn",
+			"direction": "OUT",
+			"multiplicity": "Many2Many",
+			"contains-other-v": "NONE",
+			"delete-other-v": "NONE",
+			"SVC-INFRA": "NONE",
+			"prevent-delete": "!${direction}"
+		},
+      {
+			"from": "allotted-resource",
+			"to": "instance-group",
+			"label": "org.onap.relationships.inventory.TestEdge",
+			"direction": "OUT",
+			"multiplicity": "MANY2MANY",
+			"contains-other-v": "NONE",
+			"delete-other-v": "NONE",
+			"SVC-INFRA": "NONE",
+			"prevent-delete": "NONE",
+			"default": "true"
+		}
+	]
+}

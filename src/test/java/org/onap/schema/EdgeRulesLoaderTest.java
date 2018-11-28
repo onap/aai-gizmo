@@ -31,8 +31,12 @@ import org.junit.Test;
 import org.onap.crud.exception.CrudException;
 import org.onap.crud.parser.EdgePayload;
 import org.onap.crud.util.CrudServiceUtil;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.onap.crud.OXMModelLoaderSetup;
 
-public class EdgeRulesLoaderTest {
+@RunWith(MockitoJUnitRunner.Silent.class)
+public class EdgeRulesLoaderTest extends OXMModelLoaderSetup{
 
     @Test
     public void loadModels() throws Exception {

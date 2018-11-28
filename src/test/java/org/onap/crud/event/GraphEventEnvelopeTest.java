@@ -23,6 +23,9 @@ package org.onap.crud.event;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.onap.crud.OXMModelLoaderSetup;
 import org.onap.crud.entity.Vertex;
 import org.onap.crud.event.GraphEvent.GraphEventOperation;
 import org.onap.crud.event.envelope.GraphEventEnvelope;
@@ -34,7 +37,8 @@ import org.skyscreamer.jsonassert.comparator.CustomComparator;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 
-public class GraphEventEnvelopeTest {
+@RunWith(MockitoJUnitRunner.Silent.class)
+public class GraphEventEnvelopeTest extends OXMModelLoaderSetup {
 
     @Test
     public void testPublishedEventFormat() throws Exception {

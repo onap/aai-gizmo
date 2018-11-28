@@ -1322,6 +1322,17 @@
 		},
 		{
 			"from": "vserver",
+			"to": "pserver",
+			"label": "tosca.relationships.HostedOn",
+			"direction": "OUT",
+			"multiplicity": "Many2One",
+			"contains-other-v": "NONE",
+			"delete-other-v": "NONE",
+			"SVC-INFRA": "${direction}",
+			"prevent-delete": "!${direction}"
+		},
+		{
+			"from": "vserver",
 			"to": "volume",
 			"label": "hasVolume",
 			"direction": "OUT",

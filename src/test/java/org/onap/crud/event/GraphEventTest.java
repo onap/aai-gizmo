@@ -37,8 +37,12 @@ import org.onap.crud.event.GraphEvent.GraphEventOperation;
 import org.onap.crud.event.GraphEvent.GraphEventResult;
 import org.onap.crud.event.GraphEventVertex;
 import org.onap.crud.exception.CrudException;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.onap.crud.OXMModelLoaderSetup;
 
-public class GraphEventTest {
+@RunWith(MockitoJUnitRunner.Silent.class)
+public class GraphEventTest extends OXMModelLoaderSetup{
   private final String vertexPayload = "{" +
       "\"key\": \"test-uuid\"," +
       "\"type\": \"pserver\"," +

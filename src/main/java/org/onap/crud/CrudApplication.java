@@ -20,9 +20,8 @@
  */
 package org.onap.crud;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Collections;
+import java.util.HashMap;
 
 import javax.annotation.PostConstruct;
 
@@ -31,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.support.SpringBootServletInitializer;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.core.env.Environment;
 
@@ -47,21 +47,22 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  */
 @SpringBootApplication
 @EnableSwagger2
+@Import({SchemaIngestConfiguration.class, SchemaLoaderConfiguration.class})
 @ImportResource({"file:${SERVICE_BEANS}/*.xml"})
 public class CrudApplication extends SpringBootServletInitializer{// NOSONAR
     @Autowired
     private Environment env;
-    
+
     public static void main(String[] args) {// NOSONAR
         String keyStorePassword = System.getProperty("KEY_STORE_PASSWORD");
         if(keyStorePassword==null || keyStorePassword.isEmpty()){
           throw new RuntimeException("Env property KEY_STORE_PASSWORD not set");
         }
-        Map<String, Object> props = new HashMap<>();
+        HashMap<String, Object> props = new HashMap<>();
         props.put("server.ssl.key-store-password", Password.deobfuscate(keyStorePassword));
-        new CrudApplication().configure(new SpringApplicationBuilder(CrudApplication.class).properties(props)).run(args);
+        new CrudApplication().configure(new SpringApplicationBuilder(SchemaIngestConfiguration.class, SchemaLoaderConfiguration.class).child(CrudApplication.class).properties(props)).run(args);
     }
-    
+
     /**
      * Set required trust store system properties using values from application.properties
      */
@@ -84,9 +85,9 @@ public class CrudApplication extends SpringBootServletInitializer{// NOSONAR
     public static final ApiInfo DEFAULT_API_INFO = new ApiInfo("AAI NCSO Adapter Service", "AAI NCSO Adapter Service.",
         "1.0", "urn:tos", DEFAULT_CONTACT, "Apache 2.0", "API license URL", Collections.emptyList());
 
-    
-   
-    public Docket api() {      
+
+
+    public Docket api() {
       return new Docket(DocumentationType.SWAGGER_2).apiInfo(DEFAULT_API_INFO).select().paths(PathSelectors.any())
           .apis(RequestHandlerSelectors.basePackage("org.onap.crud")).build();
     }

@@ -26,8 +26,12 @@ import org.eclipse.persistence.jaxb.dynamic.DynamicJAXBContext;
 import org.eclipse.persistence.mappings.DatabaseMapping;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.onap.crud.OXMModelLoaderSetup;
 
-public class OxmModelLoaderTest {
+@RunWith(MockitoJUnitRunner.Silent.class)
+public class OxmModelLoaderTest extends OXMModelLoaderSetup {
 
     @Test
     public void testLoadingMultipleOxmFiles() throws Exception {
