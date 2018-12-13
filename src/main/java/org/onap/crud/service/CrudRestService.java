@@ -80,6 +80,7 @@ public class CrudRestService {
     Logger logger = LoggerFactory.getInstance().getLogger(CrudRestService.class.getName());
     Logger auditLogger = LoggerFactory.getInstance().getAuditLogger(CrudRestService.class.getName());
     private Auth auth;
+    private boolean authorizationEnabled;
 
     private String mediaType = MediaType.APPLICATION_JSON;
     public static final String HTTP_PATCH_METHOD_OVERRIDE = "X-HTTP-Method-Override";
@@ -87,7 +88,14 @@ public class CrudRestService {
 
     public CrudRestService(AbstractGraphDataService graphDataService) throws Exception {
         this.graphDataService = graphDataService;
-        this.auth = new Auth(CrudServiceConstants.CRD_AUTH_FILE);
+        
+        this.authorizationEnabled = Boolean.parseBoolean(
+                CrudProperties.get(CrudServiceConstants.CRD_AUTHORIZATION_ENABLED, "true"));
+
+        this.auth = null;
+        if (this.authorizationEnabled) {
+            this.auth = new Auth(CrudServiceConstants.CRD_AUTH_FILE);
+        }        
     }
 
     // For unit testing
@@ -1063,6 +1071,12 @@ public class CrudRestService {
 
     protected boolean validateRequest(HttpServletRequest req, String uri, String content, Action action,
             String authPolicyFunctionName, HttpHeaders headers) throws CrudException {
+        
+        if (!authorizationEnabled) {
+            validateRequestHeader(headers);
+            return true;
+        }
+        
         boolean isValid = false;
         try {
             String cipherSuite = (String) req.getAttribute("javax.servlet.request.cipher_suite");
