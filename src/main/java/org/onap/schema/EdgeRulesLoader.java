@@ -32,6 +32,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
 import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.io.IOUtils;
@@ -39,8 +40,8 @@ import org.onap.aai.cl.eelf.LoggerFactory;
 import org.onap.aai.edges.EdgeIngestor;
 import org.onap.aai.edges.EdgeRule;
 import org.onap.aai.edges.exceptions.EdgeRuleNotFoundException;
-import org.onap.aai.setup.ConfigTranslator;
 import org.onap.aai.setup.SchemaVersion;
+import org.onap.aai.setup.Translator;
 import org.onap.crud.exception.CrudException;
 import org.onap.crud.logging.CrudServiceMsgs;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,8 +49,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.common.collect.Multimap;
 
 public class EdgeRulesLoader {
-	
-	private static ConfigTranslator configTranslator;
+
+	private static Translator translator;
     private static EdgeIngestor edgeIngestor;
 
     private static EdgePropsConfiguration edgePropsConfiguration;
@@ -67,14 +68,19 @@ public class EdgeRulesLoader {
             LoggerFactory.getInstance ().getLogger ( EdgeRulesLoader.class.getName () );
 
     private EdgeRulesLoader () { }
-    
+
     @Autowired
-    public EdgeRulesLoader(ConfigTranslator configTranslator, EdgeIngestor edgeIngestor, EdgePropsConfiguration edgePropsConfiguration) {
-        EdgeRulesLoader.configTranslator = configTranslator;
+    public EdgeRulesLoader(Translator translator, EdgeIngestor edgeIngestor, EdgePropsConfiguration edgePropsConfiguration) {
+        EdgeRulesLoader.translator = translator;
         EdgeRulesLoader.edgeIngestor = edgeIngestor;
         EdgeRulesLoader.edgePropsConfiguration = edgePropsConfiguration;
     }
 
+    @PostConstruct
+    public void init() throws CrudException {
+    	EdgeRulesLoader.loadModels();
+    }
+    
     /**
      * Finds all DB Edge Rules and Edge Properties files for all OXM models.
      *
@@ -89,7 +95,7 @@ public class EdgeRulesLoader {
 
         for (String version : OxmModelLoader.getLoadedOXMVersions()) {
             try {
-                SchemaVersion schemaVersion = configTranslator.getSchemaVersions().getVersions().stream()
+                SchemaVersion schemaVersion = translator.getSchemaVersions().getVersions().stream()
                         .filter(s -> s.toString().equalsIgnoreCase(version)).findAny().orElse(null);
                 loadModel(schemaVersion, edgeIngestor, propFiles);
             } catch (IOException | EdgeRuleNotFoundException e) {
@@ -112,7 +118,7 @@ public class EdgeRulesLoader {
         }
 
         try {
-            SchemaVersion schemaVersion = configTranslator.getSchemaVersions().getVersions().stream()
+            SchemaVersion schemaVersion = translator.getSchemaVersions().getVersions().stream()
                     .filter(s -> s.toString().equalsIgnoreCase(v)).findAny().orElse(null);
 
             loadModel(schemaVersion, edgeIngestor, propFiles);

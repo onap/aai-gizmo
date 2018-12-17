@@ -29,14 +29,15 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.annotation.PostConstruct;
 import javax.ws.rs.core.Response.Status;
 import org.eclipse.persistence.dynamic.DynamicType;
 import org.eclipse.persistence.internal.oxm.mappings.Descriptor;
 import org.eclipse.persistence.jaxb.dynamic.DynamicJAXBContext;
 import org.onap.aai.cl.eelf.LoggerFactory;
 import org.onap.aai.nodes.NodeIngestor;
-import org.onap.aai.setup.ConfigTranslator;
 import org.onap.aai.setup.SchemaVersion;
+import org.onap.aai.setup.Translator;
 import org.onap.crud.exception.CrudException;
 import org.onap.crud.logging.CrudServiceMsgs;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,9 +46,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class OxmModelLoader {
 
-    private static ConfigTranslator configTranslator;
+    private static Translator translator;
     private static NodeIngestor nodeIngestor;
-    
+
     private static Map<String, DynamicJAXBContext> versionContextMap = new ConcurrentHashMap<>();
     private static Map<String, HashMap<String, DynamicType>> xmlElementLookup = new ConcurrentHashMap<>();
 
@@ -57,11 +58,16 @@ public class OxmModelLoader {
             LoggerFactory.getInstance().getLogger(OxmModelLoader.class.getName());
 
     private OxmModelLoader() { }
-    
+
     @Autowired
-    public OxmModelLoader(ConfigTranslator configTranslator, NodeIngestor nodeIngestor) {
-    	OxmModelLoader.configTranslator = configTranslator;
+    public OxmModelLoader(Translator translator, NodeIngestor nodeIngestor) {
+    	OxmModelLoader.translator = translator;
     	OxmModelLoader.nodeIngestor = nodeIngestor;
+    }
+
+    @PostConstruct
+    public void init() throws CrudException {
+    	OxmModelLoader.loadModels();
     }
 
     /**
@@ -77,7 +83,7 @@ public class OxmModelLoader {
             logger.debug("Loading OXM Models");
         }
 
-        for (SchemaVersion oxmVersion : configTranslator.getSchemaVersions().getVersions()) {
+        for (SchemaVersion oxmVersion : translator.getSchemaVersions().getVersions()) {
             DynamicJAXBContext jaxbContext = nodeIngestor.getContextForVersion(oxmVersion);
             if (jaxbContext != null) {
                 loadModel(oxmVersion.toString(), jaxbContext);
@@ -166,8 +172,8 @@ public class OxmModelLoader {
     public static void setVersionContextMap(Map<String, DynamicJAXBContext> versionContextMap) {
         OxmModelLoader.versionContextMap = versionContextMap;
     }
-    
-   
+
+
     public static void loadXmlLookupMap(String version, DynamicJAXBContext jaxbContext )  {
 
         @SuppressWarnings("rawtypes")
@@ -183,8 +189,8 @@ public class OxmModelLoader {
         }
         xmlElementLookup.put(version, types);
     }
-    
-    
+
+
   public static DynamicType getDynamicTypeForVersion(String version, String type) throws CrudException {
 
       DynamicType dynamicType;
@@ -220,7 +226,7 @@ public class OxmModelLoader {
 
       return dynamicType;
   }
-  
+
   /**
    * Retrieves the list of all Loaded OXM versions.
    *
