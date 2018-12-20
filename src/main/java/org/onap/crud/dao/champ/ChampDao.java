@@ -35,7 +35,6 @@ import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 import org.eclipse.jetty.util.security.Password;
 import org.onap.aai.cl.mdc.MdcContext;
-import org.onap.aai.logging.LoggingContext;
 import org.onap.aai.restclient.client.OperationResult;
 import org.onap.aai.restclient.client.RestClient;
 import org.onap.aai.restclient.enums.RestAuthenticationMode;
@@ -411,7 +410,7 @@ public class ChampDao implements GraphDao {
     String url = baseTransactionUrl + "/" + id;
     Map<String, List<String>> headers = new HashMap<>();
     headers.put(HEADER_FROM_APP, Arrays.asList("Gizmo"));
-    headers.put(HEADER_TRANS_ID, Arrays.asList(MDC.get(LoggingContext.LoggingField.REQUEST_ID.toString())));
+    headers.put(HEADER_TRANS_ID, Arrays.asList(MDC.get(MdcContext.MDC_REQUEST_ID)));
 
     OperationResult getResult = client.get(url, headers, MediaType.APPLICATION_JSON_TYPE);
 
@@ -550,7 +549,7 @@ public class ChampDao implements GraphDao {
       throw createErrorException(getResult, javax.ws.rs.core.Response.Status.NOT_FOUND, "No edge with id " + id + " found in graph");
     }
   }
-  
+
   @Override
   public Edge getEdge(String id) throws CrudException {
     String url = baseRelationshipUrl + "/" + id;

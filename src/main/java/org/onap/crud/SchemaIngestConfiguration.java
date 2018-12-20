@@ -26,37 +26,44 @@ import org.onap.aai.setup.AAIConfigTranslator;
 import org.onap.aai.setup.ConfigTranslator;
 import org.onap.aai.setup.SchemaLocationsBean;
 import org.onap.aai.setup.SchemaVersions;
+import org.onap.aai.setup.Translator;
+import org.onap.schema.EdgePropsConfiguration;
+import org.onap.schema.EdgeRulesLoader;
+import org.onap.schema.OxmModelLoader;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
 @Configuration
+@ComponentScan(basePackages = {"org.onap.aai.config", "org.onap.aai.setup"})
 @PropertySource(value = "file:${schema.ingest.file}", ignoreResourceNotFound = true)
+@PropertySource(value = "file:${edgeprops.ingest.file}", ignoreResourceNotFound = true)
 public class SchemaIngestConfiguration {
 
+    @Autowired
+    private Translator translator;
+
     @Bean
-    public SchemaVersions schemaVersions() {
-        return new SchemaVersions();
+    public OxmModelLoader oxmModelLoader(NodeIngestor nodeIngestor) {
+        return new OxmModelLoader(translator, nodeIngestor );
     }
 
     @Bean
-    public SchemaLocationsBean schemaLocationsBean() {
-        return new SchemaLocationsBean();
+    public EdgeRulesLoader edgeRulesLoader(EdgeIngestor edgeIngestor) {
+        return new EdgeRulesLoader(translator, edgeIngestor, edgePropsConfiguration() );
     }
 
     @Bean
-    public ConfigTranslator configTranslator() {
-        return new AAIConfigTranslator(schemaLocationsBean(), schemaVersions());
+    public EdgePropsConfiguration edgePropsConfiguration() {
+        return new EdgePropsConfiguration();
     }
 
     @Bean
-    public NodeIngestor nodeIngestor() {
-        return new NodeIngestor(configTranslator());
+    @ConditionalOnExpression("'${schema.translator.list}'.contains('config')")
+    public ConfigTranslator configTranslator(SchemaLocationsBean schemaLocationsBean, SchemaVersions schemaVersions) {
+        return new AAIConfigTranslator(schemaLocationsBean, schemaVersions);
     }
-
-    @Bean
-    public EdgeIngestor edgeIngestor() {
-        return new EdgeIngestor(configTranslator(), schemaVersions());
-    }
-
 }

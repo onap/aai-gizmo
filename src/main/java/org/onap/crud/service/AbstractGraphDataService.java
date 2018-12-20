@@ -20,6 +20,10 @@
  */
 package org.onap.crud.service;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.reflect.TypeToken;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,6 +32,7 @@ import java.util.Set;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response.Status;
+import net.dongliu.gson.GsonJava8TypeAdapterFactory;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.onap.aai.restclient.client.OperationResult;
 import org.onap.crud.dao.GraphDao;
@@ -44,18 +49,12 @@ import org.onap.crud.parser.util.EdgePayloadUtil;
 import org.onap.crud.util.CrudServiceUtil;
 import org.onap.schema.validation.OxmModelValidator;
 import org.onap.schema.validation.RelationshipSchemaValidator;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.reflect.TypeToken;
-import net.dongliu.gson.GsonJava8TypeAdapterFactory;
 
 public abstract class AbstractGraphDataService {
   protected GraphDao daoForGet;
   protected GraphDao dao;
 
   public AbstractGraphDataService() throws CrudException {
-    CrudServiceUtil.loadModels();
   }
 
   public ImmutablePair<EntityTag, String> getEdge(String version, String id, String type, Map<String, String> queryParams) throws CrudException {

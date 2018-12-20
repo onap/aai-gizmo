@@ -36,7 +36,12 @@ import org.onap.crud.parser.EdgePayload;
 import org.onap.schema.EdgeRulesLoader;
 import org.onap.schema.validation.MultiplicityValidator.MultiplicityType;
 
-public class MultiplicityValidatorTest {
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.onap.crud.OXMModelLoaderSetup;
+
+@RunWith(MockitoJUnitRunner.Silent.class)
+public class MultiplicityValidatorTest extends OXMModelLoaderSetup{
 
     private final String postEdgePayload = "{" + "\"type\": \"tosca.relationships.HostedOn\","
             + "\"source\": \"services/inventory/v12/vserver/50bdab41-ad1c-4d00-952c-a0aa5d827811\","

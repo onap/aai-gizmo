@@ -22,8 +22,9 @@ package org.onap.crud;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
-
+import java.util.Set;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -33,6 +34,7 @@ import org.onap.aai.setup.AAIConfigTranslator;
 import org.onap.aai.setup.SchemaLocationsBean;
 import org.onap.aai.setup.SchemaVersion;
 import org.onap.aai.setup.SchemaVersions;
+import org.onap.aai.setup.Translator;
 import org.onap.schema.EdgePropsConfiguration;
 import org.onap.schema.EdgeRulesLoader;
 import org.onap.schema.OxmModelLoader;
@@ -67,12 +69,16 @@ public class OXMModelLoaderSetup {
         Mockito.when(schemaLocationsBean.getNodesInclusionPattern()).thenReturn(Arrays.asList(".*oxm(.*).xml"));
         Mockito.when(schemaLocationsBean.getEdgesInclusionPattern()).thenReturn(Arrays.asList("DbEdgeRules_.*.json"));
         Mockito.when(schemaLocationsBean.getNodeDirectory()).thenReturn("src/test/resources/multi-oxm/");
-        Mockito.when(schemaLocationsBean.getEdgeDirectory()).thenReturn("src/test/resources/rules");
+        Mockito.when(schemaLocationsBean.getEdgeDirectory()).thenReturn("src/test/resources/rules/");
         Mockito.when(edgePropsConfiguration.getEdgePropsDir()).thenReturn("src/test/resources/edgeProps/");
 
         AAIConfigTranslator aaiConfigTranslator = new AAIConfigTranslator(schemaLocationsBean, schemaVersions);
-        NodeIngestor nodeIngestor = new NodeIngestor(aaiConfigTranslator);
-        EdgeIngestor edgeIngestor = new EdgeIngestor(aaiConfigTranslator, schemaVersions);
+        Set<Translator> translators = new HashSet<>();
+        translators.add(aaiConfigTranslator);
+        NodeIngestor nodeIngestor = new NodeIngestor(translators);
+        nodeIngestor.initialize();
+        EdgeIngestor edgeIngestor = new EdgeIngestor(translators);
+        edgeIngestor.initialize();
         edgeRulesLoader = new EdgeRulesLoader(aaiConfigTranslator, edgeIngestor, edgePropsConfiguration);
         oxmModelLoader = new OxmModelLoader(aaiConfigTranslator, nodeIngestor);
     }

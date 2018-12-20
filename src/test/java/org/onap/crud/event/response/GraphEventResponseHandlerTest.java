@@ -30,6 +30,7 @@ import org.onap.crud.event.GraphEvent.GraphEventOperation;
 import org.onap.crud.event.envelope.GraphEventEnvelope;
 import org.onap.crud.exception.CrudException;
 import org.onap.crud.util.TestUtil;
+import org.onap.schema.EdgeRulesLoader;
 import org.onap.schema.OxmModelLoader;
 import com.google.gson.Gson;
 import com.google.gson.JsonParser;
@@ -51,6 +52,7 @@ public class GraphEventResponseHandlerTest extends OXMModelLoaderSetup {
         System.setProperty("BUNDLECONFIG_DIR", "src/test/resources/bundleconfig-local");
 
         OxmModelLoader.loadModels();
+        EdgeRulesLoader.loadModels();
     }
 
     @Test

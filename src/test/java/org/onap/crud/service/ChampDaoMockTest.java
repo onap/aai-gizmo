@@ -22,6 +22,7 @@ package org.onap.crud.service;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -30,11 +31,9 @@ import java.util.Map;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
-import org.onap.aai.logging.LoggingContext;
 import org.onap.aai.restclient.client.OperationResult;
 import org.onap.aai.restclient.client.RestClient;
 import org.onap.crud.dao.champ.ChampDao;
-import org.slf4j.MDC;
 
 public class ChampDaoMockTest {
     // @formatter:off
@@ -44,7 +43,7 @@ public class ChampDaoMockTest {
 	    "\"properties\": {" +
 	    "\"fqdn\": \"myhost.onap.com\"," +
 	    "\"hostname\": \"myhost\" } }";
-	
+
 	private final String champEdge = "{" +
 	    "\"key\": \"test-uuid\"," +
 	    "\"type\": \"edgeType\"," +
@@ -55,154 +54,154 @@ public class ChampDaoMockTest {
 	    "\"target\": {" +
 	    "\"key\": \"1d326bc7-b985-492b-9604-0d5d1f06f908\", \"type\": \"pserver\"}" +
 	    " }";
-	
-	private final String edgePayload = "{" + 
-		"\"type\":\"tosca.relationships.HostedOn\"," + 
-		"\"properties\":{" + 
-		"\"prevent-delete\":\"NONE\"}," + 
-		"\"source\":{" + 
-		"\"key\":\"test-uuid\"," + 
-		"\"type\":\"vserver\"," + 
-		"\"properties\":{}}," + 
-		"\"target\":{" + 
-		"\"key\":\"test-uuid\"," + 
-		"\"type\":\"pserver\"," + 
-		"\"properties\":{" + 
-		"\"hostname\":\"myhost\"," + 
+
+	private final String edgePayload = "{" +
+		"\"type\":\"tosca.relationships.HostedOn\"," +
+		"\"properties\":{" +
+		"\"prevent-delete\":\"NONE\"}," +
+		"\"source\":{" +
+		"\"key\":\"test-uuid\"," +
+		"\"type\":\"vserver\"," +
+		"\"properties\":{}}," +
+		"\"target\":{" +
+		"\"key\":\"test-uuid\"," +
+		"\"type\":\"pserver\"," +
+		"\"properties\":{" +
+		"\"hostname\":\"myhost\"," +
 		"\"fqdn\":\"myhost.onap.com\"}}}";
 
-	private final String edgePayloadForPut = "{" + 
-		"\"key\":\"test-uuid\"," + 
-		"\"type\":\"tosca.relationships.HostedOn\"," + 
-		"\"properties\":{" + 
-		"\"prevent-delete\":\"NONE\"}," + 
-		"\"source\":{" + 
-		"\"key\":\"50bdab41-ad1c-4d00-952c-a0aa5d827811\"," + 
-		"\"type\":\"vserver\"," + 
-		"\"properties\":{}}," + 
-		"\"target\":{" + 
-		"\"key\":\"1d326bc7-b985-492b-9604-0d5d1f06f908\"," + 
-		"\"type\":\"pserver\"," + 
+	private final String edgePayloadForPut = "{" +
+		"\"key\":\"test-uuid\"," +
+		"\"type\":\"tosca.relationships.HostedOn\"," +
+		"\"properties\":{" +
+		"\"prevent-delete\":\"NONE\"}," +
+		"\"source\":{" +
+		"\"key\":\"50bdab41-ad1c-4d00-952c-a0aa5d827811\"," +
+		"\"type\":\"vserver\"," +
+		"\"properties\":{}}," +
+		"\"target\":{" +
+		"\"key\":\"1d326bc7-b985-492b-9604-0d5d1f06f908\"," +
+		"\"type\":\"pserver\"," +
 		"\"properties\":{}}}";
-	
-	private final String edgePayloadForPatch = "{" + 
-		"\"key\":\"test-uuid\"," + 
-		"\"type\":\"tosca.relationships.HostedOn\"," + 
-		"\"properties\":{" + 
-		"\"prevent-delete\":\"NONE\"}," + 
-		"\"source\":{" + 
-		"\"key\":\"50bdab41-ad1c-4d00-952c-a0aa5d827811\"," + 
-		"\"type\":\"vserver\"}," + 
-		"\"target\":{" + 
-		"\"key\":\"1d326bc7-b985-492b-9604-0d5d1f06f908\"," + 
+
+	private final String edgePayloadForPatch = "{" +
+		"\"key\":\"test-uuid\"," +
+		"\"type\":\"tosca.relationships.HostedOn\"," +
+		"\"properties\":{" +
+		"\"prevent-delete\":\"NONE\"}," +
+		"\"source\":{" +
+		"\"key\":\"50bdab41-ad1c-4d00-952c-a0aa5d827811\"," +
+		"\"type\":\"vserver\"}," +
+		"\"target\":{" +
+		"\"key\":\"1d326bc7-b985-492b-9604-0d5d1f06f908\"," +
 		"\"type\":\"pserver\"}}";
-	
-	private final String edgePayloadForPost = "{" + 
-		"\"type\":\"tosca.relationships.HostedOn\"," + 
-		"\"properties\":{" + 
-		"\"SVC-INFRA\":\"OUT\"," + 
-		"\"prevent-delete\":\"IN\"," + 
-		"\"delete-other-v\":\"NONE\"," + 
-		"\"contains-other-v\":\"NONE\"" + 
-		"}," + 
-		"\"source\":{" + 
-		"\"key\":\"test-uuid\"," + 
-		"\"type\":\"vserver\"," + 
-		"\"properties\":{" + 
-		"" + 
-		"}" + 
-		"}," + 
-		"\"target\":{" + 
-		"\"key\":\"test-uuid\"," + 
-		"\"type\":\"pserver\"," + 
-		"\"properties\":{" + 
-		"\"hostname\":\"myhost\"," + 
-		"\"fqdn\":\"myhost.onap.com\"" + 
-		"}" + 
-		"}" + 
+
+	private final String edgePayloadForPost = "{" +
+		"\"type\":\"tosca.relationships.HostedOn\"," +
+		"\"properties\":{" +
+		"\"SVC-INFRA\":\"OUT\"," +
+		"\"prevent-delete\":\"IN\"," +
+		"\"delete-other-v\":\"NONE\"," +
+		"\"contains-other-v\":\"NONE\"" +
+		"}," +
+		"\"source\":{" +
+		"\"key\":\"test-uuid\"," +
+		"\"type\":\"vserver\"," +
+		"\"properties\":{" +
+		"" +
+		"}" +
+		"}," +
+		"\"target\":{" +
+		"\"key\":\"test-uuid\"," +
+		"\"type\":\"pserver\"," +
+		"\"properties\":{" +
+		"\"hostname\":\"myhost\"," +
+		"\"fqdn\":\"myhost.onap.com\"" +
+		"}" +
+		"}" +
 		"}";
-	
-	private final String edgePayloadForPutNoProperties = "{" + 
-		"\"key\":\"test-uuid\"," + 
-		"\"type\":\"tosca.relationships.HostedOn\"," + 
-		"\"properties\":{" + 
-		"\"SVC-INFRA\":\"OUT\"," + 
-		"\"prevent-delete\":\"IN\"," + 
-		"\"delete-other-v\":\"NONE\"," + 
-		"\"contains-other-v\":\"NONE\"" + 
-		"}," + 
-		"\"source\":{" + 
-		"\"key\":\"50bdab41-ad1c-4d00-952c-a0aa5d827811\"," + 
-		"\"type\":\"vserver\"," + 
-		"\"properties\":{" + 
-		"" + 
-		"}" + 
-		"}," + 
-		"\"target\":{" + 
-		"\"key\":\"1d326bc7-b985-492b-9604-0d5d1f06f908\"," + 
-		"\"type\":\"pserver\"," + 
-		"\"properties\":{" + 
-		"" + 
-		"}" + 
-		"}" + 
+
+	private final String edgePayloadForPutNoProperties = "{" +
+		"\"key\":\"test-uuid\"," +
+		"\"type\":\"tosca.relationships.HostedOn\"," +
+		"\"properties\":{" +
+		"\"SVC-INFRA\":\"OUT\"," +
+		"\"prevent-delete\":\"IN\"," +
+		"\"delete-other-v\":\"NONE\"," +
+		"\"contains-other-v\":\"NONE\"" +
+		"}," +
+		"\"source\":{" +
+		"\"key\":\"50bdab41-ad1c-4d00-952c-a0aa5d827811\"," +
+		"\"type\":\"vserver\"," +
+		"\"properties\":{" +
+		"" +
+		"}" +
+		"}," +
+		"\"target\":{" +
+		"\"key\":\"1d326bc7-b985-492b-9604-0d5d1f06f908\"," +
+		"\"type\":\"pserver\"," +
+		"\"properties\":{" +
+		"" +
+		"}" +
+		"}" +
 		"}";
-	
-	private final String vertexPayload = "{" + 
-		"\"type\":\"pserver\"," + 
-		"\"properties\":{" + 
-		"\"hostname\":\"myhost\"," + 
-		"\"in-maint\":false," + 
-		"\"fqdn\":\"myhost.onap.com\"," + 
-		"\"last-mod-source-of-truth\":\"source-of-truth\"," + 
-		"\"source-of-truth\":\"source-of-truth\"," + 
+
+	private final String vertexPayload = "{" +
+		"\"type\":\"pserver\"," +
+		"\"properties\":{" +
+		"\"hostname\":\"myhost\"," +
+		"\"in-maint\":false," +
+		"\"fqdn\":\"myhost.onap.com\"," +
+		"\"last-mod-source-of-truth\":\"source-of-truth\"," +
+		"\"source-of-truth\":\"source-of-truth\"," +
 		"\"aai-node-type\":\"pserver\"}}";
-	
-	private final String vertexPayloadForVserver = "{" + 
-		"\"type\":\"vserver\"," + 
-		"\"properties\":{" + 
-		"\"in-maint\":false," + 
-		"\"vserver-name\":\"test-vserver\"," + 
-		"\"vserver-id\":\"VSER1\"," + 
-		"\"last-mod-source-of-truth\":\"source-of-truth\"," + 
-		"\"vserver-name2\":\"alt-test-vserver\"," + 
-		"\"source-of-truth\":\"source-of-truth\"," + 
-		"\"vserver-selflink\":\"http://1.2.3.4/moreInfo\"," + 
-		"\"is-closed-loop-disabled\":false," + 
+
+	private final String vertexPayloadForVserver = "{" +
+		"\"type\":\"vserver\"," +
+		"\"properties\":{" +
+		"\"in-maint\":false," +
+		"\"vserver-name\":\"test-vserver\"," +
+		"\"vserver-id\":\"VSER1\"," +
+		"\"last-mod-source-of-truth\":\"source-of-truth\"," +
+		"\"vserver-name2\":\"alt-test-vserver\"," +
+		"\"source-of-truth\":\"source-of-truth\"," +
+		"\"vserver-selflink\":\"http://1.2.3.4/moreInfo\"," +
+		"\"is-closed-loop-disabled\":false," +
 		"\"aai-node-type\":\"vserver\"}}";
-	
-	private final String vertexPayloadForPserver = "{" + 
-		"\"key\":\"50bdab41-ad1c-4d00-952c-a0aa5d827811\"," + 
-		"\"type\":\"pserver\"," + 
-		"\"properties\":{" + 
-		"\"ptnii-equip-name\":\"e-name\"," + 
-		"\"hostname\":\"steve-host2\"," + 
-		"\"equip-type\":\"server\"," + 
-		"\"equip-vendor\":\"HP\"," + 
-		"\"equip-model\":\"DL380p-nd\"," + 
-		"\"in-maint\":false," + 
-		"\"fqdn\":\"myhost.onap.net\"," + 
-		"\"purpose\":\"my-purpose\"," + 
-		"\"ipv4-oam-address\":\"1.2.3.4\"," + 
-		"\"last-mod-source-of-truth\":\"source-of-truth\"," + 
+
+	private final String vertexPayloadForPserver = "{" +
+		"\"key\":\"50bdab41-ad1c-4d00-952c-a0aa5d827811\"," +
+		"\"type\":\"pserver\"," +
+		"\"properties\":{" +
+		"\"ptnii-equip-name\":\"e-name\"," +
+		"\"hostname\":\"steve-host2\"," +
+		"\"equip-type\":\"server\"," +
+		"\"equip-vendor\":\"HP\"," +
+		"\"equip-model\":\"DL380p-nd\"," +
+		"\"in-maint\":false," +
+		"\"fqdn\":\"myhost.onap.net\"," +
+		"\"purpose\":\"my-purpose\"," +
+		"\"ipv4-oam-address\":\"1.2.3.4\"," +
+		"\"last-mod-source-of-truth\":\"source-of-truth\"," +
 		"\"aai-node-type\":\"pserver\"}}";
-	
-	private final String vertexPayloadForPut = "{" + 
-		"\"key\":\"test-uuid\"," + 
-		"\"type\":\"pserver\"," + 
-		"\"properties\":{" + 
-		"\"hostname\":\"myhost\"," + 
-		"\"in-maint\":false," + 
-		"\"fqdn\":\"myhost.onap.com\"," + 
-		"\"last-mod-source-of-truth\":\"source-of-truth\"," + 
+
+	private final String vertexPayloadForPut = "{" +
+		"\"key\":\"test-uuid\"," +
+		"\"type\":\"pserver\"," +
+		"\"properties\":{" +
+		"\"hostname\":\"myhost\"," +
+		"\"in-maint\":false," +
+		"\"fqdn\":\"myhost.onap.com\"," +
+		"\"last-mod-source-of-truth\":\"source-of-truth\"," +
 		"\"aai-node-type\":\"pserver\"}}";
-	
-	private final String vertexPayloadForPatch = "{" + 
-		"\"key\":\"test-uuid\"," + 
-		"\"type\":\"pserver\"," + 
-		"\"properties\":{" + 
-		"\"hostname\":\"myhost\"," + 
-		"\"fqdn\":\"myhost.onap.com\"," + 
-		"\"last-mod-source-of-truth\":\"source-of-truth\"," + 
+
+	private final String vertexPayloadForPatch = "{" +
+		"\"key\":\"test-uuid\"," +
+		"\"type\":\"pserver\"," +
+		"\"properties\":{" +
+		"\"hostname\":\"myhost\"," +
+		"\"fqdn\":\"myhost.onap.com\"," +
+		"\"last-mod-source-of-truth\":\"source-of-truth\"," +
 		"\"aai-node-type\":\"pserver\"}}";
 	// @formatter:on
 
@@ -345,7 +344,7 @@ public class ChampDaoMockTest {
 
         Map<String, List<String>> headers = new HashMap<>();
         headers.put(HEADER_FROM_APP, Arrays.asList(FROM_APP_NAME));
-        headers.put(HEADER_TRANS_ID, Arrays.asList(MDC.get(LoggingContext.LoggingField.REQUEST_ID.toString())));
+        headers.put(HEADER_TRANS_ID, Arrays.asList(HEADER_TRANS_ID_VALUE));
 
         when(restClientMock.get(url, headers, MediaType.APPLICATION_JSON_TYPE)).thenReturn(operationResult);
     }
@@ -383,7 +382,7 @@ public class ChampDaoMockTest {
         operationResult.setResultCode(200);
         String baseUrl = BASE_OBJECT_URL + "/" + RELATIONSHIP_SUB_URL + "/" + id;
         String url;
-        
+
         if (txId != null) {
             url = baseUrl + txId;
         }

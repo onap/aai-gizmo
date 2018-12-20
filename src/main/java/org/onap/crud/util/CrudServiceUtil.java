@@ -20,6 +20,9 @@
  */
 package org.onap.crud.util;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 import java.util.AbstractMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -29,22 +32,18 @@ import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response.Status;
-import org.onap.aai.db.props.AAIProperties;
 import org.onap.crud.exception.CrudException;
 import org.onap.crud.parser.EdgePayload;
 import org.onap.crud.parser.util.EdgePayloadUtil;
 import org.onap.schema.EdgeRulesLoader;
-import org.onap.schema.OxmModelLoader;
 import org.onap.schema.RelationshipSchema;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
 
 public class CrudServiceUtil {
 
   private static Gson gson = new Gson();
-  
+  public static final java.lang.String LAST_MOD_SOURCE_OF_TRUTH = "last-mod-source-of-truth";
+  public static final java.lang.String SOURCE_OF_TRUTH = "source-of-truth";
+
   @SuppressWarnings({"unchecked", "rawtypes"})
   public static Object validateFieldType(String value, Class clazz) throws CrudException {
     try {
@@ -76,16 +75,6 @@ public class CrudServiceUtil {
     }
   }
 
-  public static void loadModels() throws CrudException {
-    // load the schemas
-    try {
-      OxmModelLoader.loadModels();
-      EdgeRulesLoader.loadModels ();
-    } catch (Exception e) {
-      throw new CrudException(e);
-    }
-  }
-
   /**
    * This method will merge header property from app id in request payload if not already populated
    * @param propertiesFromRequest
@@ -96,22 +85,22 @@ public class CrudServiceUtil {
     @SuppressWarnings("unchecked")
     public static JsonElement mergeHeaderInFoToPayload(JsonElement propertiesFromRequest, HttpHeaders headers,
             boolean isAdd) {
-    String sourceOfTruth = headers.getRequestHeaders().getFirst("X-FromAppId");  
+    String sourceOfTruth = headers.getRequestHeaders().getFirst("X-FromAppId");
     Set<Map.Entry<String, JsonElement>> properties = new HashSet<Map.Entry<String, JsonElement>>();
     properties.addAll(propertiesFromRequest.getAsJsonObject().entrySet());
-    
+
     Set<String> propertyKeys = new HashSet<String>();
     for(Map.Entry<String, JsonElement> property : properties) {
       propertyKeys.add(property.getKey());
     }
-    
-    if(!propertyKeys.contains(AAIProperties.LAST_MOD_SOURCE_OF_TRUTH)) {
-        properties.add(new AbstractMap.SimpleEntry<String, JsonElement>(AAIProperties.LAST_MOD_SOURCE_OF_TRUTH,
+
+    if(!propertyKeys.contains(LAST_MOD_SOURCE_OF_TRUTH)) {
+        properties.add(new AbstractMap.SimpleEntry<String, JsonElement>(LAST_MOD_SOURCE_OF_TRUTH,
             (new JsonPrimitive(sourceOfTruth))));
     }
-   
-    if(isAdd && !propertyKeys.contains(AAIProperties.SOURCE_OF_TRUTH)) {
-        properties.add(new AbstractMap.SimpleEntry<String, JsonElement>(AAIProperties.SOURCE_OF_TRUTH,
+
+    if(isAdd && !propertyKeys.contains(SOURCE_OF_TRUTH)) {
+        properties.add(new AbstractMap.SimpleEntry<String, JsonElement>(SOURCE_OF_TRUTH,
             (new JsonPrimitive(sourceOfTruth))));
     }
 
@@ -144,23 +133,22 @@ public class CrudServiceUtil {
 
   public static String determineEdgeType(EdgePayload payload, String version) throws CrudException {
     RelationshipSchema schema = EdgeRulesLoader.getSchemaForVersion(version);
-    
+
     if (payload.getSource() == null || payload.getTarget() == null) {
       throw new CrudException("Source/Target not specified", Status.BAD_REQUEST);
     }
-    
-    Set<String> edgeTypes = schema.getValidRelationTypes(EdgePayloadUtil.getVertexNodeType(payload.getSource()), 
+
+    Set<String> edgeTypes = schema.getValidRelationTypes(EdgePayloadUtil.getVertexNodeType(payload.getSource()),
         EdgePayloadUtil.getVertexNodeType(payload.getTarget()));
-    
+
     if (edgeTypes.size() == 0) {
       throw new CrudException("No valid relationship types from " + payload.getSource() + " to " + payload.getTarget(), Status.BAD_REQUEST);
     }
-    
+
     if (edgeTypes.size() > 1) {
       throw new CrudException("Multiple possible relationship types from " + payload.getSource() + " to " + payload.getTarget(), Status.BAD_REQUEST);
     }
-    
+
     return edgeTypes.iterator().next();
   }
-
 }
