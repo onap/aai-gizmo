@@ -54,10 +54,22 @@ public class CrudApplication extends SpringBootServletInitializer{// NOSONAR
           throw new RuntimeException("Env property KEY_STORE_PASSWORD not set");
         }
         HashMap<String, Object> props = new HashMap<>();
-        String deobfuscatedKeyStorePassword = Password.deobfuscate(keyStorePassword);
+        String deobfuscatedKeyStorePassword = keyStorePassword.startsWith("OBF:")?Password.deobfuscate(keyStorePassword):keyStorePassword;
         props.put("server.ssl.key-store-password", deobfuscatedKeyStorePassword);
+        
+        String trustStoreLocation = System.getProperty("TRUST_STORE_LOCATION");
+        String trustStorePassword = System.getProperty("TRUST_STORE_PASSWORD");
+        if(trustStoreLocation!=null && trustStorePassword !=null){
+            trustStorePassword = trustStorePassword.startsWith("OBF:")?Password.deobfuscate(trustStorePassword):trustStorePassword;
+            props.put("server.ssl.trust-store", trustStoreLocation);
+            props.put("server.ssl.trust-store-password", trustStorePassword);
+        } 
+        
         props.put("schema.service.ssl.key-store-password", deobfuscatedKeyStorePassword);
         props.put("schema.service.ssl.trust-store-password", deobfuscatedKeyStorePassword);
+        
+       
+        
         new CrudApplication()
             .configure(new SpringApplicationBuilder(CrudApplication.class).properties(props))
             .run(args);
@@ -89,4 +101,6 @@ public class CrudApplication extends SpringBootServletInitializer{// NOSONAR
       return new Docket(DocumentationType.SWAGGER_2).apiInfo(DEFAULT_API_INFO).select().paths(PathSelectors.any())
           .apis(RequestHandlerSelectors.basePackage("org.onap.crud")).build();
     }
+    
+   
 }
