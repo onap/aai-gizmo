@@ -29,9 +29,10 @@ import org.onap.crud.util.CrudServiceConstants;
 public class DataRouterDAO extends ChampDao {
   public DataRouterDAO(String url, String certPassword) {
     try {
+      String deobfuscatedCertPassword = certPassword.startsWith("OBF:")?Password.deobfuscate(certPassword):certPassword;
       client = new RestClient().authenticationMode(RestAuthenticationMode.SSL_CERT).validateServerHostname(false)
           .validateServerCertChain(false).clientCertFile(CrudServiceConstants.CRD_DATAROUTER_AUTH_FILE)
-          .clientCertPassword(Password.deobfuscate(certPassword));
+          .clientCertPassword(Password.deobfuscate(deobfuscatedCertPassword));
 
       baseObjectUrl = url + OBJECT_SUB_URL;
       baseRelationshipUrl = url + RELATIONSHIP_SUB_URL;
