@@ -77,7 +77,7 @@ public class ChampDao implements GraphDao {
       String deobfuscatedCertPassword = certPassword.startsWith("OBF:")?Password.deobfuscate(certPassword):certPassword;
       client = new RestClient().authenticationMode(RestAuthenticationMode.SSL_CERT).validateServerHostname(false)
           .validateServerCertChain(false).clientCertFile(CrudServiceConstants.CRD_CHAMP_AUTH_FILE)
-          .clientCertPassword(Password.deobfuscate(deobfuscatedCertPassword));
+          .clientCertPassword(deobfuscatedCertPassword);
 
       baseObjectUrl = champUrl + OBJECT_SUB_URL;
       baseRelationshipUrl = champUrl + RELATIONSHIP_SUB_URL;
