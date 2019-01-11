@@ -94,7 +94,7 @@ public class CrudApplication extends SpringBootServletInitializer{// NOSONAR
     }
     public static final Contact DEFAULT_CONTACT = new Contact("Amdocs", "http://www.amdocs.com", "noreply@amdocs.com");
 
-    public static final ApiInfo DEFAULT_API_INFO = new ApiInfo("AAI NCSO Adapter Service", "AAI NCSO Adapter Service.",
+    public static final ApiInfo DEFAULT_API_INFO = new ApiInfo("AAI Gizmo Service", "AAI Gizmo Service.",
         "1.0", "urn:tos", DEFAULT_CONTACT, "Apache 2.0", "API license URL", Collections.emptyList());
 
     public Docket api() {

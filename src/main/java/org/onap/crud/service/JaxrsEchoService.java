@@ -37,7 +37,7 @@ import org.onap.crud.logging.LoggingUtil;
 import org.springframework.stereotype.Component;
 
 @Component
-@Path("/services/gizmo/v1/echo-service/")
+@Path("/gizmo/v1/echo-service/")
 public class JaxrsEchoService {
 
     private static Logger logger = LoggerFactory.getInstance().getLogger(JaxrsEchoService.class.getName());
