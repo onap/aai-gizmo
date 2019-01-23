@@ -68,7 +68,12 @@ public class CrudApplication extends SpringBootServletInitializer{// NOSONAR
         props.put("schema.service.ssl.key-store-password", deobfuscatedKeyStorePassword);
         props.put("schema.service.ssl.trust-store-password", deobfuscatedKeyStorePassword);
         
-       
+        String requireClientAuth = System.getenv("REQUIRE_CLIENT_AUTH");
+        if (requireClientAuth == null || requireClientAuth.isEmpty()) {
+            props.put("server.ssl.client-auth", "need");
+        }else {
+            props.put("server.ssl.client-auth",requireClientAuth.equals("true")?"need":"want");
+        }       
         
         new CrudApplication()
             .configure(new SpringApplicationBuilder(CrudApplication.class).properties(props))
