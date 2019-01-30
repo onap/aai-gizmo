@@ -41,14 +41,10 @@ import org.onap.crud.dao.champ.ChampVertexSerializer;
 import org.onap.crud.entity.Edge;
 import org.onap.crud.entity.Vertex;
 import org.onap.crud.exception.CrudException;
-import org.onap.crud.parser.BulkPayload;
 import org.onap.crud.parser.CrudResponseBuilder;
-import org.onap.crud.parser.EdgePayload;
-import org.onap.crud.parser.VertexPayload;
-import org.onap.crud.parser.util.EdgePayloadUtil;
 import org.onap.crud.util.CrudServiceUtil;
-import org.onap.schema.validation.OxmModelValidator;
-import org.onap.schema.validation.RelationshipSchemaValidator;
+import org.onap.schema.OxmModelValidator;
+import org.onap.schema.RelationshipSchemaValidator;
 
 public abstract class AbstractGraphDataService {
   protected GraphDao daoForGet;
@@ -230,22 +226,14 @@ public abstract class AbstractGraphDataService {
               edgePayload
                   .setTarget("services/inventory/" + version + "/" + target.getType() + "/" + target.getId().get());
             }
-
+            
             // If the type isn't set, resolve it based on on the sourece and target vertex types
             if (edgePayload.getType() == null || edgePayload.getType().isEmpty()) {
               edgePayload.setType(CrudServiceUtil.determineEdgeType(edgePayload, version));
             }
 
-            List<Edge> sourceVertexEdges =
-                    EdgePayloadUtil.filterEdgesByRelatedVertexAndType(EdgePayloadUtil.getVertexNodeType(edgePayload.getSource()), edgePayload.getType(),
-                                 dao.getVertexEdges(EdgePayloadUtil.getVertexNodeId(edgePayload.getSource()), null, txId));
-
-            List<Edge> targetVertexEdges =
-                     EdgePayloadUtil.filterEdgesByRelatedVertexAndType(EdgePayloadUtil.getVertexNodeType(edgePayload.getTarget()), edgePayload.getType(),
-                                 dao.getVertexEdges(EdgePayloadUtil.getVertexNodeId(edgePayload.getTarget()), null, txId));
-
-            validatedEdge = RelationshipSchemaValidator.validateIncomingAddPayload(version, edgePayload.getType(), edgePayload, sourceVertexEdges,
-                    targetVertexEdges);
+            validatedEdge = RelationshipSchemaValidator.validateIncomingAddPayload(version, edgePayload.getType(),edgePayload);
+            
             persistedEdge = addBulkEdge(validatedEdge, version, txId);
           } else if (opr.getValue().getAsString().equalsIgnoreCase("modify")) {
             Edge edge = dao.getEdge(edgePayload.getId(), txId);
@@ -255,17 +243,8 @@ public abstract class AbstractGraphDataService {
               edgePayload.setType(edge.getType());
             }
 
-            // load source and target vertex relationships for validation
-            List<Edge> sourceVertexEdges =
-                   EdgePayloadUtil.filterEdgesByRelatedVertexAndType(EdgePayloadUtil.getVertexNodeType(edgePayload.getSource()), edgePayload.getType(),
-                                dao.getVertexEdges(EdgePayloadUtil.getVertexNodeId(edgePayload.getSource()), null, txId));
-
-            List<Edge> targetVertexEdges =
-                    EdgePayloadUtil.filterEdgesByRelatedVertexAndType(EdgePayloadUtil.getVertexNodeType(edgePayload.getTarget()), edgePayload.getType(),
-                                dao.getVertexEdges(EdgePayloadUtil.getVertexNodeId(edgePayload.getTarget()), null, txId));
-
-
-            validatedEdge = RelationshipSchemaValidator.validateIncomingUpdatePayload(edge, version, edgePayload, edgePayload.getType(), sourceVertexEdges, targetVertexEdges);
+            validatedEdge = RelationshipSchemaValidator.validateIncomingUpdatePayload(edge, version, edgePayload);
+            
             persistedEdge = updateBulkEdge(validatedEdge, version, txId);
           } else {
             if (edgePayload.getId() == null) {

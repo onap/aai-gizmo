@@ -25,7 +25,6 @@ import static org.junit.Assert.assertThat;
 import javax.ws.rs.core.Response.Status;
 import org.junit.Test;
 import org.onap.crud.exception.CrudException;
-import org.onap.crud.parser.VertexPayload;
 
 public class VertexPayloadTest {
 

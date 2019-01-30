@@ -160,27 +160,6 @@ public class CrudRestServiceTest extends OXMModelLoaderSetup{
   }
 
   @Test
-  public void testAddEdgeMultiplicityRules() throws CrudException {
-    Response response;
-
-    response = mockService.addEdge(postEdgePayload, "v10", "services/inventory/v10",
-        new TestHeaders(), null, new TestRequest());
-    Assert.assertEquals("MANY2ONE multiplicity rule broken for Edge:vserver:pserver:tosca.relationships.HostedOn",
-            response.getEntity().toString());
-    Assert.assertEquals(400, response.getStatus());
-
-    response = mockService.addEdge(postEdgePayload, "v9", "tosca.relationships.HostedOn", "services/inventory/v9",
-        new TestHeaders(), null, new TestRequest());
-    Assert.assertEquals(201, response.getStatus());
-
-    response = mockService.addEdge(postEdgePayload, "v8", "tosca.relationships.HostedOn", "services/inventory/v8",
-        new TestHeaders(), null, new TestRequest());
-    Assert.assertEquals("ONE2MANY multiplicity rule broken for Edge:vserver:pserver:tosca.relationships.HostedOn",
-            response.getEntity().toString());
-    Assert.assertEquals(400, response.getStatus());
-  }
-
-  @Test
   public void testUpdateVertex() throws CrudException {
     Response response;
 

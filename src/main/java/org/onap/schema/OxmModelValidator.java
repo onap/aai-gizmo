@@ -18,7 +18,7 @@
  * limitations under the License.
  * ============LICENSE_END=========================================================
  */
-package org.onap.schema.validation;
+package org.onap.schema;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,7 +36,7 @@ import org.onap.crud.exception.CrudException;
 import org.onap.crud.logging.CrudServiceMsgs;
 import org.onap.crud.util.CrudServiceConstants;
 import org.onap.crud.util.CrudServiceUtil;
-import org.onap.schema.OxmModelLoader;
+
 import com.google.common.base.CaseFormat;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;

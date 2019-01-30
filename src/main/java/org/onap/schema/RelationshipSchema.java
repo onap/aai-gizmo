@@ -36,11 +36,7 @@ import com.google.common.collect.Multimap;
 
 public class RelationshipSchema {
 
-  public static final String SCHEMA_SOURCE_NODE_TYPE = "from";
-  public static final String SCHEMA_TARGET_NODE_TYPE = "to";
   public static final String SCHEMA_RELATIONSHIP_TYPE = "label";
-  public static final String SCHEMA_MULTIPLICITY_TYPE = "multiplicity";
-  public static final String SCHEMA_RULES_ARRAY = "rules";
 
   private Map<String, Map<String, Class<?>>> relations = new HashMap<>();
   /**
@@ -48,8 +44,6 @@ public class RelationshipSchema {
    */
   private Map<String, Map<String, Class<?>>> relationTypes  = new HashMap<>();
 
-  private Map<String, EdgeRule> relationshipRules = new HashMap<>();
-  
   // A map storing the list of valid edge types for a source/target pair
   private Map<String, Set<String>> edgeTypesForNodePair = new HashMap<>();
   
@@ -60,8 +54,6 @@ public class RelationshipSchema {
 
     // hold the true values of the edge rules by key - convert to java 8
     for (EdgeRule rule : rules.values()) {
-      String key = buildRelation(rule.getFrom(), rule.getTo(), rule.getLabel());
-      relationshipRules.put(key, rule);
       
       String nodePairKey = buildNodePairKey(rule.getFrom(), rule.getTo());
       if (edgeTypesForNodePair.get(nodePairKey) == null) {
@@ -91,27 +83,6 @@ public class RelationshipSchema {
 
   public Map<String, Class<?>> lookupRelation(String key) {
     return this.relations.get(key);
-  }
-
-  /**
-   * Extract the multiplicity type from the Edge rules
-   *
-   * @param key
-   * @return
-   * @throws CrudException
-   */
-  public String lookupRelationMultiplicity(String key) throws CrudException {
-    EdgeRule edgeRule = relationshipRules.get(key);
-
-    if (edgeRule == null) {
-      throw new CrudException("Invalid source/target/relationship type: " + key, Status.BAD_REQUEST);
-    }
-
-    if (edgeRule.getMultiplicityRule() != null) {
-      return edgeRule.getMultiplicityRule().toString();
-    }
-
-    return null;
   }
 
   public Map<String, Class<?>> lookupRelationType(String type) {

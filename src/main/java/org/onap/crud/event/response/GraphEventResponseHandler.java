@@ -29,8 +29,8 @@ import org.onap.crud.event.envelope.GraphEventEnvelope;
 import org.onap.crud.exception.CrudException;
 import org.onap.crud.logging.CrudServiceMsgs;
 import org.onap.crud.parser.CrudResponseBuilder;
-import org.onap.schema.validation.OxmModelValidator;
-import org.onap.schema.validation.RelationshipSchemaValidator;
+import org.onap.schema.OxmModelValidator;
+import org.onap.schema.RelationshipSchemaValidator;
 
 /**
  * Reads event responses, logs and generates exceptions if errors are found.

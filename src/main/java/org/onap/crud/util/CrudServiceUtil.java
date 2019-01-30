@@ -33,10 +33,10 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response.Status;
 import org.onap.crud.exception.CrudException;
-import org.onap.crud.parser.EdgePayload;
-import org.onap.crud.parser.util.EdgePayloadUtil;
+import org.onap.crud.service.EdgePayload;
 import org.onap.schema.EdgeRulesLoader;
 import org.onap.schema.RelationshipSchema;
+import org.onap.schema.RelationshipSchemaValidator;
 
 public class CrudServiceUtil {
 
@@ -138,8 +138,8 @@ public class CrudServiceUtil {
       throw new CrudException("Source/Target not specified", Status.BAD_REQUEST);
     }
 
-    Set<String> edgeTypes = schema.getValidRelationTypes(EdgePayloadUtil.getVertexNodeType(payload.getSource()),
-        EdgePayloadUtil.getVertexNodeType(payload.getTarget()));
+    Set<String> edgeTypes = schema.getValidRelationTypes(RelationshipSchemaValidator.vertexTypeFromUri(payload.getSource()),
+    		RelationshipSchemaValidator.vertexTypeFromUri(payload.getTarget()));
 
     if (edgeTypes.size() == 0) {
       throw new CrudException("No valid relationship types from " + payload.getSource() + " to " + payload.getTarget(), Status.BAD_REQUEST);

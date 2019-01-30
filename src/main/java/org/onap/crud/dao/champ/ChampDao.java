@@ -183,7 +183,7 @@ public class ChampDao implements GraphDao {
 
   @Override
   public OperationResult getVertices(String type, Map<String, Object> filter, Set<String> properties, String version) throws CrudException {
-    filter.put(org.onap.schema.validation.OxmModelValidator.Metadata.NODE_TYPE.propertyName(), type);
+    filter.put(org.onap.schema.OxmModelValidator.Metadata.NODE_TYPE.propertyName(), type);
 
     List<NameValuePair> queryParams = convertToNameValuePair(filter);
     queryParams.addAll(convertToNameValuePair("properties", properties));
@@ -252,7 +252,7 @@ public class ChampDao implements GraphDao {
 
     // Add the aai_node_type so that AAI can read the data created by gizmo
     // TODO: This probably shouldn't be here
-    properties.put(org.onap.schema.validation.OxmModelValidator.Metadata.NODE_TYPE.propertyName(), type);
+    properties.put(org.onap.schema.OxmModelValidator.Metadata.NODE_TYPE.propertyName(), type);
 
     Vertex.Builder insertVertexBuilder = new Vertex.Builder(type);
     properties.forEach(insertVertexBuilder::property);
@@ -276,7 +276,7 @@ public class ChampDao implements GraphDao {
 
     // Add the aai_node_type so that AAI can read the data created by gizmo
     // TODO: This probably shouldn't be here
-    properties.put(org.onap.schema.validation.OxmModelValidator.Metadata.NODE_TYPE.propertyName(), type);
+    properties.put(org.onap.schema.OxmModelValidator.Metadata.NODE_TYPE.propertyName(), type);
 
     Vertex.Builder insertVertexBuilder = new Vertex.Builder(type);
     insertVertexBuilder.id(id);
@@ -424,7 +424,7 @@ public class ChampDao implements GraphDao {
 
     // Add the aai_node_type so that AAI can read the data created by gizmo
     // TODO: This probably shouldn't be here
-    properties.put(org.onap.schema.validation.OxmModelValidator.Metadata.NODE_TYPE.propertyName(), type);
+    properties.put(org.onap.schema.OxmModelValidator.Metadata.NODE_TYPE.propertyName(), type);
 
     Vertex.Builder insertVertexBuilder = new Vertex.Builder(type);
     properties.forEach(insertVertexBuilder::property);
@@ -473,7 +473,7 @@ public class ChampDao implements GraphDao {
 
     // Add the aai_node_type so that AAI can read the data created by gizmo
     // TODO: This probably shouldn't be here
-    properties.put(org.onap.schema.validation.OxmModelValidator.Metadata.NODE_TYPE.propertyName(), type);
+    properties.put(org.onap.schema.OxmModelValidator.Metadata.NODE_TYPE.propertyName(), type);
 
     Vertex.Builder insertVertexBuilder = new Vertex.Builder(type);
     insertVertexBuilder.id(id);

@@ -29,7 +29,7 @@ import java.util.Set;
 import javax.ws.rs.core.Response.Status;
 import org.junit.Test;
 import org.onap.crud.exception.CrudException;
-import org.onap.crud.parser.BulkPayload;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

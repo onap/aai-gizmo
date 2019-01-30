@@ -29,7 +29,7 @@ import java.util.Set;
 
 import org.junit.Test;
 import org.onap.crud.exception.CrudException;
-import org.onap.crud.parser.EdgePayload;
+import org.onap.crud.service.EdgePayload;
 import org.onap.crud.util.CrudServiceUtil;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;

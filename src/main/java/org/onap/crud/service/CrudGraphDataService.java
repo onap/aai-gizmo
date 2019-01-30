@@ -31,12 +31,9 @@ import org.onap.crud.entity.Edge;
 import org.onap.crud.entity.Vertex;
 import org.onap.crud.exception.CrudException;
 import org.onap.crud.parser.CrudResponseBuilder;
-import org.onap.crud.parser.EdgePayload;
-import org.onap.crud.parser.VertexPayload;
-import org.onap.crud.parser.util.EdgePayloadUtil;
 import org.onap.crud.util.CrudServiceUtil;
-import org.onap.schema.validation.OxmModelValidator;
-import org.onap.schema.validation.RelationshipSchemaValidator;
+import org.onap.schema.OxmModelValidator;
+import org.onap.schema.RelationshipSchemaValidator;
 
 
 public class CrudGraphDataService extends AbstractGraphDataService {
@@ -74,16 +71,8 @@ public class CrudGraphDataService extends AbstractGraphDataService {
   @Override
   public ImmutablePair<EntityTag, String> addEdge(String version, String type, EdgePayload payload)
             throws CrudException {
-    // load source and target vertex relationships for validation
-    List<Edge> sourceVertexEdges =
-             EdgePayloadUtil.filterEdgesByRelatedVertexAndType(EdgePayloadUtil.getVertexNodeType(payload.getSource()), type,
-                          daoForGet.getVertexEdges(EdgePayloadUtil.getVertexNodeId(payload.getSource()), null, null));
-
-    List<Edge> targetVertexEdges =
-              EdgePayloadUtil.filterEdgesByRelatedVertexAndType(EdgePayloadUtil.getVertexNodeType(payload.getTarget()), type,
-                          daoForGet.getVertexEdges(EdgePayloadUtil.getVertexNodeId(payload.getTarget()), null, null));
-
-    Edge edge = RelationshipSchemaValidator.validateIncomingAddPayload(version, type, payload, sourceVertexEdges, targetVertexEdges);
+	  
+	Edge edge = RelationshipSchemaValidator.validateIncomingAddPayload(version, type, payload);
 
     return addEdge(version, edge);
   }
@@ -147,19 +136,7 @@ public class CrudGraphDataService extends AbstractGraphDataService {
   @Override
   public ImmutablePair<EntityTag, String> updateEdge(String version, String id, String type, EdgePayload payload)
             throws CrudException {
-    OperationResult edgeResult = dao.getEdge(id, type, new HashMap<String, String>());
-    Edge edge = Edge.fromJson(edgeResult.getResult());
-
-    // load source and target vertex relationships for validation
-    List<Edge> sourceVertexEdges =
-             EdgePayloadUtil.filterEdgesByRelatedVertexAndType(EdgePayloadUtil.getVertexNodeType(payload.getSource()), type,
-                          daoForGet.getVertexEdges(EdgePayloadUtil.getVertexNodeId(payload.getSource()), null, null));
-
-    List<Edge> targetVertexEdges =
-              EdgePayloadUtil.filterEdgesByRelatedVertexAndType(EdgePayloadUtil.getVertexNodeType(payload.getTarget()), type,
-                          daoForGet.getVertexEdges(EdgePayloadUtil.getVertexNodeId(payload.getTarget()), null, null));
-
-    Edge validatedEdge = RelationshipSchemaValidator.validateIncomingUpdatePayload(edge, version, payload, type, sourceVertexEdges, targetVertexEdges);
+	Edge validatedEdge = getValidatedEdge(version, id, type, payload);
 
     return updateEdge(version, validatedEdge);
   }
@@ -179,6 +156,11 @@ public class CrudGraphDataService extends AbstractGraphDataService {
       .buildUpsertEdgeResponse(RelationshipSchemaValidator.validateOutgoingPayload(version, updatedEdge), version);
   }
 
+  private Edge getValidatedEdge(String version, String id, String type, EdgePayload payload) throws CrudException {
+    OperationResult operationResult = dao.getEdge(id, type, new HashMap<String, String>());
+    return RelationshipSchemaValidator.validateIncomingUpdatePayload(Edge.fromJson(operationResult.getResult()), version, payload);
+  }
+  
   @Override
   public ImmutablePair<EntityTag, String> patchEdge(String version, String id, String type, EdgePayload payload)
             throws CrudException {

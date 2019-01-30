@@ -27,9 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.onap.crud.entity.Edge;
 import org.onap.crud.exception.CrudException;
-import org.onap.crud.parser.EdgePayload;
-import org.onap.schema.validation.RelationshipSchemaValidator;
-
+import org.onap.crud.service.EdgePayload;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.onap.crud.OXMModelLoaderSetup;
@@ -78,7 +76,7 @@ public class RelationshipSchemaValidatorTest extends OXMModelLoaderSetup{
             RelationshipSchemaValidator.validateIncomingUpdatePayload(edge, version, payload);
         } catch (CrudException e) {
             assertEquals(400, e.getHttpStatus().getStatusCode());
-            assertThat(e.getMessage(), is("Invalid Source/Target Urls"));
+            assertThat(e.getMessage(), is("Invalid Source Urls"));
         }
     }
 
@@ -120,7 +118,7 @@ public class RelationshipSchemaValidatorTest extends OXMModelLoaderSetup{
             RelationshipSchemaValidator.validateIncomingUpdatePayload(edge, version, payload);
         } catch (CrudException e) {
             assertEquals(400, e.getHttpStatus().getStatusCode());
-            assertThat(e.getMessage(), is("Invalid Source/Target Urls"));
+            assertThat(e.getMessage(), is("Invalid Target Urls"));
         }
     }
 
@@ -191,7 +189,7 @@ public class RelationshipSchemaValidatorTest extends OXMModelLoaderSetup{
             RelationshipSchemaValidator.validateIncomingPatchPayload(edge, version, payload);
         } catch (CrudException e) {
             assertEquals(400, e.getHttpStatus().getStatusCode());
-            assertThat(e.getMessage(), is("Invalid Source/Target Urls"));
+            assertThat(e.getMessage(), is("Invalid Source Urls"));
         }
     }
 
@@ -234,7 +232,7 @@ public class RelationshipSchemaValidatorTest extends OXMModelLoaderSetup{
             RelationshipSchemaValidator.validateIncomingPatchPayload(edge, version, payload);
         } catch (CrudException e) {
             assertEquals(400, e.getHttpStatus().getStatusCode());
-            assertThat(e.getMessage(), is("Invalid Source/Target Urls"));
+            assertThat(e.getMessage(), is("Invalid Target Urls"));
         }
     }
 
