@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.onap.aai.restclient.client.OperationResult;
+import org.onap.crud.dao.champ.ChampBulkPayload;
 import org.onap.crud.entity.Edge;
 import org.onap.crud.entity.Vertex;
 import org.onap.crud.exception.CrudException;
@@ -91,7 +92,7 @@ public interface GraphDao {
    * @throws CrudException
    */
   public OperationResult getEdge(String id, String type, Map<String, String> queryParams) throws CrudException;
-  
+
   /**
    * Retrieve a collection of {@link Edge} objects with a given type and which
    * match a set of supplied filter parameters.
@@ -187,7 +188,7 @@ public interface GraphDao {
   public Vertex addVertex(String type, Map<String, Object> properties, String version, String txId) throws CrudException;
 
   public Edge addEdge(String type, Vertex source, Vertex target, Map<String, Object> properties, String version, String txId)
-      throws CrudException;
+          throws CrudException;
 
   public Vertex updateVertex(String id, String type, Map<String, Object> properties, String version, String txId) throws CrudException;
 
@@ -198,6 +199,8 @@ public interface GraphDao {
   public void deleteEdge(String id, String txId) throws CrudException;
 
   public Edge getEdge(String id, String txId) throws CrudException;
-  
+
   public Edge getEdge(String id) throws CrudException;
+
+  public OperationResult bulkOperation(ChampBulkPayload champPayload) throws CrudException;
 }

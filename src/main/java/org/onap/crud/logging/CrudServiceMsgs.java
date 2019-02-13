@@ -94,6 +94,14 @@ public enum CrudServiceMsgs implements LogMessageEnum {
   ASYNC_DATA_SERVICE_ERROR,
   
   /**
+   * Any info log related to CHAMP_BULK_OP_INFO
+   *
+   * <p>Arguments:
+   * {0} - Info.
+   */
+  CHAMP_BULK_OP_INFO,
+  
+  /**
    * Any info log related to ASYNC_DATA_CACHE_INFO
    *
    * <p>Arguments:

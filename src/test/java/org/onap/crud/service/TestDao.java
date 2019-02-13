@@ -28,6 +28,7 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import org.onap.aai.restclient.client.OperationResult;
 import org.onap.crud.dao.GraphDao;
+import org.onap.crud.dao.champ.ChampBulkPayload;
 import org.onap.crud.entity.Edge;
 import org.onap.crud.entity.Vertex;
 import org.onap.crud.exception.CrudException;
@@ -238,4 +239,10 @@ public class TestDao implements GraphDao {
     // TODO Auto-generated method stub
     return null;
   }
+
+@Override
+public OperationResult bulkOperation(ChampBulkPayload champPayload) throws CrudException {
+    // TODO Auto-generated method stub
+    return null;
+}
 }

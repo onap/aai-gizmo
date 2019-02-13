@@ -23,21 +23,32 @@ package org.onap.crud.service;
 
 import java.util.HashMap;
 import java.util.List;
+
 import javax.ws.rs.core.EntityTag;
+import javax.ws.rs.core.HttpHeaders;
+
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.onap.aai.cl.api.Logger;
+import org.onap.aai.cl.eelf.LoggerFactory;
 import org.onap.aai.restclient.client.OperationResult;
 import org.onap.crud.dao.GraphDao;
+import org.onap.crud.dao.champ.ChampBulkPayload;
+import org.onap.crud.dao.champ.ChampBulkPayloadResponse;
 import org.onap.crud.entity.Edge;
 import org.onap.crud.entity.Vertex;
 import org.onap.crud.exception.CrudException;
+import org.onap.crud.logging.CrudServiceMsgs;
+import org.onap.crud.service.BulkPayload;
 import org.onap.crud.parser.CrudResponseBuilder;
 import org.onap.crud.util.CrudServiceUtil;
 import org.onap.schema.OxmModelValidator;
 import org.onap.schema.RelationshipSchemaValidator;
 
+import com.google.gson.GsonBuilder;
+
 
 public class CrudGraphDataService extends AbstractGraphDataService {
-
+    Logger logger = LoggerFactory.getInstance().getLogger(CrudGraphDataService.class.getName());
 
   public CrudGraphDataService(GraphDao dao) throws CrudException {
     super();
@@ -168,34 +179,16 @@ public class CrudGraphDataService extends AbstractGraphDataService {
     Edge patchedEdge = RelationshipSchemaValidator.validateIncomingPatchPayload(Edge.fromJson(operationResult.getResult()), version, payload);
     return updateEdge(version, patchedEdge);
   }
-
+  
   @Override
-  protected Vertex addBulkVertex(Vertex vertex, String version, String dbTransId) throws CrudException {
-    return dao.addVertex(vertex.getType(), vertex.getProperties(), version, dbTransId);
-  }
+  public String addBulk(String version, BulkPayload payload, HttpHeaders headers) throws CrudException {
+      ChampBulkPayload champPayload = new ChampBulkPayload();
+      champPayload.fromGizmoPayload(payload, version, headers, dao);
+      logger.info(CrudServiceMsgs.CHAMP_BULK_OP_INFO, "ChampBulkPayload-> "+new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create().toJson(champPayload));
+      OperationResult bulkResult = dao.bulkOperation(champPayload);
 
-  @Override
-  protected Vertex updateBulkVertex(Vertex vertex, String id, String version, String dbTransId) throws CrudException {
-    return dao.updateVertex(id, vertex.getType(), vertex.getProperties(), version, dbTransId);
-  }
-
-  @Override
-  protected void deleteBulkVertex(String id, String version, String type, String dbTransId) throws CrudException {
-    dao.deleteVertex(id, type, dbTransId);
-  }
-
-  @Override
-  protected Edge addBulkEdge(Edge edge, String version, String dbTransId) throws CrudException {
-    return dao.addEdge(edge.getType(), edge.getSource(), edge.getTarget(), edge.getProperties(), version, dbTransId);
-  }
-
-  @Override
-  protected Edge updateBulkEdge(Edge edge, String version, String dbTransId) throws CrudException {
-    return dao.updateEdge(edge, dbTransId);
-  }
-
-  @Override
-  protected void deleteBulkEdge(String id, String version, String dbTransId) throws CrudException {
-    dao.deleteEdge(id, dbTransId);
+      ChampBulkPayloadResponse response = ChampBulkPayloadResponse.fromJson(bulkResult.getResult());
+      response.populateChampData(version);
+      return CrudResponseBuilder.buildUpsertBulkResponse(response.getVertices(), response.getEdges(), version, payload);
   }
 }

@@ -307,6 +307,7 @@ public class CrudRestServiceTest extends OXMModelLoaderSetup{
         assertTrue(response.getStatus() == 200);
     }
 
+  /*
   @Test
   public void testBulk() throws CrudException, IOException {
     Response response;
@@ -321,6 +322,7 @@ public class CrudRestServiceTest extends OXMModelLoaderSetup{
     System.out.println("Response Entity: " + response.getEntity().toString());
     assertTrue(response.getStatus() == 200);
   }
+*/
 
   public static String readFileToString(File aFile) throws IOException {
 

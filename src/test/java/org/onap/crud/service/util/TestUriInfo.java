@@ -21,6 +21,7 @@
 package org.onap.crud.service.util;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 import javax.ws.rs.core.MultivaluedHashMap;
@@ -28,6 +29,8 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.PathSegment;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+
+import org.apache.http.client.utils.URIBuilder;
 
 public class TestUriInfo implements UriInfo {
 
@@ -124,6 +127,12 @@ public class TestUriInfo implements UriInfo {
   @Override
   public URI getRequestUri() {
     // TODO Auto-generated method stub
+    try {
+      return new URIBuilder().setQuery("hostname=myhost").build();
+    } catch (URISyntaxException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     return null;
   }
 

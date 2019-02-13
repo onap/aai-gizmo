@@ -45,67 +45,75 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableSwagger2
 @ImportResource({"file:${SERVICE_BEANS}/*.xml"})
 public class CrudApplication extends SpringBootServletInitializer{// NOSONAR
-    @Autowired
-    private Environment env;
+  @Autowired
+  private Environment env;
 
-    public static void main(String[] args) {// NOSONAR
-        String keyStorePassword = System.getProperty("KEY_STORE_PASSWORD");
-        if(keyStorePassword==null || keyStorePassword.isEmpty()){
-          throw new RuntimeException("Env property KEY_STORE_PASSWORD not set");
-        }
-        HashMap<String, Object> props = new HashMap<>();
-        String deobfuscatedKeyStorePassword = keyStorePassword.startsWith("OBF:")?Password.deobfuscate(keyStorePassword):keyStorePassword;
-        props.put("server.ssl.key-store-password", deobfuscatedKeyStorePassword);
-        
-        String trustStoreLocation = System.getProperty("TRUST_STORE_LOCATION");
-        String trustStorePassword = System.getProperty("TRUST_STORE_PASSWORD");
-        if(trustStoreLocation!=null && trustStorePassword !=null){
-            trustStorePassword = trustStorePassword.startsWith("OBF:")?Password.deobfuscate(trustStorePassword):trustStorePassword;
-            props.put("server.ssl.trust-store", trustStoreLocation);
-            props.put("server.ssl.trust-store-password", trustStorePassword);
-        } 
-        
-        props.put("schema.service.ssl.key-store-password", deobfuscatedKeyStorePassword);
-        props.put("schema.service.ssl.trust-store-password", deobfuscatedKeyStorePassword);
-        
-        String requireClientAuth = System.getenv("REQUIRE_CLIENT_AUTH");
-        if (requireClientAuth == null || requireClientAuth.isEmpty()) {
-            props.put("server.ssl.client-auth", "need");
-        }else {
-            props.put("server.ssl.client-auth",requireClientAuth.equals("true")?"need":"want");
-        }       
-        
-        new CrudApplication()
+  public static void main(String[] args) {// NOSONAR
+    String keyStorePassword = System.getProperty("KEY_STORE_PASSWORD");
+    if(keyStorePassword==null || keyStorePassword.isEmpty()){
+      throw new RuntimeException("Env property KEY_STORE_PASSWORD not set");
+    }
+    HashMap<String, Object> props = new HashMap<>();
+    String deobfuscatedKeyStorePassword = keyStorePassword.startsWith("OBF:")?Password.deobfuscate(keyStorePassword):keyStorePassword;
+    props.put("server.ssl.key-store-password", deobfuscatedKeyStorePassword);
+
+    String trustStoreLocation = System.getProperty("TRUST_STORE_LOCATION");
+    String trustStorePassword = System.getProperty("TRUST_STORE_PASSWORD");
+    if(trustStoreLocation!=null && trustStorePassword !=null){
+      trustStorePassword = trustStorePassword.startsWith("OBF:")?Password.deobfuscate(trustStorePassword):trustStorePassword;
+      props.put("server.ssl.trust-store", trustStoreLocation);
+      props.put("server.ssl.trust-store-password", trustStorePassword);
+    }
+
+    String authLevel = System.getenv("SSL_CLIENT_AUTH");
+    if (authLevel == null || authLevel.isEmpty()) {
+      props.put("server.ssl.client-auth", "need");
+    }else {
+      props.put("server.ssl.client-auth",authLevel);
+    }
+
+
+    props.put("schema.service.ssl.key-store-password", deobfuscatedKeyStorePassword);
+    props.put("schema.service.ssl.trust-store-password", deobfuscatedKeyStorePassword);
+
+    String requireClientAuth = System.getenv("REQUIRE_CLIENT_AUTH");
+    if (requireClientAuth == null || requireClientAuth.isEmpty()) {
+      props.put("server.ssl.client-auth", "need");
+    }else {
+      props.put("server.ssl.client-auth",requireClientAuth.equals("true")?"need":"want");
+    }
+
+    new CrudApplication()
             .configure(new SpringApplicationBuilder(CrudApplication.class).properties(props))
             .run(args);
+  }
+
+  /**
+   * Set required trust store system properties using values from application.properties
+   */
+  @PostConstruct
+  public void setSystemProperties() {
+    String trustStorePath = env.getProperty("server.ssl.key-store");
+    if (trustStorePath != null) {
+      String trustStorePassword = env.getProperty("server.ssl.key-store-password");
+
+      if (trustStorePassword != null) {
+        System.setProperty("javax.net.ssl.trustStore", trustStorePath);
+        System.setProperty("javax.net.ssl.trustStorePassword", trustStorePassword);
+      } else {
+        throw new IllegalArgumentException("Env property server.ssl.key-store-password not set");
+      }
     }
+  }
+  public static final Contact DEFAULT_CONTACT = new Contact("Amdocs", "http://www.amdocs.com", "noreply@amdocs.com");
 
-    /**
-     * Set required trust store system properties using values from application.properties
-     */
-    @PostConstruct
-    public void setSystemProperties() {
-        String trustStorePath = env.getProperty("server.ssl.key-store");
-        if (trustStorePath != null) {
-            String trustStorePassword = env.getProperty("server.ssl.key-store-password");
+  public static final ApiInfo DEFAULT_API_INFO = new ApiInfo("AAI Gizmo Service", "AAI Gizmo Service.",
+          "1.0", "urn:tos", DEFAULT_CONTACT, "Apache 2.0", "API license URL", Collections.emptyList());
 
-            if (trustStorePassword != null) {
-                System.setProperty("javax.net.ssl.trustStore", trustStorePath);
-                System.setProperty("javax.net.ssl.trustStorePassword", trustStorePassword);
-            } else {
-                throw new IllegalArgumentException("Env property server.ssl.key-store-password not set");
-            }
-        }
-    }
-    public static final Contact DEFAULT_CONTACT = new Contact("Amdocs", "http://www.amdocs.com", "noreply@amdocs.com");
+  public Docket api() {
+    return new Docket(DocumentationType.SWAGGER_2).apiInfo(DEFAULT_API_INFO).select().paths(PathSelectors.any())
+            .apis(RequestHandlerSelectors.basePackage("org.onap.crud")).build();
+  }
 
-    public static final ApiInfo DEFAULT_API_INFO = new ApiInfo("AAI Gizmo Service", "AAI Gizmo Service.",
-        "1.0", "urn:tos", DEFAULT_CONTACT, "Apache 2.0", "API license URL", Collections.emptyList());
 
-    public Docket api() {
-      return new Docket(DocumentationType.SWAGGER_2).apiInfo(DEFAULT_API_INFO).select().paths(PathSelectors.any())
-          .apis(RequestHandlerSelectors.basePackage("org.onap.crud")).build();
-    }
-    
-   
 }
