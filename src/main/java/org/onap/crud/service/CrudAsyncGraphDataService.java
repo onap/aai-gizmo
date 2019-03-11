@@ -20,6 +20,7 @@
  */
 package org.onap.crud.service;
 
+import com.google.gson.JsonElement;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
@@ -67,8 +68,6 @@ import org.onap.crud.util.CrudServiceUtil;
 import org.onap.crud.util.etag.EtagGenerator;
 import org.onap.schema.OxmModelValidator;
 import org.onap.schema.RelationshipSchemaValidator;
-
-import com.google.gson.JsonElement;
 
 public class CrudAsyncGraphDataService extends AbstractGraphDataService {
 
@@ -149,6 +148,8 @@ public class CrudAsyncGraphDataService extends AbstractGraphDataService {
                 latch.await(CrudAsyncGraphDataService.getRequestTimeOut(), TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
                 latch.countDown();
+                // Restore interrupted state...
+                Thread.currentThread().interrupt();
                 if (this.graphEventEnvelope != null) {
                     return this.graphEventEnvelope;
                 } else {
@@ -203,6 +204,10 @@ public class CrudAsyncGraphDataService extends AbstractGraphDataService {
             logger.error(CrudServiceMsgs.ASYNC_DATA_SERVICE_ERROR,
                     "Request timed out for transactionId: " + event.getTransactionId());
             future.cancel(true);
+            if (e instanceof InterruptedException) {
+                // Restore interrupted state...
+                Thread.currentThread().interrupt();
+            }
             throw new CrudException("Timed out , transactionId: " + event.getTransactionId() + " , operation: "
                     + event.getOperation().toString(), Status.INTERNAL_SERVER_ERROR);
         } finally {
