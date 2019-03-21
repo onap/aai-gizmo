@@ -1,19 +1,19 @@
 ## Bulk API
 
-The bulk API allows a client to add/modify/patch/delete multiple vertexes and/or edges within a single request.  This request will be treated as an atomic transaction in that all operations within the bulk request will either fail or succeed together.
+The bulk API allows a client to add/modify/patch/delete multiple vertexes and/or edges within a single request.  This request will be treated as an atomic transaction in that all operations within the bulk request will either fail or succeed together. This is often useful when attempting to add an entire subgraph.
 
-This is often useful when attempting to add an entire subgraph.  The following example shows how a client could create 2 vertexes (pserver and vserver) and link them with an edge.
+The following example shows how a client could create 2 vertexes (pserver and vserver) and link them with an edge. In the JSON body, the order in which vertex and edge operations are defined within the `objects` and `relationships` arrays is not important. The bulk API will handle the operations requested in a logical order to preserve data integrity.
 
-	URL: https://<host>:9520/services/inventory/v11/bulk
-	Method: POST
-	Body:
-        {  
-            "objects":[  
-                {  
+    URL: https://<host>:9520/services/inventory/v11/bulk
+    Method: POST
+    Body:
+        {
+            "objects":[
+                {
                     "operation":"add",
-                    "v1":{  
+                    "v1":{
                         "type":"vserver",
-                        "properties":{  
+                        "properties":{
                             "in-maint":false,
                             "vserver-name":"vserver1",
                             "prov-status":"Provisioned",
@@ -24,11 +24,11 @@ This is often useful when attempting to add an entire subgraph.  The following e
                         }
                     }
                 },
-                {  
+                {
                     "operation":"add",
-                    "v2":{  
+                    "v2":{
                         "type":"pserver",
-                        "properties":{  
+                        "properties":{
                             "ptnii-equip-name":"ps1993",
                             "hostname":"pserver1",
                             "equip-type":"server",
@@ -41,14 +41,14 @@ This is often useful when attempting to add an entire subgraph.  The following e
                     }
                 }
             ],
-            "relationships":[  
-                {  
+            "relationships":[
+                {
                     "operation":"add",
-                    "e1":{  
+                    "e1":{
                         "type":"tosca.relationships.HostedOn",
                         "source":"$v1",
                         "target":"$v2",
-                        "properties":{  
+                        "properties":{
                             "contains-other-v": "NONE",
                             "delete-other-v": "NONE",
                             "SVC-INFRA": "OUT",
@@ -59,9 +59,9 @@ This is often useful when attempting to add an entire subgraph.  The following e
             ]
         }
 
-	Success	Response:
-		Code: 200
-		Content:
+    Success Response:
+        Code: 200
+        Content:
             {
                 "objects": [
                     {
@@ -124,18 +124,18 @@ This is often useful when attempting to add an entire subgraph.  The following e
                 ]
             }
 
-	Error Response:
-		Code: 400 (BAD REQUEST)
-		Content: Error message describing the bad request failure.
-		Situation: Invalid Payload or schema error.
+    Error Response:
+        Code: 400 (BAD REQUEST)
+        Content: Error message describing the bad request failure.
+        Situation: Invalid Payload or schema error.
 
-		Code: 403 (FORBIDDEN)
-		Content: Error message describing the Authorization failure.
-		Situation: Authorization failure.
+        Code: 403 (FORBIDDEN)
+        Content: Error message describing the Authorization failure.
+        Situation: Authorization failure.
 
-		Code: 415 (UNSUPPORTED MEDIA TYPE)
-		Situation: Unsupported content type .
-		
-		Code: 500 (Internal Server Error)
-		Content: Error message describing the failure.
-		Situation: Any scenario not covered by the above error codes.
+        Code: 415 (UNSUPPORTED MEDIA TYPE)
+        Situation: Unsupported content type .
+
+        Code: 500 (Internal Server Error)
+        Content: Error message describing the failure.
+        Situation: Any scenario not covered by the above error codes.
