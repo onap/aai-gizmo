@@ -39,8 +39,12 @@ limitations under the License.
         <version.org.onap.aai.aai-schema-ingest>1.4.1</version.org.onap.aai.aai-schema-ingest>
         <version.org.onap.aai.aai-schema>1.4.0</version.org.onap.aai.aai-schema>
         <version.org.onap.aai.aai-utils>1.4.0</version.org.onap.aai.aai-utils>
-        <version.org.onap.aai.aai-auth>1.4.0</version.org.onap.aai.aai-auth>        
+        <version.org.onap.aai.aai-auth>1.4.0</version.org.onap.aai.aai-auth>
         <event.client.version>1.3.1</event.client.version>
+        <!-- Minimum code coverage percentage. Please update this figure as coverage increases to prevent any drops in
+         coverage caused by new changes. Note that this figure cannot be lower than the ONAP requirement of 0.55 -->
+        <jacoco.line.coverage.limit>0.60</jacoco.line.coverage.limit>
+        <jacoco.report.directory>${project.build.directory}/code-coverage</jacoco.report.directory>
     </properties>
 
     <dependencyManagement>
@@ -110,7 +114,7 @@ limitations under the License.
             <artifactId>cxf-rt-frontend-jaxrs</artifactId>
             <version>3.2.5</version>
         </dependency>
-        
+
 
      <dependency>
          <groupId>io.swagger</groupId>
@@ -127,7 +131,7 @@ limitations under the License.
          <artifactId>springfox-swagger-ui</artifactId>
          <version>2.9.2</version>
       </dependency>
-      
+
 
         <!-- ONAP AAI-COMMON (incl. model) -->
         <dependency>
@@ -366,7 +370,7 @@ limitations under the License.
             Using https://code.revelc.net/formatter-maven-plugin/ for Eclipse formatter
             Using https://github.com/diffplug/spotless/tree/master/plugin-maven for import order
             Use in combination to rewrite code and imports, then checkstyle
-            
+
             mvn formatter:format spotless:apply process-sources
             -->
             <plugin>
@@ -540,7 +544,35 @@ limitations under the License.
                     </execution>
                 </executions>
             </plugin>
-        </plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-check</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <dataFile>${jacoco.report.directory}/jacoco-ut.exec</dataFile>
+                            <rules>
+                                <!--  implementation is needed only for Maven 2  -->
+                                <rule implementation="org.jacoco.maven.RuleConfiguration">
+                                    <element>BUNDLE</element>
+                                    <limits>
+                                        <limit implementation="org.jacoco.report.check.Limit">
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>${jacoco.line.coverage.limit}</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+         </plugins>
     </build>
 
     <distributionManagement>
