@@ -53,7 +53,7 @@ limitations under the License.
                 <!-- Import dependency management from Spring Boot -->
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>1.5.19.RELEASE</version>
+                <version>1.5.20.RELEASE</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
