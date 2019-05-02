@@ -31,7 +31,7 @@ limitations under the License.
 
     <groupId>org.onap.aai.gizmo</groupId>
     <artifactId>gizmo</artifactId>
-    <version>1.4.0-SNAPSHOT</version>
+    <version>1.4.1-SNAPSHOT</version>
     <name>aai-gizmo</name>
 
     <properties>
