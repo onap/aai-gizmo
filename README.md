@@ -122,4 +122,4 @@ Gizmo exposes a bulk API to operate on multiple graph entities within a single r
 
 ## ASYNC PIPELINE
 Gizmo is capable of working Synchronously and Asynchronously. Asynchronous Pipeline is explained
-here: [Async Pipeline](./ASYNC.MD)
+here: [Async Pipeline](./ASYNC.md)
