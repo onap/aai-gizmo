@@ -19,14 +19,14 @@ limitations under the License.
 ============LICENSE_END=========================================================
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.onap.oparent</groupId>
         <artifactId>oparent</artifactId>
         <version>2.0.0</version>
-        <relativePath />
+        <relativePath/>
     </parent>
 
     <groupId>org.onap.aai.gizmo</groupId>
@@ -45,6 +45,14 @@ limitations under the License.
          coverage caused by new changes. Note that this figure cannot be lower than the ONAP requirement of 0.55 -->
         <jacoco.line.coverage.limit>0.60</jacoco.line.coverage.limit>
         <jacoco.report.directory>${project.build.directory}/code-coverage</jacoco.report.directory>
+        <!-- docker related properties -->
+        <docker.fabric.version>0.28.0</docker.fabric.version>
+        <aai.docker.version>1.0.0</aai.docker.version>
+        <aai.build.directory>${project.build.directory}/${project.artifactId}-build/
+        </aai.build.directory>
+        <aai.docker.namespace>onap</aai.docker.namespace>
+        <aai.base.image>alpine</aai.base.image>
+        <aai.base.image.version>1.6.0</aai.base.image.version>
     </properties>
 
     <dependencyManagement>
@@ -116,21 +124,21 @@ limitations under the License.
         </dependency>
 
 
-     <dependency>
-         <groupId>io.swagger</groupId>
-         <artifactId>swagger-jersey2-jaxrs</artifactId>
-         <version>1.5.8</version>
-      </dependency>
-      <dependency>
-         <groupId>io.springfox</groupId>
-         <artifactId>springfox-swagger2</artifactId>
-         <version>2.9.2</version>
-      </dependency>
-            <dependency>
-         <groupId>io.springfox</groupId>
-         <artifactId>springfox-swagger-ui</artifactId>
-         <version>2.9.2</version>
-      </dependency>
+        <dependency>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-jersey2-jaxrs</artifactId>
+            <version>1.5.8</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>2.9.2</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>2.9.2</version>
+        </dependency>
 
 
         <!-- ONAP AAI-COMMON (incl. model) -->
@@ -145,8 +153,8 @@ limitations under the License.
             <version>${version.org.onap.aai.aai-schema-ingest}</version>
             <exclusions>
                 <exclusion>
-                  <groupId>org.powermock</groupId>
-                  <artifactId>*</artifactId>
+                    <groupId>org.powermock</groupId>
+                    <artifactId>*</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -165,7 +173,7 @@ limitations under the License.
         <dependency>
             <groupId>org.onap.aai.event-client</groupId>
             <artifactId>event-client-dmaap</artifactId>
-           <version>${event.client.version}</version>
+            <version>${event.client.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
@@ -176,7 +184,7 @@ limitations under the License.
         <dependency>
             <groupId>org.onap.aai.event-client</groupId>
             <artifactId>event-client-kafka</artifactId>
-           <version>${event.client.version}</version>
+            <version>${event.client.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
@@ -186,9 +194,9 @@ limitations under the License.
         </dependency>
 
         <dependency>
-           <groupId>org.onap.aai.event-client</groupId>
-           <artifactId>event-client-rabbitmq</artifactId>
-           <version>${event.client.version}</version>
+            <groupId>org.onap.aai.event-client</groupId>
+            <artifactId>event-client-rabbitmq</artifactId>
+            <version>${event.client.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
@@ -363,6 +371,103 @@ limitations under the License.
         </dependency>
     </dependencies>
 
+    <profiles>
+        <!-- Docker profile to be used for building docker image and pushing to nexus -->
+        <profile>
+            <id>docker</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.groovy.maven</groupId>
+                        <artifactId>gmaven-plugin</artifactId>
+                        <version>1.0</version>
+                        <executions>
+                            <execution>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>execute</goal>
+                                </goals>
+                                <configuration>
+                                    <source>
+                                        def userAaiBaseImage = session.userProperties['aai.base.image']
+                                        def userAaiCommonVersion = session.userProperties['aai.base.image.version']
+                                        if (userAaiCommonVersion != null) {
+                                            project.properties['aai.base.image.version'] = userAaiCommonVersion
+                                        }
+                                        if (userAaiBaseImage != null) {
+                                            project.properties['aai.base.image'] = userAaiBaseImage
+                                        }
+                                        log.info 'Base image flavour: ' + project.properties['aai.base.image']
+                                        log.info 'Base image version: ' + project.properties['aai.base.image.version']
+                                    </source>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>io.fabric8</groupId>
+                        <artifactId>docker-maven-plugin</artifactId>
+                        <version>${docker.fabric.version}</version>
+                        <configuration>
+                            <verbose>true</verbose>
+                            <apiVersion>1.23</apiVersion>
+                            <images>
+                                <image>
+                                    <name>${docker.push.registry}/${aai.docker.namespace}/${project.artifactId}:%l
+                                    </name>
+                                    <build>
+                                        <filter>@</filter>
+                                        <tags>
+                                            <tag>latest</tag>
+                                        </tags>
+                                        <cleanup>try</cleanup>
+                                        <dockerFileDir>${project.basedir}/src/main/docker</dockerFileDir>
+                                        <assembly>
+                                            <inline>
+                                                <fileSets>
+                                                    <fileSet>
+                                                        <directory>${aai.build.directory}</directory>
+                                                        <outputDirectory>/${project.artifactId}</outputDirectory>
+                                                    </fileSet>
+                                                </fileSets>
+                                            </inline>
+                                        </assembly>
+                                    </build>
+                                </image>
+                            </images>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>clean-images</id>
+                                <phase>pre-clean</phase>
+                                <goals>
+                                    <goal>remove</goal>
+                                </goals>
+                                <configuration>
+                                    <removeAll>true</removeAll>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>generate-images</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>build</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>push-images</id>
+                                <phase>deploy</phase>
+                                <goals>
+                                    <goal>push</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
     <build>
         <finalName>${project.artifactId}</finalName>
         <plugins>
@@ -374,87 +479,31 @@ limitations under the License.
             mvn formatter:format spotless:apply process-sources
             -->
             <plugin>
-                 <groupId>net.revelc.code.formatter</groupId>
-                 <artifactId>formatter-maven-plugin</artifactId>
-                 <version>2.8.1</version>
-                 <configuration>
-                    <configFile>${project.basedir}/onap-java-formatter.xml</configFile>
-                 </configuration>
-                 <!-- https://code.revelc.net/formatter-maven-plugin/
-                      use mvn formatter:format to rewrite source files
-                      use mvn formatter:validate to validate source files -->
-             </plugin>
-            <plugin>
-              <groupId>com.diffplug.spotless</groupId>
-              <artifactId>spotless-maven-plugin</artifactId>
-              <version>1.18.0</version>
-              <configuration>
-                <java>
-                 <importOrder>
-                   <order>com,java,javax,org</order>
-                 </importOrder>
-                </java>
-              </configuration>
-            <!-- https://github.com/diffplug/spotless/tree/master/plugin-maven
-                 use mvn spotless:apply to rewrite source files
-                 use mvn spotless:check to validate source files -->
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>2.7</version>
-                <executions>
-                    <execution>
-                        <id>copy-docker-file</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>target</outputDirectory>
-                            <overwrite>true</overwrite>
-                            <resources>
-                                <resource>
-                                    <directory>${basedir}/src/main/docker</directory>
-                                    <filtering>true</filtering>
-                                    <includes>
-                                        <include>**/*</include>
-                                    </includes>
-                                </resource>
-                                <resource>
-                                    <directory>${basedir}</directory>
-                                    <filtering>true</filtering>
-                                    <includes>
-                                        <include>bundleconfig-local/**</include>
-                                    </includes>
-                                </resource>
-                                <resource>
-                                    <directory>${basedir}/src/main/bin/</directory>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>com.spotify</groupId>
-                <artifactId>docker-maven-plugin</artifactId>
-                <version>0.4.11</version>
+                <groupId>net.revelc.code.formatter</groupId>
+                <artifactId>formatter-maven-plugin</artifactId>
+                <version>2.8.1</version>
                 <configuration>
-                    <verbose>true</verbose>
-                    <serverId>docker-hub</serverId>
-                    <imageName>${docker.push.registry}/onap/${project.artifactId}</imageName>
-                    <dockerDirectory>${docker.location}</dockerDirectory>
-                    <imageTags>
-                        <imageTag>latest</imageTag>
-			<tag>${project.docker.latesttag.version}</tag>
-			<tag>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}-STAGING-${maven.build.timestamp}</tag>
-                    </imageTags>
-                    <forceTags>true</forceTags>
+                    <configFile>${project.basedir}/onap-java-formatter.xml</configFile>
                 </configuration>
+                <!-- https://code.revelc.net/formatter-maven-plugin/
+                     use mvn formatter:format to rewrite source files
+                     use mvn formatter:validate to validate source files -->
             </plugin>
-
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>1.18.0</version>
+                <configuration>
+                    <java>
+                        <importOrder>
+                            <order>com,java,javax,org</order>
+                        </importOrder>
+                    </java>
+                </configuration>
+                <!-- https://github.com/diffplug/spotless/tree/master/plugin-maven
+                     use mvn spotless:apply to rewrite source files
+                     use mvn spotless:check to validate source files -->
+            </plugin>
             <!-- license plugin -->
             <!-- Uncomment this to add a license header to every source file -->
             <plugin>
@@ -519,6 +568,23 @@ limitations under the License.
                 </executions>
             </plugin>
             <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <descriptors>
+                        <descriptor>src/main/assembly/descriptor.xml</descriptor>
+                    </descriptors>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
@@ -536,7 +602,7 @@ limitations under the License.
                                     <version>${version.org.onap.aai.aai-schema}</version>
                                     <type>jar</type>
                                     <includes>onap/**/</includes>
-                                    <outputDirectory>${project.build.directory}/bundleconfig-local/etc</outputDirectory>
+                                    <outputDirectory>${aai.build.directory}/bundleconfig/etc</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
@@ -571,7 +637,7 @@ limitations under the License.
                     </execution>
                 </executions>
             </plugin>
-	    <plugin>
+        <plugin>
 	      <groupId>org.codehaus.mojo</groupId>
 	      <artifactId>build-helper-maven-plugin</artifactId>
               <version>3.0.0</version>
@@ -586,7 +652,7 @@ limitations under the License.
 	    </plugin>
 	</plugins>
     </build>
-    
+
     <distributionManagement>
         <site>
             <id>ecomp-javadoc</id>

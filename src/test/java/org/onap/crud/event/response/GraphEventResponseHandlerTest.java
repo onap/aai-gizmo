@@ -20,11 +20,15 @@
  */
 package org.onap.crud.event.response;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.BeforeClass;
+import com.google.gson.Gson;
+import com.google.gson.JsonParser;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.onap.crud.OXMModelLoaderSetup;
 import org.onap.crud.event.GraphEvent;
 import org.onap.crud.event.GraphEvent.GraphEventOperation;
 import org.onap.crud.event.envelope.GraphEventEnvelope;
@@ -32,28 +36,29 @@ import org.onap.crud.exception.CrudException;
 import org.onap.crud.util.TestUtil;
 import org.onap.schema.EdgeRulesLoader;
 import org.onap.schema.OxmModelLoader;
-import com.google.gson.Gson;
-import com.google.gson.JsonParser;
 
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.onap.crud.OXMModelLoaderSetup;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class GraphEventResponseHandlerTest extends OXMModelLoaderSetup {
+    private static boolean setUpIsNotDone = true;
+    
+    @Before
+    public void setUpOnce() throws CrudException {
+        if (setUpIsNotDone) {
+            System.setProperty("CONFIG_HOME", "src/test/resources");
+            System.setProperty("AJSC_HOME", ".");
+            System.setProperty("BUNDLECONFIG_DIR", "src/test/resources/bundleconfig-local");
+
+            OxmModelLoader.loadModels();
+            EdgeRulesLoader.loadModels();
+
+            setUpIsNotDone = false;
+        }
+    }
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
-
-    @BeforeClass
-    public static void setUpBeforeClass() throws Exception {
-        System.setProperty("CONFIG_HOME", "src/test/resources");
-        System.setProperty("AJSC_HOME", ".");
-        System.setProperty("BUNDLECONFIG_DIR", "src/test/resources/bundleconfig-local");
-
-        OxmModelLoader.loadModels();
-        EdgeRulesLoader.loadModels();
-    }
 
     @Test
     public void testPolicyViolationsNotDetected() throws Exception {
