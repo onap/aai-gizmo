@@ -19,9 +19,8 @@
  * ============LICENSE_END=========================================================
  */
 package org.onap.crud.event.response;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -41,18 +40,22 @@ import org.onap.crud.OXMModelLoaderSetup;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class GraphEventResponseHandlerTest extends OXMModelLoaderSetup {
+    private static boolean setUpIsNotDone = true;
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-    @BeforeClass
-    public static void setUpBeforeClass() throws Exception {
-        System.setProperty("CONFIG_HOME", "src/test/resources");
-        System.setProperty("AJSC_HOME", ".");
-        System.setProperty("BUNDLECONFIG_DIR", "src/test/resources/bundleconfig-local");
+    @Before
+    public void setUpOnce() throws Exception {
+        if (setUpIsNotDone) { 
+            System.setProperty("CONFIG_HOME", "src/test/resources");
+            System.setProperty("AJSC_HOME", ".");
+            System.setProperty("BUNDLECONFIG_DIR", "src/test/resources/bundleconfig-local");
 
-        OxmModelLoader.loadModels();
-        EdgeRulesLoader.loadModels();
+            OxmModelLoader.loadModels();
+            EdgeRulesLoader.loadModels();
+            setUpIsNotDone = false;
+        }
     }
 
     @Test
