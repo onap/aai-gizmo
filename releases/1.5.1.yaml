@@ -1,0 +1,4 @@
+distribution_type: 'maven'
+version: '1.5.1'
+project: 'aai-gizmo'
+log_dir: 'aai-gizmo-maven-stage-elalto/31'
