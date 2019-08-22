@@ -53,6 +53,8 @@ limitations under the License.
         <aai.docker.namespace>onap</aai.docker.namespace>
         <aai.base.image>alpine</aai.base.image>
         <aai.base.image.version>1.6.0</aai.base.image.version>
+        <!-- This will be used for the docker images as the default format of maven build has issues -->
+        <maven.build.timestamp.format>yyyyMMdd'T'HHmmss'Z'</maven.build.timestamp.format>
     </properties>
 
     <dependencyManagement>
@@ -399,6 +401,16 @@ limitations under the License.
                                         }
                                         log.info 'Base image flavour: ' + project.properties['aai.base.image']
                                         log.info 'Base image version: ' + project.properties['aai.base.image.version']
+
+                                        def versionArray;
+                                        if (project.properties['aai.base.image.version'] != null) {
+                                            versionArray = project.properties['aai.base.image.version'].split('\\.');
+                                        }
+    
+                                        project.properties["project.major.version"] = versionArray[0];
+                                        project.properties["project.minor.version"] = versionArray[1];
+                                        project.properties['project.docker.latesttag.version'] = versionArray[0] + '.' + versionArray[1] + '-STAGING-latest';
+                                        println 'New Tag for docker:' + project.properties['project.docker.latesttag.version'];
                                     </source>
                                 </configuration>
                             </execution>
@@ -419,6 +431,8 @@ limitations under the License.
                                         <filter>@</filter>
                                         <tags>
                                             <tag>latest</tag>
+                                            <tag>${project.docker.latesttag.version}</tag>
+                                            <tag>${project.major.version}.${project.minor.version}-STAGING-${maven.build.timestamp}</tag>
                                         </tags>
                                         <cleanup>try</cleanup>
                                         <dockerFileDir>${project.basedir}/src/main/docker</dockerFileDir>
