@@ -33,8 +33,5 @@ fi
 JVM_MAX_HEAP=${MAX_HEAP:-1024}
 
 set -x
-if [ -z "$RUN_MS_AS_ROOT" ] ; then
+
 exec java -Xmx${JVM_MAX_HEAP}m $PROPS -jar ${APP_HOME}/gizmo.jar
-else
-exec sudo -E java -Xmx${JVM_MAX_HEAP}m $PROPS -jar ${APP_HOME}/gizmo.jar
-fi

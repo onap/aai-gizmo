@@ -12,11 +12,7 @@ ARG USERS_HOME=/opt/aaihome
 RUN mkdir -p $MICRO_HOME $USERS_HOME /logs \
     && groupadd -g 492382 aaiadmin \
     && useradd -r -u 341790  -g 492382 -ms /bin/sh -d $USERS_HOME/aaiadmin aaiadmin
-##The following 2 lines are added to add the user to the sudoers group
-##The script src\main\bin\start.sh could then optionally run the process as sudo user if an environment variable is set
-## By default the sudo mode is disabled.
-RUN usermod -aG sudo aaiadmin  &&\
-    echo  'aaiadmin  ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
+
 WORKDIR $MICRO_HOME
 COPY /maven/gizmo/ .
 RUN chmod 755 $BIN_HOME/* \
