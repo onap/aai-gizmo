@@ -385,7 +385,7 @@ limitations under the License.
                         <version>1.0</version>
                         <executions>
                             <execution>
-                                <phase>prepare-package</phase>
+                                <phase>validate</phase>
                                 <goals>
                                     <goal>execute</goal>
                                 </goals>
