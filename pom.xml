@@ -379,43 +379,7 @@ limitations under the License.
             <id>docker</id>
             <build>
                 <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.groovy.maven</groupId>
-                        <artifactId>gmaven-plugin</artifactId>
-                        <version>1.0</version>
-                        <executions>
-                            <execution>
-                                <phase>validate</phase>
-                                <goals>
-                                    <goal>execute</goal>
-                                </goals>
-                                <configuration>
-                                    <source>
-                                        def userAaiBaseImage = session.userProperties['aai.base.image']
-                                        def userAaiCommonVersion = session.userProperties['aai.base.image.version']
-                                        if (userAaiCommonVersion != null) {
-                                            project.properties['aai.base.image.version'] = userAaiCommonVersion
-                                        }
-                                        if (userAaiBaseImage != null) {
-                                            project.properties['aai.base.image'] = userAaiBaseImage
-                                        }
-                                        log.info 'Base image flavour: ' + project.properties['aai.base.image']
-                                        log.info 'Base image version: ' + project.properties['aai.base.image.version']
 
-                                        def versionArray;
-                                        if (project.properties['aai.base.image.version'] != null) {
-                                            versionArray = project.properties['aai.base.image.version'].split('\\.');
-                                        }
-    
-                                        project.properties["project.major.version"] = versionArray[0];
-                                        project.properties["project.minor.version"] = versionArray[1];
-                                        project.properties['project.docker.latesttag.version'] = versionArray[0] + '.' + versionArray[1] + '-STAGING-latest';
-                                        println 'New Tag for docker:' + project.properties['project.docker.latesttag.version'];
-                                    </source>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
                     <plugin>
                         <groupId>io.fabric8</groupId>
                         <artifactId>docker-maven-plugin</artifactId>
@@ -432,7 +396,7 @@ limitations under the License.
                                         <tags>
                                             <tag>latest</tag>
                                             <tag>${project.docker.latesttag.version}</tag>
-                                            <tag>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}-STAGING-${maven.build.timestamp}</tag>
+                                            <tag>${project.major.version}.${project.minor.version}-STAGING-${maven.build.timestamp}</tag>
                                         </tags>
                                         <cleanup>try</cleanup>
                                         <dockerFileDir>${project.basedir}/src/main/docker</dockerFileDir>
@@ -497,15 +461,56 @@ limitations under the License.
 
     <build>
         <finalName>${project.artifactId}</finalName>
-        <plugins>
-            <!--
+	<pluginManagement>
+          <plugins>
+            <plugin>
+              <groupId>org.codehaus.groovy.maven</groupId>
+              <artifactId>gmaven-plugin</artifactId>
+              <version>1.0</version>
+              <executions>
+		<execution>
+                  <phase>validate</phase>
+                  <goals>
+                    <goal>execute</goal>
+                  </goals>
+                  <configuration>
+                    <source>
+                      def userAaiBaseImage = session.userProperties['aai.base.image']
+                      def userAaiCommonVersion = session.userProperties['aai.base.image.version']
+                      if (userAaiCommonVersion != null) {
+                          project.properties['aai.base.image.version'] = userAaiCommonVersion
+                      }
+                      if (userAaiBaseImage != null) {
+                          project.properties['aai.base.image'] = userAaiBaseImage
+                      }
+                      log.info 'Base image flavour: ' + project.properties['aai.base.image']
+                      log.info 'Base image version: ' + project.properties['aai.base.image.version']
+		    
+                      def versionArray;
+                      if (project.properties['aai.base.image.version'] != null) {
+                          versionArray = project.properties['aai.base.image.version'].split('\\.');
+		      }
+		    
+                      project.properties["project.major.version"] = versionArray[0];
+                      project.properties["project.minor.version"] = versionArray[1];
+                      project.properties['project.docker.latesttag.version'] = versionArray[0] + '.' + versionArray[1] + '-STAGING-latest';
+                      println 'New Tag for docker:' + project.properties['project.docker.latesttag.version'];
+                  </source>
+                </configuration>
+              </execution>
+            </executions>
+            </plugin>
+          </plugins>
+	</pluginManagement>
+        <!--
             Using https://code.revelc.net/formatter-maven-plugin/ for Eclipse formatter
             Using https://github.com/diffplug/spotless/tree/master/plugin-maven for import order
             Use in combination to rewrite code and imports, then checkstyle
 
             mvn formatter:format spotless:apply process-sources
-            -->
-            <plugin>
+        -->
+	<plugins>
+          <plugin>
                 <groupId>net.revelc.code.formatter</groupId>
                 <artifactId>formatter-maven-plugin</artifactId>
                 <version>2.8.1</version>
