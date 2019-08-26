@@ -477,7 +477,20 @@ limitations under the License.
                             </execution>
                         </executions>
                     </plugin>
-                </plugins>
+                    <plugin>
+                      <groupId>org.codehaus.mojo</groupId>
+                      <artifactId>build-helper-maven-plugin</artifactId>
+                      <version>3.0.0</version>
+                      <executions>
+                        <execution>
+                          <id>parse-version</id>
+                          <goals>
+                            <goal>parse-version</goal>
+                          </goals>
+                        </execution>
+                      </executions>
+                    </plugin>
+                  </plugins>
             </build>
         </profile>
     </profiles>
@@ -651,19 +664,7 @@ limitations under the License.
                     </execution>
                 </executions>
             </plugin>
-        <plugin>
-	      <groupId>org.codehaus.mojo</groupId>
-	      <artifactId>build-helper-maven-plugin</artifactId>
-              <version>3.0.0</version>
-              <executions>
-		<execution>
-		  <id>parse-version</id>
-		  <goals>
-		    <goal>parse-version</goal>
-		  </goals>
-		</execution>
-              </executions>
-	    </plugin>
+
 	</plugins>
     </build>
 
