@@ -432,7 +432,7 @@ limitations under the License.
                                         <tags>
                                             <tag>latest</tag>
                                             <tag>${project.docker.latesttag.version}</tag>
-                                            <tag>${project.major.version}.${project.minor.version}-STAGING-${maven.build.timestamp}</tag>
+                                            <tag>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}-STAGING-${maven.build.timestamp}</tag>
                                         </tags>
                                         <cleanup>try</cleanup>
                                         <dockerFileDir>${project.basedir}/src/main/docker</dockerFileDir>
