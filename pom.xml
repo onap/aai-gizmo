@@ -624,6 +624,7 @@ limitations under the License.
                                     <version>${version.org.onap.aai.aai-schema}</version>
                                     <type>jar</type>
                                     <includes>onap/**/</includes>
+                                    <excludes>onap/*swagger**/</excludes>
                                     <outputDirectory>${aai.build.directory}/bundleconfig/etc</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
